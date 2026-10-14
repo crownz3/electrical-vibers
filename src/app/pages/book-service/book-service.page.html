@@ -1,0 +1,173 @@
+<div class="booking-page-container">
+  <!-- Banner -->
+  <div class="booking-banner">
+    <div class="container">
+      <span class="badge-pill badge-warning">24/7 CERTIFIED ELECTRICIANS</span>
+      <h1>Book a Licensed Electrician Service</h1>
+      <p>அனுபவமிக்க எலக்ட்ரீஷியன்கள் உங்கள் வீட்டிற்கே வந்து பாதுகாப்பாக சரிசெய்வார்கள்</p>
+    </div>
+  </div>
+
+  <div class="container main-content">
+    <!-- If Booking Placed Successfully -->
+    <div *ngIf="lastBooking; else bookingFormTpl" class="booking-success-box glass-card">
+      <div class="success-icon">
+        <span class="material-symbols-outlined">verified</span>
+      </div>
+      <h2>Booking Registered Successfully!</h2>
+      <p class="bk-ref">Booking Reference: <strong>{{ lastBooking.id }}</strong></p>
+      <p class="bk-desc">
+        உங்களின் சேவை முன்பதிவு ஏற்றுக்கொள்ளப்பட்டது. எங்களின் தலைமை எலக்ட்ரீஷியன் 15 நிமிடத்திற்குள் உங்களை அழைத்து வருகை நேரத்தை உறுதி செய்வார்.
+      </p>
+
+      <div class="booking-summary-details">
+        <div class="detail-row">
+          <span>Service Booked:</span>
+          <strong>{{ lastBooking.serviceTitle }}</strong>
+        </div>
+        <div class="detail-row">
+          <span>Preferred Date & Slot:</span>
+          <strong>{{ lastBooking.preferredDate }} ({{ lastBooking.preferredTimeSlot }})</strong>
+        </div>
+        <div class="detail-row">
+          <span>Customer Contact:</span>
+          <strong>{{ lastBooking.customerName }} ({{ lastBooking.customerPhone }})</strong>
+        </div>
+        <div class="detail-row">
+          <span>Service Location:</span>
+          <strong>{{ lastBooking.customerAddress }}, {{ lastBooking.city }}</strong>
+        </div>
+      </div>
+
+      <div class="bk-actions">
+        <a [href]="getWhatsAppBookingLink(lastBooking)" target="_blank" class="btn-wa-booking">
+          <span class="material-symbols-outlined">chat</span>
+          Notify on WhatsApp for Fast Dispatch
+        </a>
+        <button (click)="lastBooking = null" class="btn-new-bk">
+          Book Another Service
+        </button>
+      </div>
+    </div>
+
+    <!-- Booking Form Layout -->
+    <ng-template #bookingFormTpl>
+      <div class="booking-layout">
+        <!-- Left: Step 1 - Choose Service -->
+        <div class="left-steps">
+          <div class="card glass-card">
+            <div class="step-badge">STEP 1</div>
+            <h2>Select Service Required</h2>
+
+            <div class="service-selector-grid">
+              <div 
+                *ngFor="let s of services" 
+                (click)="selectedCategory = s"
+                class="service-select-item interactive-card"
+                [class.selected]="selectedCategory?.id === s.id">
+                <div class="s-icon">
+                  <span class="material-symbols-outlined">{{ s.icon }}</span>
+                </div>
+                <div class="s-info">
+                  <h4>{{ s.title }}</h4>
+                  <p class="s-tamil">{{ s.tamilTitle }}</p>
+                  <span class="s-price">Starting from ₹{{ s.startingPrice }}</span>
+                </div>
+                <span class="material-symbols-outlined radio-check">
+                  {{ selectedCategory?.id === s.id ? 'radio_button_checked' : 'radio_button_unchecked' }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2 - Date & Time Slot -->
+          <div class="card glass-card">
+            <div class="step-badge">STEP 2</div>
+            <h2>Preferred Schedule & Time</h2>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>Service Date *</label>
+                <input type="date" [(ngModel)]="preferredDate" required [min]="minDate" />
+              </div>
+
+              <div class="form-group">
+                <label>Preferred Time Slot *</label>
+                <select [(ngModel)]="preferredTimeSlot">
+                  <option value="Morning 09:00 AM - 12:00 PM">Morning 09:00 AM - 12:00 PM</option>
+                  <option value="Afternoon 12:00 PM - 03:00 PM">Afternoon 12:00 PM - 03:00 PM</option>
+                  <option value="Evening 03:00 PM - 06:00 PM">Evening 03:00 PM - 06:00 PM</option>
+                  <option value="Emergency (Within 60 Mins)">🚨 Emergency (Within 60 Mins)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Describe the Electrical Problem / Requirement</label>
+              <textarea 
+                [(ngModel)]="problemDescription" 
+                rows="3" 
+                placeholder="e.g. Living room switch sparking, MCB tripping when AC is switched on, or new 3BHK flat wiring estimate needed...">
+              </textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Step 3 - Contact & Confirm -->
+        <div class="right-summary">
+          <div class="card glass-card sticky-confirm-card">
+            <div class="step-badge">STEP 3</div>
+            <h2>Your Details & Address</h2>
+
+            <div class="form-group">
+              <label>Your Name *</label>
+              <input type="text" [(ngModel)]="customerName" required placeholder="Full Name" />
+            </div>
+
+            <div class="form-group">
+              <label>Mobile Number (for technician call) *</label>
+              <input type="tel" [(ngModel)]="customerPhone" required placeholder="+91 98401 23456" />
+            </div>
+
+            <div class="form-group">
+              <label>Service Address / Flat No *</label>
+              <input type="text" [(ngModel)]="customerAddress" required placeholder="Door no, Street name, Area" />
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>City / Location</label>
+                <input type="text" [(ngModel)]="city" placeholder="Chennai" />
+              </div>
+              <div class="form-group">
+                <label>Landmark</label>
+                <input type="text" [(ngModel)]="landmark" placeholder="Near Temple / School" />
+              </div>
+            </div>
+
+            <!-- Price note (Dynamic from ConfigService) -->
+            <div class="inspection-charge-box">
+              <div class="charge-line">
+                <span>Base Inspection Fee:</span>
+                <strong>₹{{ config.baseInspectionFee }}</strong>
+              </div>
+              <p class="charge-note">
+                * If repair work is completed, this inspection fee is adjusted/waived into the final bill.
+              </p>
+            </div>
+
+            <button (click)="submitBooking()" [disabled]="isSubmitting" class="btn-confirm-booking">
+              <span class="material-symbols-outlined">handyman</span>
+              {{ isSubmitting ? 'Registering Booking...' : 'Confirm Electrician Booking' }}
+            </button>
+
+            <div class="emergency-call-banner">
+              <span>Need Immediate Help?</span>
+              <a [href]="'tel:' + config.contactPhone">Call {{ config.contactPhone }}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+  </div>
+</div>

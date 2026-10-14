@@ -1,0 +1,64 @@
+// Ionic Variables and Theming
+// Google Material Design Electric Theme for VoltMaster
+
+:root {
+  /** Primary - Electric Amber / High Voltage Gold **/
+  --ion-color-primary: #f59e0b;
+  --ion-color-primary-rgb: 245, 158, 11;
+  --ion-color-primary-contrast: #0f172a;
+  --ion-color-primary-contrast-rgb: 15, 23, 42;
+  --ion-color-primary-shade: #d97706;
+  --ion-color-primary-tint: #fbbf24;
+
+  /** Secondary - Circuit Electric Cyan / Blue **/
+  --ion-color-secondary: #0284c7;
+  --ion-color-secondary-rgb: 2, 132, 199;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+  --ion-color-secondary-shade: #0369a1;
+  --ion-color-secondary-tint: #38bdf8;
+
+  /** Tertiary - Deep Navy Blue **/
+  --ion-color-tertiary: #1e293b;
+  --ion-color-tertiary-rgb: 30, 41, 59;
+  --ion-color-tertiary-contrast: #ffffff;
+  --ion-color-tertiary-contrast-rgb: 255, 255, 255;
+  --ion-color-tertiary-shade: #0f172a;
+  --ion-color-tertiary-tint: #334155;
+
+  /** Success **/
+  --ion-color-success: #10b981;
+  --ion-color-success-rgb: 16, 185, 129;
+  --ion-color-success-contrast: #ffffff;
+  --ion-color-success-contrast-rgb: 255, 255, 255;
+  --ion-color-success-shade: #059669;
+  --ion-color-success-tint: #34d399;
+
+  /** Warning **/
+  --ion-color-warning: #f97316;
+  --ion-color-warning-rgb: 249, 115, 22;
+  --ion-color-warning-contrast: #ffffff;
+  --ion-color-warning-contrast-rgb: 255, 255, 255;
+  --ion-color-warning-shade: #ea580c;
+  --ion-color-warning-tint: #fb923c;
+
+  /** Danger **/
+  --ion-color-danger: #ef4444;
+  --ion-color-danger-rgb: 239, 68, 68;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-shade: #dc2626;
+  --ion-color-danger-tint: #f87171;
+
+  /** Dark & Medium **/
+  --ion-color-dark: #0f172a;
+  --ion-color-dark-rgb: 15, 23, 42;
+  --ion-color-dark-contrast: #ffffff;
+  --ion-color-medium: #64748b;
+  --ion-color-medium-rgb: 100, 116, 139;
+  --ion-color-light: #f8fafc;
+  --ion-color-light-rgb: 248, 250, 252;
+
+  --ion-font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Outfit', sans-serif;
+}

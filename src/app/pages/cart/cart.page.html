@@ -1,0 +1,199 @@
+<div class="cart-page-container">
+  <div class="container">
+    <h1 class="page-title">
+      <span class="material-symbols-outlined">shopping_bag</span>
+      Shopping Cart & Checkout
+    </h1>
+
+    <!-- When cart has items -->
+    <div *ngIf="cartItems.length > 0; else emptyCart" class="cart-layout">
+      <!-- Left: Items list & Delivery Address Form -->
+      <div class="cart-left-col">
+        <!-- Items Section -->
+        <div class="card glass-card">
+          <div class="card-header">
+            <h2>Cart Items ({{ totalCount }})</h2>
+            <button (click)="cartService.clearCart()" class="btn-clear-cart">Clear All</button>
+          </div>
+
+          <div class="cart-items-list">
+            <div *ngFor="let item of cartItems" class="cart-item-row">
+              <img [src]="item.product.images[0]" [alt]="item.product.name" class="item-thumb" />
+
+              <div class="item-info">
+                <span class="item-brand">{{ item.product.brand }}</span>
+                <h3 class="item-name">{{ item.product.name }}</h3>
+                <div class="item-price-line">
+                  <span class="item-price">₹{{ item.product.price }}</span>
+                  <span *ngIf="item.product.mrp" class="item-mrp">₹{{ item.product.mrp }}</span>
+                  <span class="item-unit">per {{ item.product.unit }}</span>
+                </div>
+              </div>
+
+              <div class="item-actions">
+                <div class="stepper">
+                  <button (click)="cartService.updateQuantity(item.product.id, item.quantity - 1)">-</button>
+                  <span class="qty-num">{{ item.quantity }}</span>
+                  <button (click)="cartService.updateQuantity(item.product.id, item.quantity + 1)">+</button>
+                </div>
+
+                <div class="subtotal-val">₹{{ item.product.price * item.quantity }}</div>
+
+                <button (click)="cartService.removeFromCart(item.product.id)" class="btn-remove" title="Remove">
+                  <span class="material-symbols-outlined">delete</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Delivery Details Form -->
+        <div class="card glass-card delivery-form-card">
+          <h2>Delivery & Contact Details</h2>
+          <p class="form-subtext">உங்களின் முகவரி மற்றும் தொலைபேசி எண்ணை உள்ளிடவும்</p>
+
+          <form (ngSubmit)="processCheckout()" #checkoutForm="ngForm" class="delivery-form">
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>Full Name *</label>
+                <input type="text" [(ngModel)]="customerName" name="customerName" required placeholder="e.g. Ramesh Kumar" />
+              </div>
+              <div class="form-group">
+                <label>Phone Number *</label>
+                <input type="tel" [(ngModel)]="customerPhone" name="customerPhone" required placeholder="e.g. +91 98401 23456" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Street Address / Door No *</label>
+              <input type="text" [(ngModel)]="streetAddress" name="streetAddress" required placeholder="e.g. Flat 4B, 2nd Main Road, Anna Nagar" />
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>City / Area *</label>
+                <input type="text" [(ngModel)]="city" name="city" required placeholder="e.g. Chennai" />
+              </div>
+              <div class="form-group">
+                <label>Pincode *</label>
+                <input type="text" [(ngModel)]="pincode" name="pincode" required placeholder="e.g. 600040" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Landmark (Optional)</label>
+              <input type="text" [(ngModel)]="landmark" name="landmark" placeholder="e.g. Near Roundtana or Bus Stop" />
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Right: Order Summary & Payment Gateway -->
+      <div class="cart-right-col">
+        <div class="card glass-card summary-card">
+          <h2>Order Summary</h2>
+
+          <div class="summary-line">
+            <span>Items Subtotal:</span>
+            <span>₹{{ cartService.getSubtotal() }}</span>
+          </div>
+
+          <div class="summary-line" *ngIf="cartService.getTotalSavings() > 0">
+            <span class="savings-label">Total Discount:</span>
+            <span class="savings-amount">- ₹{{ cartService.getTotalSavings() }}</span>
+          </div>
+
+          <div class="summary-line">
+            <span>Delivery Charges:</span>
+            <span class="free-delivery">FREE (Local Electrician Dispatch)</span>
+          </div>
+
+          <div class="total-line">
+            <span>Grand Total:</span>
+            <span class="total-amount">₹{{ cartService.getSubtotal() }}</span>
+          </div>
+
+          <!-- Payment Method Selection -->
+          <div class="payment-selection-section">
+            <h3>Select Payment Method</h3>
+
+            <label class="payment-option" [class.selected]="selectedPaymentMethod === 'razorpay'">
+              <input type="radio" [(ngModel)]="selectedPaymentMethod" name="paymentMethod" value="razorpay" />
+              <div class="payment-opt-info">
+                <strong>Razorpay Online (UPI, Cards, NetBanking)</strong>
+                <span>Secure instant checkout</span>
+              </div>
+              <span class="badge-pill badge-info">Fast</span>
+            </label>
+
+            <label class="payment-option" [class.selected]="selectedPaymentMethod === 'cod'">
+              <input type="radio" [(ngModel)]="selectedPaymentMethod" name="paymentMethod" value="cod" />
+              <div class="payment-opt-info">
+                <strong>Cash on Delivery (COD)</strong>
+                <span>Pay at doorstep upon material delivery</span>
+              </div>
+            </label>
+          </div>
+
+          <!-- Checkout Button -->
+          <button 
+            (click)="processCheckout()" 
+            [disabled]="isProcessing" 
+            class="btn-place-order">
+            <span class="material-symbols-outlined">{{ selectedPaymentMethod === 'razorpay' ? 'lock' : 'local_shipping' }}</span>
+            {{ isProcessing ? 'Processing Order...' : (selectedPaymentMethod === 'razorpay' ? 'Pay ₹' + cartService.getSubtotal() + ' with Razorpay' : 'Place Cash on Delivery Order') }}
+          </button>
+
+          <div class="trust-footer">
+            <span class="material-symbols-outlined">verified_user</span>
+            <span>100% Genuine ISI Marked Brand Guaranteed</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Success Modal / Screen -->
+    <div *ngIf="lastPlacedOrder" class="order-success-overlay">
+      <div class="order-success-card glass-card">
+        <div class="success-icon">
+          <span class="material-symbols-outlined">check_circle</span>
+        </div>
+        <h2>Order Placed Successfully!</h2>
+        <p class="order-id">Order ID: <strong>{{ lastPlacedOrder.id }}</strong></p>
+        <p class="success-msg">
+          நன்றி! உங்கள் ஆர்டர் வெற்றிகரமாக பதிவு செய்யப்பட்டது. எலக்ட்ரீஷியன் டெலிவரி குழு விரைவில் தொடர்பு கொள்ளும்.
+        </p>
+
+        <div class="success-order-details">
+          <div><strong>Customer:</strong> {{ lastPlacedOrder.customerName }}</div>
+          <div><strong>Amount:</strong> ₹{{ lastPlacedOrder.totalAmount }} ({{ lastPlacedOrder.paymentMethod.toUpperCase() }})</div>
+          <div><strong>Delivery to:</strong> {{ lastPlacedOrder.deliveryAddress.street }}, {{ lastPlacedOrder.deliveryAddress.city }}</div>
+        </div>
+
+        <div class="success-actions">
+          <!-- WhatsApp Confirmation Link -->
+          <a [href]="orderService.generateWhatsAppOrderLink(lastPlacedOrder)" target="_blank" class="btn-wa-confirm">
+            <span class="material-symbols-outlined">chat</span>
+            Confirm Order on WhatsApp
+          </a>
+
+          <button (click)="lastPlacedOrder = null; router.navigate(['/home'])" class="btn-continue">
+            Continue Shopping
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty Cart -->
+    <ng-template #emptyCart>
+      <div *ngIf="!lastPlacedOrder" class="empty-cart-card glass-card">
+        <span class="material-symbols-outlined empty-cart-icon">shopping_cart_checkout</span>
+        <h2>Your Cart is Empty</h2>
+        <p>You haven't added any electrical materials or tools to your cart yet.</p>
+        <a routerLink="/products" class="btn-browse-store">
+          Browse Electrical Products Store
+        </a>
+      </div>
+    </ng-template>
+  </div>
+</div>

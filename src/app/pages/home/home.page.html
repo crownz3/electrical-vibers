@@ -1,0 +1,189 @@
+<div class="home-page-container">
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="material-symbols-outlined">verified</span>
+        <span>{{ config.heroBadgeText }}</span>
+      </div>
+      <h1 class="hero-title">
+        {{ config.heroHeadline }}
+      </h1>
+      <p class="hero-subtitle">
+        {{ config.heroSubheadline }}
+      </p>
+      <div class="hero-cta-group">
+        <a routerLink="/book-service" class="btn btn-primary">
+          <span class="material-symbols-outlined">calendar_month</span>
+          {{ config.heroBookCtaText }}
+        </a>
+        <a routerLink="/products" class="btn btn-secondary">
+          <span class="material-symbols-outlined">shopping_bag</span>
+          {{ config.heroStoreCtaText }}
+        </a>
+      </div>
+
+      <!-- Trust Badges Bar (Dynamic from Admin Config) -->
+      <div class="trust-stats-grid">
+        <div class="stat-card">
+          <div class="stat-num">{{ config.stat1Num }}</div>
+          <div class="stat-lbl">{{ config.stat1Label }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">{{ config.stat2Num }}</div>
+          <div class="stat-lbl">{{ config.stat2Label }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">{{ config.stat3Num }}</div>
+          <div class="stat-lbl">{{ config.stat3Label }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">{{ config.stat4Num }}</div>
+          <div class="stat-lbl">{{ config.stat4Label }}</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Special Offers / Promotional Discounts (Admin Configured) -->
+  <section *ngIf="offers.length > 0" class="section offers-section">
+    <div class="section-header">
+      <span class="section-tag">SEASONAL PROMOTIONS</span>
+      <h2 class="section-title">{{ config.offersSectionTitle }}</h2>
+    </div>
+
+    <div class="offers-grid">
+      <div *ngFor="let off of offers" class="offer-banner-card glass-card">
+        <div class="offer-percent-badge">{{ off.discountPercentage }}% OFF</div>
+        <div class="offer-info">
+          <h3>{{ off.title }}</h3>
+          <p>{{ off.description }}</p>
+          <div class="offer-meta">
+            <span class="promo-code">Use Code: <strong>{{ off.code }}</strong></span>
+            <span class="validity">Valid till {{ off.validTill }}</span>
+          </div>
+        </div>
+        <a routerLink="/book-service" class="btn-claim-offer">Claim Offer</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services Showcase Section (Dynamic from Admin Services) -->
+  <section class="section services-section">
+    <div class="section-header">
+      <span class="section-tag">SERVICES CATALOG</span>
+      <h2 class="section-title">{{ config.servicesSectionTitle }}</h2>
+      <p class="section-desc">{{ config.servicesSectionSubtitle }}</p>
+    </div>
+
+    <div class="services-grid">
+      <div *ngFor="let s of services" class="service-card glass-card interactive-card">
+        <div class="service-icon-box">
+          <span class="material-symbols-outlined">{{ s.icon }}</span>
+        </div>
+        <div class="service-body">
+          <div class="service-title-row">
+            <h3 class="service-title">{{ s.title }}</h3>
+            <span *ngIf="s.popular" class="badge-pill badge-warning">Popular</span>
+          </div>
+          <p class="service-tamil">{{ s.tamilTitle }}</p>
+          <p class="service-desc">{{ s.description }}</p>
+          <div class="service-footer">
+            <div class="service-price">
+              <span class="price-label">Starts at</span>
+              <span class="price-val">₹{{ s.startingPrice }}</span>
+            </div>
+            <a [routerLink]="['/book-service']" [queryParams]="{serviceId: s.id}" class="btn-book-sm">
+              Book Now
+              <span class="material-symbols-outlined">arrow_forward</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Store Products Section -->
+  <section class="section store-section">
+    <div class="section-header">
+      <div class="flex-between">
+        <div>
+          <span class="section-tag">ONLINE ELECTRICAL STORE</span>
+          <h2 class="section-title">{{ config.storeSectionTitle }}</h2>
+          <p class="section-desc">{{ config.storeSectionSubtitle }}</p>
+        </div>
+        <a routerLink="/products" class="view-all-link">
+          View All Products
+          <span class="material-symbols-outlined">arrow_forward</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="products-grid">
+      <div *ngFor="let prod of featuredProducts" class="product-card glass-card interactive-card">
+        <div class="product-img-wrapper" [routerLink]="['/product', prod.id]">
+          <img [src]="prod.images[0]" [alt]="prod.name" loading="lazy" />
+          <span *ngIf="prod.discountPercentage" class="discount-badge">
+            {{ prod.discountPercentage }}% OFF
+          </span>
+        </div>
+        <div class="product-content">
+          <div class="brand-name">{{ prod.brand }}</div>
+          <h4 class="product-name" [routerLink]="['/product', prod.id]">{{ prod.name }}</h4>
+          <p *ngIf="prod.tamilName" class="tamil-prod-name">{{ prod.tamilName }}</p>
+
+          <div class="price-row">
+            <div class="current-price">₹{{ prod.price }}</div>
+            <div *ngIf="prod.mrp" class="mrp-price">₹{{ prod.mrp }}</div>
+            <div class="unit-tag">/ {{ prod.unit }}</div>
+          </div>
+
+          <div class="product-actions">
+            <button (click)="addToCart(prod)" class="btn-add-cart">
+              <span class="material-symbols-outlined">add_shopping_cart</span>
+              Add to Cart
+            </button>
+            <a [routerLink]="['/product', prod.id]" class="btn-details" title="Share & Details">
+              <span class="material-symbols-outlined">share</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why Choose Us -->
+  <section class="section values-section">
+    <div class="values-grid">
+      <div class="value-item">
+        <div class="value-icon">
+          <span class="material-symbols-outlined">shield</span>
+        </div>
+        <h4>{{ config.value1Title }}</h4>
+        <p>{{ config.value1Desc }}</p>
+      </div>
+      <div class="value-item">
+        <div class="value-icon">
+          <span class="material-symbols-outlined">price_check</span>
+        </div>
+        <h4>{{ config.value2Title }}</h4>
+        <p>{{ config.value2Desc }}</p>
+      </div>
+      <div class="value-item">
+        <div class="value-icon">
+          <span class="material-symbols-outlined">speed</span>
+        </div>
+        <h4>{{ config.value3Title }}</h4>
+        <p>{{ config.value3Desc }}</p>
+      </div>
+      <div class="value-item">
+        <div class="value-icon">
+          <span class="material-symbols-outlined">support_agent</span>
+        </div>
+        <h4>{{ config.value4Title }}</h4>
+        <p>{{ config.value4Desc }}</p>
+      </div>
+    </div>
+  </section>
+</div>

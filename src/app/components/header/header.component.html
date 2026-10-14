@@ -1,0 +1,90 @@
+<!-- Optional Admin-Configurable Top Offer Banner -->
+<div *ngIf="config.showBannerOffer && config.bannerOfferText" class="top-offer-bar">
+  <div class="top-offer-content">
+    <span>{{ config.bannerOfferText }}</span>
+    <a routerLink="/products" class="top-offer-link">Shop Deals →</a>
+  </div>
+</div>
+
+<header class="app-header">
+  <div class="header-inner">
+    <!-- Brand Logo -->
+    <a routerLink="/home" class="brand">
+      <div class="brand-badge-icon">
+        <span class="material-symbols-outlined">bolt</span>
+      </div>
+      <div class="brand-titles">
+        <span class="brand-name">{{ config.businessName }}</span>
+        <span class="brand-sub">{{ config.businessSubtitle }}</span>
+      </div>
+    </a>
+
+    <!-- Center Navigation Links -->
+    <nav class="nav-menu">
+      <a routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
+        Home
+      </a>
+      <a routerLink="/products" routerLinkActive="active" class="nav-item">
+        Store
+      </a>
+      <a routerLink="/book-service" routerLinkActive="active" class="nav-item">
+        Book Service
+      </a>
+      <a routerLink="/admin" routerLinkActive="active" class="nav-item admin-item">
+        <span class="material-symbols-outlined">settings_suggest</span>
+        Site Ops & Admin
+      </a>
+    </nav>
+
+    <!-- Right Utility Actions -->
+    <div class="header-actions">
+      <!-- Quick Phone / Emergency Hotline -->
+      <a [href]="'tel:' + config.contactPhone" class="action-link phone-link" title="Call Hotline">
+        <span class="material-symbols-outlined">call</span>
+        <span class="action-text">{{ config.contactPhone }}</span>
+      </a>
+
+      <!-- WhatsApp Quick Icon -->
+      <a [href]="'https://wa.me/' + config.whatsappNumber" target="_blank" class="action-icon wa-icon" title="Chat on WhatsApp">
+        <span class="material-symbols-outlined">chat</span>
+      </a>
+
+      <!-- Shopping Cart -->
+      <a routerLink="/cart" class="action-icon cart-icon" title="Shopping Cart">
+        <span class="material-symbols-outlined">shopping_bag</span>
+        <span *ngIf="cartCount > 0" class="cart-count">{{ cartCount }}</span>
+      </a>
+
+      <!-- Minimalist Admin / Role Badge Switch -->
+      <button (click)="toggleAdminRole()" class="role-pill" [class.is-admin]="authService.isAdmin()">
+        <span class="role-dot"></span>
+        <span class="role-label">{{ authService.isAdmin() ? 'Admin' : 'Customer' }}</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Clean Mobile Bottom Bar for Small Screens -->
+<nav class="mobile-bar">
+  <a routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="mob-item">
+    <span class="material-symbols-outlined">home</span>
+    <span>Home</span>
+  </a>
+  <a routerLink="/products" routerLinkActive="active" class="mob-item">
+    <span class="material-symbols-outlined">storefront</span>
+    <span>Store</span>
+  </a>
+  <a routerLink="/book-service" routerLinkActive="active" class="mob-item">
+    <span class="material-symbols-outlined">handyman</span>
+    <span>Book</span>
+  </a>
+  <a routerLink="/cart" routerLinkActive="active" class="mob-item">
+    <span class="material-symbols-outlined">shopping_cart</span>
+    <span>Cart</span>
+    <span *ngIf="cartCount > 0" class="mob-badge">{{ cartCount }}</span>
+  </a>
+  <a routerLink="/admin" routerLinkActive="active" class="mob-item">
+    <span class="material-symbols-outlined">settings_suggest</span>
+    <span>Admin</span>
+  </a>
+</nav>

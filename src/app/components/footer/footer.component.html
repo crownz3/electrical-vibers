@@ -1,0 +1,96 @@
+<footer class="app-footer">
+  <div class="footer-container">
+    <div class="footer-grid">
+      <!-- Col 1: About, Tamil Quote & Social Handles -->
+      <div class="footer-col">
+        <div class="footer-brand">
+          <span class="material-symbols-outlined bolt-icon">bolt</span>
+          <h3>{{ config.businessName }} {{ config.businessSubtitle }}</h3>
+        </div>
+        <p class="brand-desc">
+          {{ config.footerAboutText }}
+        </p>
+        <p class="tamil-quote">
+          {{ config.tamilQuote }}
+        </p>
+
+        <!-- Social Media Handles (Configurable in Admin) -->
+        <div class="social-handles-bar">
+          <a *ngIf="config.whatsappNumber" [href]="'https://wa.me/' + config.whatsappNumber" target="_blank" class="social-btn wa" title="WhatsApp">
+            <span class="material-symbols-outlined">chat</span>
+          </a>
+          <a *ngIf="config.instagramUrl" [href]="config.instagramUrl" target="_blank" class="social-btn insta" title="Instagram">
+            <span class="material-symbols-outlined">photo_camera</span>
+          </a>
+          <a *ngIf="config.facebookUrl" [href]="config.facebookUrl" target="_blank" class="social-btn fb" title="Facebook">
+            <span class="material-symbols-outlined">thumb_up</span>
+          </a>
+          <a *ngIf="config.youtubeUrl" [href]="config.youtubeUrl" target="_blank" class="social-btn yt" title="YouTube">
+            <span class="material-symbols-outlined">smart_display</span>
+          </a>
+          <a *ngIf="config.googleMapsUrl" [href]="config.googleMapsUrl" target="_blank" class="social-btn maps" title="Google Maps Location">
+            <span class="material-symbols-outlined">location_on</span>
+          </a>
+          <a *ngIf="config.twitterUrl" [href]="config.twitterUrl" target="_blank" class="social-btn tw" title="Twitter / X">
+            <span class="material-symbols-outlined">tag</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Col 2: Quick Links -->
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul class="footer-links">
+          <li><a routerLink="/home">Home & Portfolio</a></li>
+          <li><a routerLink="/products">Electrical Store Products</a></li>
+          <li><a routerLink="/book-service">Book Electrician Service</a></li>
+          <li><a routerLink="/admin">Contractor Site Portal</a></li>
+        </ul>
+      </div>
+
+      <!-- Col 3: Services Offered -->
+      <div class="footer-col">
+        <h4>Our Specializations</h4>
+        <ul class="footer-links">
+          <li><span>House & Villa Concealed Wiring</span></li>
+          <li><span>Commercial Showroom Lighting</span></li>
+          <li><span>Distribution Board & MCB Fixing</span></li>
+          <li><span>Inverter, UPS & Battery Setup</span></li>
+          <li><span>Short Circuit Fault Finding</span></li>
+        </ul>
+      </div>
+
+      <!-- Col 4: Contact & Emergency -->
+      <div class="footer-col">
+        <h4>Contact & Emergency</h4>
+        <div class="contact-info">
+          <div class="contact-item">
+            <span class="material-symbols-outlined">call</span>
+            <a [href]="'tel:' + config.contactPhone">{{ config.contactPhone }}</a>
+          </div>
+          <div *ngIf="config.contactEmail" class="contact-item">
+            <span class="material-symbols-outlined">mail</span>
+            <a [href]="'mailto:' + config.contactEmail">{{ config.contactEmail }}</a>
+          </div>
+          <div class="contact-item">
+            <span class="material-symbols-outlined">chat</span>
+            <a [href]="'https://wa.me/' + config.whatsappNumber" target="_blank">+91 WhatsApp Support</a>
+          </div>
+          <div class="contact-item">
+            <span class="material-symbols-outlined">location_on</span>
+            <span>{{ config.address }}</span>
+          </div>
+          <div class="contact-item">
+            <span class="material-symbols-outlined">schedule</span>
+            <span>Emergency Response: {{ config.emergencyResponseTime }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>{{ config.footerCopyrightText }}</p>
+      <p class="made-with">Ionic Angular Standalone & Firebase Firestore Architecture</p>
+    </div>
+  </div>
+</footer>

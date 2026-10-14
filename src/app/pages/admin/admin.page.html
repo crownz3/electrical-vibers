@@ -1,0 +1,1737 @@
+<div class="admin-container">
+  <!-- Admin Authentication Barrier (Google Sign-In Only) -->
+  <div *ngIf="!authService.isAdmin()" class="auth-gate-wrapper">
+    <div class="auth-card glass-card">
+      <div class="auth-icon-wrap google-brand-icon">
+        <svg class="google-logo-svg" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
+          <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
+          <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 10.03 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+          <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+        </svg>
+      </div>
+
+      <h2>Contractor Admin Portal</h2>
+      <p class="auth-sub">
+        பாதுகாக்கப்பட்ட அட்மின் பகுதி. Google கணக்கு மூலம் மட்டுமே உள்நுழைய முடியும்.
+      </p>
+
+      <!-- Security Notice -->
+      <div class="auth-security-notice">
+        <span class="material-symbols-outlined">shield</span>
+        <div>
+          <strong>Authorized Access Only</strong>
+          <span>Secured for <code>mohamedibrahim010425@gmail.com</code></span>
+        </div>
+      </div>
+
+      <!-- Security / Auth Error Alert -->
+      <div *ngIf="authService.authError$ | async as authErr" class="auth-error-alert">
+        <span class="material-symbols-outlined">gpp_bad</span>
+        <div class="auth-error-text">{{ authErr }}</div>
+      </div>
+
+      <!-- Google Sign-In Only Button -->
+      <div class="google-login-action-box">
+        <button 
+          (click)="handleGoogleSignIn()" 
+          class="btn-google-primary" 
+          [disabled]="authService.isAuthenticating">
+          <svg class="btn-g-icon" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
+            <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
+            <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 10.03 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+            <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+          </svg>
+          <span class="btn-g-label">
+            {{ authService.isAuthenticating ? 'Authenticating with Google...' : 'Sign in with Google' }}
+          </span>
+        </button>
+
+        <p class="google-disclaimer">
+          Native Android & Web Google OAuth 2.0 • Unauthorized accounts are automatically restricted
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Authenticated Admin Workspace -->
+  <div *ngIf="authService.isAdmin()" class="admin-workspace">
+    <!-- Top Workspace Bar -->
+    <header class="admin-topbar">
+      <div class="admin-title-group">
+        <h1>⚡ Business Operations & Global Configuration</h1>
+        <div class="admin-user-pill">
+          <svg class="tiny-g-icon" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
+            <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
+            <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 10.03 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+            <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+          </svg>
+          <span class="user-name">{{ currentUser?.displayName }}</span>
+          <span class="user-email">({{ currentUser?.email }})</span>
+          <span class="verified-tag">✓ Verified Admin</span>
+        </div>
+      </div>
+
+      <div class="topbar-actions">
+        <button (click)="openNewSiteModal()" class="btn-action-accent">
+          <span class="material-symbols-outlined">add_business</span>
+          Add Site
+        </button>
+        <button (click)="openNewProductModal()" class="btn-action-accent">
+          <span class="material-symbols-outlined">add_shopping_cart</span>
+          Add Product
+        </button>
+        <button (click)="openNewServiceModal()" class="btn-action-accent">
+          <span class="material-symbols-outlined">design_services</span>
+          Add Service
+        </button>
+        <button (click)="openNewOfferModal()" class="btn-action-accent">
+          <span class="material-symbols-outlined">local_offer</span>
+          Add Offer
+        </button>
+        <button (click)="authService.logout()" class="btn-logout" title="Sign Out">
+          <span class="material-symbols-outlined">logout</span>
+          Sign Out
+        </button>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs Bar -->
+    <div class="tabs-header-bar">
+      <button 
+        (click)="activeTab = 'sites'" 
+        class="tab-btn" 
+        [class.active]="activeTab === 'sites'">
+        <span class="material-symbols-outlined">engineering</span>
+        Sites & Finance ({{ sites.length }})
+      </button>
+
+      <button 
+        (click)="activeTab = 'products'" 
+        class="tab-btn" 
+        [class.active]="activeTab === 'products'">
+        <span class="material-symbols-outlined">inventory_2</span>
+        Products & Pricing ({{ products.length }})
+      </button>
+
+      <button 
+        (click)="activeTab = 'categories'" 
+        class="tab-btn" 
+        [class.active]="activeTab === 'categories'">
+        <span class="material-symbols-outlined">category</span>
+        Categories ({{ categories.length }})
+      </button>
+
+      <button 
+        (click)="activeTab = 'services'" 
+        class="tab-btn" 
+        [class.active]="activeTab === 'services'">
+        <span class="material-symbols-outlined">handyman</span>
+        Electrician Services ({{ services.length }})
+      </button>
+
+      <button 
+        (click)="activeTab = 'offers'" 
+        class="tab-btn" 
+        [class.active]="activeTab === 'offers'">
+        <span class="material-symbols-outlined">loyalty</span>
+        Offers & Banner ({{ offers.length }})
+      </button>
+
+      <button 
+        (click)="activeTab = 'settings'" 
+        class="tab-btn" 
+        [class.active]="activeTab === 'settings'">
+        <span class="material-symbols-outlined">tune</span>
+        Store Settings
+      </button>
+
+      <button 
+        (click)="activeTab = 'orders'" 
+        class="tab-btn" 
+        [class.active]="activeTab === 'orders'">
+        <span class="material-symbols-outlined">local_shipping</span>
+        Orders ({{ orders.length }})
+      </button>
+
+      <button 
+        (click)="activeTab = 'bookings'" 
+        class="tab-btn" 
+        [class.active]="activeTab === 'bookings'">
+        <span class="material-symbols-outlined">calendar_today</span>
+        Bookings ({{ bookings.length }})
+      </button>
+    </div>
+
+    <!-- ================= TAB 1: SITES & DAILY WORK AUTOMATION ================= -->
+    <section *ngIf="activeTab === 'sites'" class="tab-content">
+      <!-- Overview KPI Cards -->
+      <div class="kpi-grid">
+        <div class="kpi-card glass-card">
+          <div class="kpi-icon yellow-bg">
+            <span class="material-symbols-outlined">apartment</span>
+          </div>
+          <div class="kpi-data">
+            <span class="kpi-label">Active / Total Sites</span>
+            <span class="kpi-value">{{ stats.ongoingSitesCount }} / {{ stats.totalSites }}</span>
+          </div>
+        </div>
+
+        <div class="kpi-card glass-card">
+          <div class="kpi-icon green-bg">
+            <span class="material-symbols-outlined">payments</span>
+          </div>
+          <div class="kpi-data">
+            <span class="kpi-label">Total Amount Collected</span>
+            <span class="kpi-value">₹{{ stats.totalCollected.toLocaleString() }}</span>
+          </div>
+        </div>
+
+        <!-- CORE REQUIREMENT: PENDING BALANCE (நிலுவை) -->
+        <div class="kpi-card glass-card kpi-highlight-danger">
+          <div class="kpi-icon red-bg">
+            <span class="material-symbols-outlined">pending_actions</span>
+          </div>
+          <div class="kpi-data">
+            <span class="kpi-label">Client Pending Balance (நிலுவை)</span>
+            <span class="kpi-value pending-val">₹{{ stats.totalPending.toLocaleString() }}</span>
+          </div>
+        </div>
+
+        <div class="kpi-card glass-card">
+          <div class="kpi-icon orange-bg">
+            <span class="material-symbols-outlined">receipt_long</span>
+          </div>
+          <div class="kpi-data">
+            <span class="kpi-label">Total Site Expenses Incurred</span>
+            <span class="kpi-value">₹{{ stats.totalExpenses.toLocaleString() }}</span>
+          </div>
+        </div>
+
+        <div class="kpi-card glass-card">
+          <div class="kpi-icon blue-bg">
+            <span class="material-symbols-outlined">savings</span>
+          </div>
+          <div class="kpi-data">
+            <span class="kpi-label">Current Net Margin</span>
+            <span class="kpi-value font-bold">₹{{ stats.netProfit.toLocaleString() }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sites List -->
+      <div class="sites-section-header">
+        <h2>Current Electrical Sites & Projects</h2>
+        <button (click)="openNewSiteModal()" class="btn-create-sm">
+          <span class="material-symbols-outlined">add</span> Create Site
+        </button>
+      </div>
+
+      <div class="sites-list-grid">
+        <div *ngFor="let s of sites" class="site-card glass-card">
+          <!-- Site Top Line -->
+          <div class="site-card-header">
+            <div>
+              <div class="site-status-row">
+                <span class="badge-pill" [ngClass]="{
+                  'badge-warning': s.status === 'ongoing',
+                  'badge-success': s.status === 'completed',
+                  'badge-info': s.status === 'on_hold'
+                }">
+                  {{ s.status.toUpperCase() }}
+                </span>
+                <span class="site-start-date">Started: {{ s.startDate }}</span>
+              </div>
+              <h3 class="site-heading">{{ s.siteName }}</h3>
+              <div class="client-info-line">
+                <span class="material-symbols-outlined">person</span>
+                <strong>{{ s.clientName }}</strong> • 
+                <a [href]="'tel:' + s.clientPhone" class="client-tel">{{ s.clientPhone }}</a>
+              </div>
+              <div class="site-loc-line">
+                <span class="material-symbols-outlined">location_on</span>
+                {{ s.siteAddress }}, {{ s.city }}
+              </div>
+            </div>
+
+            <div class="site-progress-dial">
+              <div class="dial-val">{{ s.progressPercentage }}%</div>
+              <div class="dial-lbl">Completed</div>
+            </div>
+          </div>
+
+          <!-- Workers Assigned Today -->
+          <div class="site-workers-block">
+            <span class="workers-label">
+              <span class="material-symbols-outlined">badge</span>
+              Assigned Electricians Today:
+            </span>
+            <div class="workers-chips-list">
+              <span *ngFor="let w of s.assignedElectricians" class="worker-pill">
+                👷 {{ w }}
+              </span>
+              <button (click)="openAssignWorkerModal(s)" class="btn-add-worker-chip" title="Manage Workers">
+                + Assign Worker
+              </button>
+            </div>
+          </div>
+
+          <!-- Financial Box (Pending Balance & Expenses) -->
+          <div class="site-financial-box">
+            <div class="fin-col">
+              <span class="fin-title">Contract Value</span>
+              <span class="fin-amt">₹{{ s.contractAmount.toLocaleString() }}</span>
+            </div>
+            <div class="fin-col">
+              <span class="fin-title">Received Advance</span>
+              <span class="fin-amt green-text">₹{{ s.totalReceived.toLocaleString() }}</span>
+            </div>
+            <!-- Core Highlight: Pending Balance -->
+            <div class="fin-col highlight-pending">
+              <span class="fin-title">Pending Balance</span>
+              <span class="fin-amt red-text">₹{{ s.pendingBalance.toLocaleString() }}</span>
+            </div>
+            <div class="fin-col">
+              <span class="fin-title">Site Expenses</span>
+              <span class="fin-amt orange-text">₹{{ s.totalExpenses.toLocaleString() }}</span>
+            </div>
+          </div>
+
+          <!-- Quick Site Actions -->
+          <div class="site-actions-bar">
+            <button (click)="openAddExpenseModal(s)" class="btn-site-action btn-expense">
+              <span class="material-symbols-outlined">post_add</span>
+              Log Daily Expense
+            </button>
+
+            <button (click)="openAddPaymentModal(s)" class="btn-site-action btn-payment">
+              <span class="material-symbols-outlined">add_card</span>
+              Record Client Payment
+            </button>
+
+            <button (click)="openDailyWorkLogModal(s)" class="btn-site-action btn-worklog">
+              <span class="material-symbols-outlined">history_edu</span>
+              Daily Work Log ({{ s.dailyLogs.length }})
+            </button>
+
+            <button (click)="toggleSiteStatus(s)" class="btn-site-action btn-toggle-status">
+              <span class="material-symbols-outlined">swap_horiz</span>
+              {{ s.status === 'ongoing' ? 'Mark Completed' : 'Reopen' }}
+            </button>
+          </div>
+
+          <!-- Recent Expenses Summary for this Site -->
+          <div *ngIf="s.expenses.length > 0" class="recent-expenses-drawer">
+            <div class="exp-drawer-header">Recent Expenses for this site ({{ s.expenses.length }} entries):</div>
+            <div class="exp-drawer-list">
+              <div *ngFor="let exp of s.expenses.slice(0, 3)" class="exp-row">
+                <span class="exp-date">{{ exp.date }}</span>
+                <span class="exp-desc">{{ exp.title }} ({{ exp.category }})</span>
+                <strong class="exp-cost">₹{{ exp.amount }}</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= TAB 2: PRODUCTS & INLINE PRICING CONFIGURATION ================= -->
+    <section *ngIf="activeTab === 'products'" class="tab-content">
+      <div class="section-actions-row">
+        <div>
+          <h2>Store Products & Inline Pricing CMS</h2>
+          <p class="section-subtitle">
+            Configure product selling price, MRP discount, stock levels and detailed product specifications. Changes sync immediately to customer store.
+          </p>
+        </div>
+        <button (click)="openNewProductModal()" class="btn-action-accent">
+          <span class="material-symbols-outlined">add</span> Add New Product
+        </button>
+      </div>
+
+      <!-- Filters & Search Toolbar -->
+      <div class="admin-filter-bar glass-card">
+        <div class="search-input-wrap">
+          <span class="material-symbols-outlined">search</span>
+          <input 
+            type="text" 
+            [(ngModel)]="adminProductSearch" 
+            placeholder="Search products by title, Tamil name, or brand..." 
+          />
+        </div>
+
+        <div class="cat-select-wrap">
+          <label>Filter Category:</label>
+          <select [(ngModel)]="adminProductCategory">
+            <option value="ALL">All Categories ({{ products.length }})</option>
+            <option *ngFor="let c of categories" [value]="c">{{ c }} ({{ getProductCategoryCount(c) }})</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-container glass-card">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th style="min-width: 250px;">Product & Brand</th>
+              <th>Category</th>
+              <th style="min-width: 140px;">Selling Price (₹)</th>
+              <th style="min-width: 140px;">MRP (₹)</th>
+              <th style="min-width: 100px;">Stock</th>
+              <th>Status</th>
+              <th style="min-width: 130px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of filteredAdminProducts">
+              <td>
+                <div class="prod-td-item">
+                  <img [src]="p.images[0]" [alt]="p.name" class="td-thumb" />
+                  <div>
+                    <strong class="prod-row-name">{{ p.name }}</strong>
+                    <div *ngIf="p.tamilName" class="prod-row-tamil">{{ p.tamilName }}</div>
+                    <div class="td-sub">{{ p.brand }} • {{ p.unit }}</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="category-badge">{{ p.category }}</span>
+              </td>
+              <td>
+                <div class="inline-price-input-box">
+                  <span class="curr-symbol">₹</span>
+                  <input 
+                    type="number" 
+                    [(ngModel)]="p.price" 
+                    (change)="updateProductInline(p)" 
+                    class="price-inline-input"
+                    title="Change price and click outside to save"
+                  />
+                </div>
+              </td>
+              <td>
+                <div class="inline-price-input-box">
+                  <span class="curr-symbol">₹</span>
+                  <input 
+                    type="number" 
+                    [(ngModel)]="p.mrp" 
+                    (change)="updateProductInline(p)" 
+                    class="price-inline-input mrp-input"
+                    title="Change MRP to auto-calculate discount"
+                  />
+                </div>
+                <div class="discount-pill-hint" *ngIf="p.mrp && p.price && p.mrp > p.price">
+                  {{ p.discountPercentage }}% OFF
+                </div>
+              </td>
+              <td>
+                <input 
+                  type="number" 
+                  [(ngModel)]="p.stock" 
+                  (change)="updateProductStock(p)" 
+                  class="stock-inline-input" 
+                />
+              </td>
+              <td>
+                <button 
+                  (click)="toggleProductStockStatus(p)" 
+                  class="badge-pill" 
+                  [ngClass]="p.inStock ? 'badge-success' : 'badge-danger'"
+                  title="Click to toggle in/out of stock">
+                  {{ p.inStock ? 'In Stock' : 'Out of Stock' }}
+                </button>
+              </td>
+              <td>
+                <div class="td-btn-group">
+                  <button (click)="openEditProductModal(p)" class="btn-table-edit" title="Edit Full Details">
+                    <span class="material-symbols-outlined">edit</span>
+                    Edit
+                  </button>
+                  <button (click)="deleteProduct(p.id)" class="btn-table-del" title="Delete Product">
+                    <span class="material-symbols-outlined">delete</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div *ngIf="filteredAdminProducts.length === 0" class="empty-state-notice">
+          <span class="material-symbols-outlined">inventory_2</span>
+          <p>No products match your current search/category filter.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= TAB 3: CATEGORIES CONFIGURATION ================= -->
+    <section *ngIf="activeTab === 'categories'" class="tab-content">
+      <div class="section-actions-row">
+        <div>
+          <h2>Product Categories Configuration</h2>
+          <p class="section-subtitle">
+            Add new product categories, rename existing ones, or organize store catalog groupings.
+          </p>
+        </div>
+      </div>
+
+      <!-- Add New Category Box -->
+      <div class="add-category-card glass-card">
+        <h3>
+          <span class="material-symbols-outlined">library_add</span>
+          Add New Product Category
+        </h3>
+        <div class="category-add-row">
+          <input 
+            type="text" 
+            [(ngModel)]="newCategoryName" 
+            placeholder="e.g. Smart Home & Automation, Solar Inverters..."
+            (keyup.enter)="addNewCategory()"
+          />
+          <button (click)="addNewCategory()" class="btn-add-cat">
+            <span class="material-symbols-outlined">add</span>
+            Create Category
+          </button>
+        </div>
+      </div>
+
+      <!-- Categories Grid -->
+      <div class="categories-grid">
+        <div *ngFor="let cat of categories" class="category-manage-card glass-card">
+          <div class="cat-card-header">
+            <div class="cat-icon-wrap">
+              <span class="material-symbols-outlined">category</span>
+            </div>
+            <div>
+              <h4 class="cat-name">{{ cat }}</h4>
+              <span class="cat-count">{{ getProductCategoryCount(cat) }} products linked</span>
+            </div>
+          </div>
+
+          <div class="cat-card-actions">
+            <button (click)="startEditCategory(cat)" class="btn-cat-action btn-edit" title="Rename Category">
+              <span class="material-symbols-outlined">edit</span>
+              Rename
+            </button>
+            <button (click)="deleteCategory(cat)" class="btn-cat-action btn-delete" title="Delete Category">
+              <span class="material-symbols-outlined">delete</span>
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= TAB 4: SERVICES CONFIGURATION ================= -->
+    <section *ngIf="activeTab === 'services'" class="tab-content">
+      <div class="section-actions-row">
+        <div>
+          <h2>Electrician Services & Rate Card Configuration</h2>
+          <p class="section-subtitle">
+            Configure electrician service catalog, base starting prices, Tamil descriptions, and popular badges shown on Home & Booking pages.
+          </p>
+        </div>
+        <button (click)="openNewServiceModal()" class="btn-action-accent">
+          <span class="material-symbols-outlined">add</span> Add New Service
+        </button>
+      </div>
+
+      <div class="services-admin-grid">
+        <div *ngFor="let srv of services" class="service-admin-card glass-card">
+          <div class="srv-top-row">
+            <div class="srv-icon-bubble">
+              <span class="material-symbols-outlined">{{ srv.icon }}</span>
+            </div>
+            <div class="srv-rate-box">
+              <span class="rate-lbl">Starts at</span>
+              <span class="rate-amt">₹{{ srv.startingPrice }}</span>
+            </div>
+          </div>
+
+          <div class="srv-titles">
+            <div class="srv-title-badge-row">
+              <h3>{{ srv.title }}</h3>
+              <button 
+                (click)="toggleServicePopular(srv)" 
+                class="badge-pill" 
+                [ngClass]="srv.popular ? 'badge-warning' : 'badge-neutral'"
+                title="Toggle Popular Highlight Badge">
+                {{ srv.popular ? '⭐ Popular' : 'Standard' }}
+              </button>
+            </div>
+            <div class="srv-tamil-title">{{ srv.tamilTitle }}</div>
+          </div>
+
+          <p class="srv-description">{{ srv.description }}</p>
+
+          <div class="srv-card-actions">
+            <button (click)="openEditServiceModal(srv)" class="btn-srv-action btn-edit">
+              <span class="material-symbols-outlined">edit</span>
+              Edit Rate & Details
+            </button>
+            <button (click)="deleteService(srv.id)" class="btn-srv-action btn-delete">
+              <span class="material-symbols-outlined">delete</span>
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= TAB 5: OFFERS & TOP ANNOUNCEMENT BANNER ================= -->
+    <section *ngIf="activeTab === 'offers'" class="tab-content">
+      <div class="section-actions-row">
+        <div>
+          <h2>Promotional Offers & Top Announcement Banner</h2>
+          <p class="section-subtitle">
+            Configure customer promotional codes, seasonal discounts, and top announcement bar active on the website header.
+          </p>
+        </div>
+        <button (click)="openNewOfferModal()" class="btn-action-accent">
+          <span class="material-symbols-outlined">add</span> Add New Offer
+        </button>
+      </div>
+
+      <!-- 1. Top Announcement Banner Configuration Card -->
+      <div class="banner-config-card glass-card">
+        <div class="card-heading-group">
+          <div class="card-icon-bubble yellow-bg">
+            <span class="material-symbols-outlined">campaign</span>
+          </div>
+          <div>
+            <h3>Top Announcement Bar Banner</h3>
+            <p>Displays at the very top of all pages above the main navigation header.</p>
+          </div>
+        </div>
+
+        <div class="banner-form-fields">
+          <div class="checkbox-field">
+            <label class="toggle-switch">
+              <input type="checkbox" [(ngModel)]="config.showBannerOffer" />
+              <span class="slider"></span>
+            </label>
+            <span class="toggle-text">Show Announcement Banner on Website</span>
+          </div>
+
+          <div class="form-group">
+            <label>Banner Announcement Text</label>
+            <textarea 
+              [(ngModel)]="config.bannerOfferText" 
+              rows="2" 
+              placeholder="e.g. ⚡ Special Offer: Flat 15% OFF on Havells Wire Coils + Free Delivery across Chennai!"
+            ></textarea>
+          </div>
+
+          <button (click)="saveBannerConfig()" class="btn-save-banner">
+            <span class="material-symbols-outlined">save</span>
+            Save Banner Announcement
+          </button>
+        </div>
+      </div>
+
+      <!-- 2. Promotional Discount Packages & Coupons -->
+      <h3 class="subsection-title">Customer Discount Coupons & Promo Packages</h3>
+
+      <div class="offers-admin-grid">
+        <div *ngFor="let off of offers" class="offer-admin-card glass-card">
+          <div class="offer-card-top">
+            <div class="discount-badge-lg">{{ off.discountPercentage }}% OFF</div>
+            <button 
+              (click)="toggleOfferActive(off)" 
+              class="badge-pill" 
+              [ngClass]="off.active ? 'badge-success' : 'badge-danger'"
+              title="Click to toggle offer active state">
+              {{ off.active ? 'Active' : 'Inactive' }}
+            </button>
+          </div>
+
+          <h4>{{ off.title }}</h4>
+          <p class="offer-desc">{{ off.description }}</p>
+
+          <div class="offer-code-bar">
+            <span>Coupon Code:</span>
+            <strong>{{ off.code }}</strong>
+          </div>
+
+          <div class="offer-validity">
+            <span class="material-symbols-outlined">event</span>
+            Valid till {{ off.validTill }}
+          </div>
+
+          <div class="offer-card-actions">
+            <button (click)="deleteOffer(off.id)" class="btn-offer-delete">
+              <span class="material-symbols-outlined">delete</span>
+              Delete Offer
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= TAB 6: GLOBAL STORE & CONTACT SETTINGS ================= -->
+    <section *ngIf="activeTab === 'settings'" class="tab-content">
+      <div class="section-actions-row">
+        <div>
+          <h2>Global Business Profile & Store Settings</h2>
+          <p class="section-subtitle">
+            Configure authorized admin Google accounts, business identity, contact telephone, WhatsApp helpline, inspection charges, and trust statistics.
+          </p>
+        </div>
+        <button (click)="saveSettings()" class="btn-save-all">
+          <span class="material-symbols-outlined">save</span>
+          Save Global Settings
+        </button>
+      </div>
+
+      <div class="settings-sections-grid">
+        <!-- Card 0: AUTHORIZED GOOGLE ACCOUNTS (USER'S EXPLICIT REQUIREMENT) -->
+        <div class="settings-card glass-card security-whitelist-card">
+          <div class="settings-card-header">
+            <svg class="tiny-g-icon" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
+              <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
+              <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 10.03 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+              <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+            </svg>
+            <h3>Authorized Admin Google Accounts</h3>
+          </div>
+
+          <div class="settings-card-body">
+            <p class="whitelist-info-p">
+              Only Google accounts listed below are granted access to this contractor administration workspace. You can add more partner contractors below.
+            </p>
+
+            <div class="whitelist-badge-list">
+              <div *ngFor="let email of whitelist" class="whitelist-email-chip">
+                <span class="material-symbols-outlined">verified_user</span>
+                <strong>{{ email }}</strong>
+                <span *ngIf="email === 'mohamedibrahim010425@gmail.com'" class="primary-owner-tag">Primary Owner</span>
+                <button 
+                  *ngIf="email !== 'mohamedibrahim010425@gmail.com'" 
+                  (click)="removeAdminEmail(email)" 
+                  class="btn-remove-email" 
+                  title="Revoke Admin Access">
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            <!-- Add More Admin Accounts -->
+            <div class="add-admin-email-row">
+              <input 
+                type="email" 
+                [(ngModel)]="newAdminEmail" 
+                placeholder="Enter new admin Google email (e.g. partner@gmail.com)" 
+                (keyup.enter)="addAdminEmail()"
+              />
+              <button (click)="addAdminEmail()" class="btn-add-admin-email">
+                <span class="material-symbols-outlined">person_add</span>
+                Add Authorized Admin
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 1: Business Identity -->
+        <div class="settings-card glass-card">
+          <div class="settings-card-header">
+            <span class="material-symbols-outlined">badge</span>
+            <h3>Business Identity & Branding</h3>
+          </div>
+
+          <div class="settings-card-body">
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>Business Name *</label>
+                <input type="text" [(ngModel)]="config.businessName" />
+              </div>
+              <div class="form-group">
+                <label>Business Subtitle</label>
+                <input type="text" [(ngModel)]="config.businessSubtitle" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Tamil Tagline / Quote (Displays in Footer)</label>
+              <input type="text" [(ngModel)]="config.tamilQuote" />
+            </div>
+
+            <div class="form-group">
+              <label>Homepage Hero Headline</label>
+              <input type="text" [(ngModel)]="config.heroHeadline" />
+            </div>
+
+            <div class="form-group">
+              <label>Homepage Hero Sub-Headline</label>
+              <textarea [(ngModel)]="config.heroSubheadline" rows="2"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2: Contact & Emergency Dispatch -->
+        <div class="settings-card glass-card">
+          <div class="settings-card-header">
+            <span class="material-symbols-outlined">contact_phone</span>
+            <h3>Contact & Emergency Dispatch</h3>
+          </div>
+
+          <div class="settings-card-body">
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>Contact Phone (Header & Calling) *</label>
+                <input type="tel" [(ngModel)]="config.contactPhone" />
+              </div>
+              <div class="form-group">
+                <label>WhatsApp Helpline (Numbers only with Country Code) *</label>
+                <input type="text" [(ngModel)]="config.whatsappNumber" placeholder="919876543210" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Physical Store / Contractor Address *</label>
+              <input type="text" [(ngModel)]="config.address" />
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>Base Inspection Visit Fee (₹)</label>
+                <input type="number" [(ngModel)]="config.baseInspectionFee" />
+              </div>
+              <div class="form-group">
+                <label>Emergency Response Promise</label>
+                <input type="text" [(ngModel)]="config.emergencyResponseTime" placeholder="e.g. 30 Min" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3: Social Media Profiles & Handles (USER'S EXPLICIT REQUIREMENT) -->
+        <div class="settings-card glass-card">
+          <div class="settings-card-header">
+            <span class="material-symbols-outlined">share</span>
+            <h3>Social Media Handles & Public Links</h3>
+          </div>
+
+          <div class="settings-card-body">
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>Instagram Profile URL</label>
+                <input type="url" [(ngModel)]="config.instagramUrl" placeholder="https://instagram.com/your_profile" />
+              </div>
+              <div class="form-group">
+                <label>Facebook Page URL</label>
+                <input type="url" [(ngModel)]="config.facebookUrl" placeholder="https://facebook.com/your_page" />
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>YouTube Channel URL</label>
+                <input type="url" [(ngModel)]="config.youtubeUrl" placeholder="https://youtube.com/@your_channel" />
+              </div>
+              <div class="form-group">
+                <label>Google Business Maps URL</label>
+                <input type="url" [(ngModel)]="config.googleMapsUrl" placeholder="https://maps.google.com/?q=..." />
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>Twitter / X Profile URL</label>
+                <input type="url" [(ngModel)]="config.twitterUrl" placeholder="https://x.com/your_handle" />
+              </div>
+              <div class="form-group">
+                <label>Support Email Address</label>
+                <input type="email" [(ngModel)]="config.contactEmail" placeholder="support@voltmaster.in" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 4: Hero Section & CTA Button Texts -->
+        <div class="settings-card glass-card">
+          <div class="settings-card-header">
+            <span class="material-symbols-outlined">view_headline</span>
+            <h3>Homepage Hero Section & Action Buttons</h3>
+          </div>
+
+          <div class="settings-card-body">
+            <div class="form-group">
+              <label>Hero Top Badge Text</label>
+              <input type="text" [(ngModel)]="config.heroBadgeText" />
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>Primary Booking CTA Button Text</label>
+                <input type="text" [(ngModel)]="config.heroBookCtaText" />
+              </div>
+              <div class="form-group">
+                <label>Secondary Store CTA Button Text</label>
+                <input type="text" [(ngModel)]="config.heroStoreCtaText" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 5: Trust Statistics Counters -->
+        <div class="settings-card glass-card">
+          <div class="settings-card-header">
+            <span class="material-symbols-outlined">analytics</span>
+            <h3>Homepage Trust Badges & Counters</h3>
+          </div>
+
+          <div class="settings-card-body">
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>Stat 1 Value</label>
+                <input type="text" [(ngModel)]="config.stat1Num" />
+              </div>
+              <div class="form-group">
+                <label>Stat 1 Label</label>
+                <input type="text" [(ngModel)]="config.stat1Label" />
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>Stat 2 Value</label>
+                <input type="text" [(ngModel)]="config.stat2Num" />
+              </div>
+              <div class="form-group">
+                <label>Stat 2 Label</label>
+                <input type="text" [(ngModel)]="config.stat2Label" />
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>Stat 3 Value</label>
+                <input type="text" [(ngModel)]="config.stat3Num" />
+              </div>
+              <div class="form-group">
+                <label>Stat 3 Label</label>
+                <input type="text" [(ngModel)]="config.stat3Label" />
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>Stat 4 Value</label>
+                <input type="text" [(ngModel)]="config.stat4Num" />
+              </div>
+              <div class="form-group">
+                <label>Stat 4 Label</label>
+                <input type="text" [(ngModel)]="config.stat4Label" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 6: Section Headings & Subtitles -->
+        <div class="settings-card glass-card">
+          <div class="settings-card-header">
+            <span class="material-symbols-outlined">title</span>
+            <h3>Section Headings & Tamil Descriptions</h3>
+          </div>
+
+          <div class="settings-card-body">
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>Services Section Main Title</label>
+                <input type="text" [(ngModel)]="config.servicesSectionTitle" />
+              </div>
+              <div class="form-group">
+                <label>Services Tamil Subtitle</label>
+                <input type="text" [(ngModel)]="config.servicesSectionSubtitle" />
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>Store Section Main Title</label>
+                <input type="text" [(ngModel)]="config.storeSectionTitle" />
+              </div>
+              <div class="form-group">
+                <label>Store Tamil Subtitle</label>
+                <input type="text" [(ngModel)]="config.storeSectionSubtitle" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Promotional Offers Section Title</label>
+              <input type="text" [(ngModel)]="config.offersSectionTitle" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 7: Why Choose Us / Value Pillars -->
+        <div class="settings-card glass-card">
+          <div class="settings-card-header">
+            <span class="material-symbols-outlined">verified</span>
+            <h3>"Why Choose Us" Core Value Pillars (Homepage)</h3>
+          </div>
+
+          <div class="settings-card-body">
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>Pillar 1 Title</label>
+                <input type="text" [(ngModel)]="config.value1Title" />
+              </div>
+              <div class="form-group">
+                <label>Pillar 1 Description</label>
+                <input type="text" [(ngModel)]="config.value1Desc" />
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>Pillar 2 Title</label>
+                <input type="text" [(ngModel)]="config.value2Title" />
+              </div>
+              <div class="form-group">
+                <label>Pillar 2 Description</label>
+                <input type="text" [(ngModel)]="config.value2Desc" />
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>Pillar 3 Title</label>
+                <input type="text" [(ngModel)]="config.value3Title" />
+              </div>
+              <div class="form-group">
+                <label>Pillar 3 Description</label>
+                <input type="text" [(ngModel)]="config.value3Desc" />
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>Pillar 4 Title</label>
+                <input type="text" [(ngModel)]="config.value4Title" />
+              </div>
+              <div class="form-group">
+                <label>Pillar 4 Description</label>
+                <input type="text" [(ngModel)]="config.value4Desc" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 8: Footer Copy & Copyright -->
+        <div class="settings-card glass-card">
+          <div class="settings-card-header">
+            <span class="material-symbols-outlined">call_to_action</span>
+            <h3>Footer About Copy & Copyright Notice</h3>
+          </div>
+
+          <div class="settings-card-body">
+            <div class="form-group">
+              <label>Footer Brand About Paragraph</label>
+              <textarea [(ngModel)]="config.footerAboutText" rows="3"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label>Footer Copyright Line</label>
+              <input type="text" [(ngModel)]="config.footerCopyrightText" />
+            </div>
+
+            <div class="settings-save-row">
+              <button (click)="saveSettings()" class="btn-save-all-large">
+                <span class="material-symbols-outlined">check_circle</span>
+                Update & Publish All Settings
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= TAB 7: CUSTOMER ORDERS ================= -->
+    <section *ngIf="activeTab === 'orders'" class="tab-content">
+      <div class="section-actions-row">
+        <div>
+          <h2>Customer Orders Pipeline</h2>
+          <p class="section-subtitle">Real-time orders placed by customers through store checkout.</p>
+        </div>
+      </div>
+
+      <div class="orders-list">
+        <div *ngFor="let o of orders" class="order-card glass-card">
+          <div class="order-card-header">
+            <div>
+              <span class="badge-pill" [ngClass]="{
+                'badge-warning': o.orderStatus === 'placed' || o.orderStatus === 'confirmed',
+                'badge-info': o.orderStatus === 'dispatched',
+                'badge-success': o.orderStatus === 'delivered'
+              }">
+                {{ o.orderStatus.toUpperCase() }}
+              </span>
+              <h3 class="order-id">Order #{{ o.id }}</h3>
+              <div class="order-date">{{ o.orderDate | date:'medium' }}</div>
+            </div>
+
+            <div class="order-customer-box">
+              <strong>{{ o.customerName }}</strong> • 
+              <a [href]="'tel:' + o.customerPhone">{{ o.customerPhone }}</a>
+              <div class="order-addr">{{ o.deliveryAddress.street }}, {{ o.deliveryAddress.city }} - {{ o.deliveryAddress.pincode }}</div>
+            </div>
+          </div>
+
+          <!-- Ordered Items -->
+          <div class="ordered-items-table">
+            <div *ngFor="let it of o.items" class="order-it-row">
+              <span>{{ it.product.name }} (x{{ it.quantity }})</span>
+              <strong>₹{{ it.product.price * it.quantity }}</strong>
+            </div>
+          </div>
+
+          <div class="order-card-footer">
+            <div class="order-pay-info">
+              <span>Total Amount: <strong>₹{{ o.totalAmount }}</strong></span>
+              <span class="pay-method-badge">
+                {{ o.paymentMethod.toUpperCase() }} ({{ o.paymentStatus.toUpperCase() }})
+              </span>
+            </div>
+
+            <div class="order-status-actions">
+              <label>Change Status:</label>
+              <select [ngModel]="o.orderStatus" (ngModelChange)="updateOrderStatus(o.id, $event)">
+                <option value="placed">Placed</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="dispatched">Dispatched</option>
+                <option value="delivered">Delivered</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="orders.length === 0" class="empty-state-notice">
+          <span class="material-symbols-outlined">local_shipping</span>
+          <p>No customer orders placed yet.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= TAB 8: SERVICE BOOKINGS ================= -->
+    <section *ngIf="activeTab === 'bookings'" class="tab-content">
+      <div class="section-actions-row">
+        <div>
+          <h2>Electrician Service Bookings</h2>
+          <p class="section-subtitle">Manage customer electrician visit appointments and assign technicians.</p>
+        </div>
+      </div>
+
+      <div class="bookings-grid">
+        <div *ngFor="let bk of bookings" class="booking-admin-card glass-card">
+          <div class="bk-top">
+            <span class="badge-pill" [ngClass]="{
+              'badge-warning': bk.status === 'pending',
+              'badge-info': bk.status === 'assigned' || bk.status === 'in_progress',
+              'badge-success': bk.status === 'completed'
+            }">
+              {{ bk.status.toUpperCase() }}
+            </span>
+            <span class="bk-id">Ref: {{ bk.id }}</span>
+          </div>
+
+          <h3>{{ bk.serviceTitle }}</h3>
+          <p class="bk-prob">{{ bk.problemDescription }}</p>
+
+          <div class="bk-info-grid">
+            <div>
+              <span class="lbl">Customer:</span>
+              <strong>{{ bk.customerName }}</strong> ({{ bk.customerPhone }})
+            </div>
+            <div>
+              <span class="lbl">Location:</span>
+              <span>{{ bk.customerAddress }}, {{ bk.city }}</span>
+            </div>
+            <div>
+              <span class="lbl">Schedule:</span>
+              <span>{{ bk.preferredDate }} - {{ bk.preferredTimeSlot }}</span>
+            </div>
+          </div>
+
+          <!-- Assign Technician Controls -->
+          <div class="bk-assign-box">
+            <div class="form-group">
+              <label>Assign Electrician:</label>
+              <select [(ngModel)]="bk.assignedTechnician" (change)="saveBookingAssignment(bk)">
+                <option value="">-- Select Electrician --</option>
+                <option value="Murugan (Senior Tech)">Murugan (Senior Tech)</option>
+                <option value="Suresh (Wiring Specialist)">Suresh (Wiring Specialist)</option>
+                <option value="Ravi (Switchboard & DB)">Ravi (Switchboard & DB)</option>
+                <option value="Vignesh (Assistant)">Vignesh (Assistant)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Update Status:</label>
+              <select [(ngModel)]="bk.status" (change)="saveBookingAssignment(bk)">
+                <option value="pending">Pending</option>
+                <option value="assigned">Assigned</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="bookings.length === 0" class="empty-state-notice">
+          <span class="material-symbols-outlined">calendar_today</span>
+          <p>No service bookings received yet.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ================= MODAL: GOOGLE ACCOUNT CHOOSER (NATIVE & WEB SECURE SIGN-IN) ================= -->
+  <div *ngIf="showGoogleAccountModal" class="modal-backdrop">
+    <div class="modal-card glass-card google-account-chooser-card">
+      <div class="modal-header">
+        <div class="g-modal-header-brand">
+          <svg class="google-logo-svg" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
+            <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
+            <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 10.03 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+            <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+          </svg>
+          <div>
+            <h3>Sign in with Google</h3>
+            <span class="sub-lead">Choose a Google Account to continue to VoltMaster</span>
+          </div>
+        </div>
+        <button (click)="showGoogleAccountModal = false" class="modal-close">✕</button>
+      </div>
+
+      <div class="modal-body google-chooser-body">
+        <!-- Authorized Primary Admin Account Option -->
+        <button 
+          (click)="selectGoogleAccount('mohamedibrahim010425@gmail.com', 'Mohamed Ibrahim')" 
+          class="google-account-item-btn highlight-authorized">
+          <div class="g-avatar-circle">M</div>
+          <div class="g-account-details">
+            <div class="g-account-name">
+              Mohamed Ibrahim
+              <span class="g-authorized-tag">Authorized Admin</span>
+            </div>
+            <div class="g-account-email">mohamedibrahim010425@gmail.com</div>
+          </div>
+          <span class="material-symbols-outlined g-chevron">arrow_forward</span>
+        </button>
+
+        <!-- Use another Google account toggle (to demonstrate security boundary rejection) -->
+        <div class="other-account-divider">
+          <span>OR</span>
+        </div>
+
+        <button 
+          (click)="showCustomEmailInput = !showCustomEmailInput" 
+          class="google-account-item-btn secondary-g-item">
+          <div class="g-avatar-circle neutral-circle">
+            <span class="material-symbols-outlined">person_add</span>
+          </div>
+          <div class="g-account-details">
+            <div class="g-account-name">Use another Google account</div>
+            <div class="g-account-email">Test security whitelist with any other email</div>
+          </div>
+          <span class="material-symbols-outlined g-chevron">{{ showCustomEmailInput ? 'expand_less' : 'expand_more' }}</span>
+        </button>
+
+        <!-- Custom Email Input Box -->
+        <div *ngIf="showCustomEmailInput" class="custom-email-box">
+          <div class="form-group">
+            <label>Google Email Address</label>
+            <input 
+              type="email" 
+              [(ngModel)]="customGoogleEmail" 
+              placeholder="e.g. unauthorized_user@gmail.com" 
+            />
+          </div>
+          <div class="form-group">
+            <label>Name (Optional)</label>
+            <input 
+              type="text" 
+              [(ngModel)]="customGoogleName" 
+              placeholder="e.g. John Doe" 
+            />
+          </div>
+          <button (click)="submitCustomGoogleEmail()" class="btn-verify-custom-g">
+            Attempt Sign-In with this Account
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= OTHER MODALS ================= -->
+
+  <!-- Modal 1: Add New Site -->
+  <div *ngIf="showNewSiteModal" class="modal-backdrop">
+    <div class="modal-card glass-card">
+      <div class="modal-header">
+        <h3>Add New Ongoing Electrical Site</h3>
+        <button (click)="showNewSiteModal = false" class="modal-close">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Site / Project Name *</label>
+          <input type="text" [(ngModel)]="newSiteName" placeholder="e.g. Skyline Apartments Flat 502 Wiring" />
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Client Name *</label>
+            <input type="text" [(ngModel)]="newSiteClient" placeholder="e.g. Mr. K. Sivakumar" />
+          </div>
+          <div class="form-group">
+            <label>Client Phone *</label>
+            <input type="tel" [(ngModel)]="newSitePhone" placeholder="+91 98401 99887" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Site Address & Area *</label>
+          <input type="text" [(ngModel)]="newSiteAddress" placeholder="e.g. No 15, 4th Main Road, Adyar" />
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Total Contract Value (₹) *</label>
+            <input type="number" [(ngModel)]="newSiteContractAmount" placeholder="150000" />
+          </div>
+          <div class="form-group">
+            <label>Initial Advance Received (₹)</label>
+            <input type="number" [(ngModel)]="newSiteInitialAdvance" placeholder="50000" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Assign Primary Electrician(s)</label>
+          <input type="text" [(ngModel)]="newSiteWorkers" placeholder="e.g. Murugan, Suresh" />
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="showNewSiteModal = false" class="btn-cancel">Cancel</button>
+        <button (click)="saveNewSite()" class="btn-save">Create Site & Start Tracking</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 2: Log Daily Site Expense -->
+  <div *ngIf="showAddExpenseModal && activeSiteForAction" class="modal-backdrop">
+    <div class="modal-card glass-card">
+      <div class="modal-header">
+        <h3>Log Daily Expense for: {{ activeSiteForAction.siteName }}</h3>
+        <button (click)="showAddExpenseModal = false" class="modal-close">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Expense Category *</label>
+          <select [(ngModel)]="expenseCategory">
+            <option value="material">Material (Wires, Pipes, Switches, MCBs)</option>
+            <option value="labor">Labor Wages / Helper Daily Wages</option>
+            <option value="travel_food">Travel, Van Dispatch & Food Allowance</option>
+            <option value="tools">Tools, Drill Bits & Consumables</option>
+            <option value="other">Miscellaneous</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Item / Expense Description *</label>
+          <input type="text" [(ngModel)]="expenseTitle" placeholder="e.g. 2 Coils Finolex 2.5mm + PVC junction boxes" />
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Amount (₹) *</label>
+            <input type="number" [(ngModel)]="expenseAmount" placeholder="3500" />
+          </div>
+          <div class="form-group">
+            <label>Recorded By</label>
+            <input type="text" [(ngModel)]="expenseRecordedBy" placeholder="Admin" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Receipt Bill No / Notes</label>
+          <input type="text" [(ngModel)]="expenseNotes" placeholder="Bill #1249 from wholesale shop" />
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="showAddExpenseModal = false" class="btn-cancel">Cancel</button>
+        <button (click)="saveExpense()" class="btn-save">Add Expense Entry</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 3: Record Client Payment Received -->
+  <div *ngIf="showAddPaymentModal && activeSiteForAction" class="modal-backdrop">
+    <div class="modal-card glass-card">
+      <div class="modal-header">
+        <h3>Record Client Payment: {{ activeSiteForAction.siteName }}</h3>
+        <button (click)="showAddPaymentModal = false" class="modal-close">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="payment-pending-banner">
+          Current Pending Balance: <strong>₹{{ activeSiteForAction.pendingBalance.toLocaleString() }}</strong>
+        </div>
+
+        <div class="form-group">
+          <label>Payment Amount Received (₹) *</label>
+          <input type="number" [(ngModel)]="paymentAmount" placeholder="25000" />
+        </div>
+
+        <div class="form-group">
+          <label>Payment Mode *</label>
+          <select [(ngModel)]="paymentMode">
+            <option value="gpay_upi">GPay / PhonePe / UPI</option>
+            <option value="cash">Direct Cash</option>
+            <option value="bank_transfer">NEFT / RTGS Bank Transfer</option>
+            <option value="cheque">Cheque</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Receipt Note / Reference No</label>
+          <input type="text" [(ngModel)]="paymentNotes" placeholder="e.g. 2nd slab completion payment" />
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="showAddPaymentModal = false" class="btn-cancel">Cancel</button>
+        <button (click)="savePayment()" class="btn-save">Record Payment & Deduct Balance</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 4: Assign Workers & Daily Work Log -->
+  <div *ngIf="showWorkLogModal && activeSiteForAction" class="modal-backdrop">
+    <div class="modal-card glass-card">
+      <div class="modal-header">
+        <h3>Daily Work Log: {{ activeSiteForAction.siteName }}</h3>
+        <button (click)="showWorkLogModal = false" class="modal-close">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Electrician / Worker Name *</label>
+          <input type="text" [(ngModel)]="logWorkerName" placeholder="e.g. Murugan (Lead)" />
+        </div>
+
+        <div class="form-group">
+          <label>Work Carried Out Today *</label>
+          <textarea [(ngModel)]="logDescription" rows="3" placeholder="e.g. Completed concealed pipe chipping for Ground Floor 2 bedrooms..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Update Site Progress % (Current: {{ activeSiteForAction.progressPercentage }}%)</label>
+          <input type="number" [(ngModel)]="activeSiteForAction.progressPercentage" min="0" max="100" />
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="showWorkLogModal = false" class="btn-cancel">Cancel</button>
+        <button (click)="saveWorkLog()" class="btn-save">Save Work Entry</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 5: Add New Product -->
+  <div *ngIf="showNewProductModal" class="modal-backdrop">
+    <div class="modal-card glass-card">
+      <div class="modal-header">
+        <h3>Add New Electrical Product to Store</h3>
+        <button (click)="showNewProductModal = false" class="modal-close">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Product Name *</label>
+          <input type="text" [(ngModel)]="prodName" placeholder="e.g. Polycab 4.0 sq mm Copper Wire" />
+        </div>
+
+        <div class="form-group">
+          <label>Tamil Name</label>
+          <input type="text" [(ngModel)]="prodTamilName" placeholder="பாலிகேப் 4.0 ச.மி.மீ செம்பு ஒயர்" />
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Category *</label>
+            <select [(ngModel)]="prodCategory">
+              <option *ngFor="let c of categories" [value]="c">{{ c }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Brand *</label>
+            <input type="text" [(ngModel)]="prodBrand" placeholder="e.g. Polycab / Havells" />
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Selling Price (₹) *</label>
+            <input type="number" [(ngModel)]="prodPrice" placeholder="1850" />
+          </div>
+          <div class="form-group">
+            <label>MRP (₹)</label>
+            <input type="number" [(ngModel)]="prodMrp" placeholder="2200" />
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Stock Quantity *</label>
+            <input type="number" [(ngModel)]="prodStock" placeholder="20" />
+          </div>
+          <div class="form-group">
+            <label>Unit</label>
+            <input type="text" [(ngModel)]="prodUnit" placeholder="Coil (90m), Piece, Box" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Image URL</label>
+          <input type="text" [(ngModel)]="prodImage" placeholder="https://images.unsplash.com/..." />
+        </div>
+
+        <div class="form-group">
+          <label>Description</label>
+          <textarea [(ngModel)]="prodDesc" rows="2" placeholder="Product features and specifications..."></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="showNewProductModal = false" class="btn-cancel">Cancel</button>
+        <button (click)="saveNewProduct()" class="btn-save">Publish Product to Store</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 6: Edit Existing Product Details -->
+  <div *ngIf="showEditProductModal && editingProduct" class="modal-backdrop">
+    <div class="modal-card glass-card">
+      <div class="modal-header">
+        <h3>Edit Product: {{ editingProduct.name }}</h3>
+        <button (click)="showEditProductModal = false" class="modal-close">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Product Name *</label>
+          <input type="text" [(ngModel)]="editingProduct.name" />
+        </div>
+
+        <div class="form-group">
+          <label>Tamil Name</label>
+          <input type="text" [(ngModel)]="editingProduct.tamilName" />
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Category *</label>
+            <select [(ngModel)]="editingProduct.category">
+              <option *ngFor="let c of categories" [value]="c">{{ c }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Brand *</label>
+            <input type="text" [(ngModel)]="editingProduct.brand" />
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Selling Price (₹) *</label>
+            <input type="number" [(ngModel)]="editingProduct.price" />
+          </div>
+          <div class="form-group">
+            <label>MRP (₹)</label>
+            <input type="number" [(ngModel)]="editingProduct.mrp" />
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Stock Quantity *</label>
+            <input type="number" [(ngModel)]="editingProduct.stock" />
+          </div>
+          <div class="form-group">
+            <label>Unit</label>
+            <input type="text" [(ngModel)]="editingProduct.unit" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Product Image URL</label>
+          <input type="text" [(ngModel)]="editingProduct.images[0]" />
+        </div>
+
+        <div class="form-group">
+          <label>Product Description</label>
+          <textarea [(ngModel)]="editingProduct.description" rows="3"></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="showEditProductModal = false" class="btn-cancel">Cancel</button>
+        <button (click)="saveEditProduct()" class="btn-save">Update Product</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 7: Add New Electrician Service -->
+  <div *ngIf="showNewServiceModal" class="modal-backdrop">
+    <div class="modal-card glass-card">
+      <div class="modal-header">
+        <h3>Add New Electrician Service</h3>
+        <button (click)="showNewServiceModal = false" class="modal-close">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Service Title (English) *</label>
+          <input type="text" [(ngModel)]="serviceTitle" placeholder="e.g. Solar Inverter Setup & Testing" />
+        </div>
+
+        <div class="form-group">
+          <label>Service Title (Tamil)</label>
+          <input type="text" [(ngModel)]="serviceTamilTitle" placeholder="e.g. சோலார் இன்வெர்ட்டர் பொருத்துதல்" />
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Starting Price (₹) *</label>
+            <input type="number" [(ngModel)]="servicePrice" placeholder="499" />
+          </div>
+          <div class="form-group">
+            <label>Material Symbol Icon</label>
+            <input type="text" [(ngModel)]="serviceIcon" placeholder="electric_bolt / mode_fan / power_off" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Description</label>
+          <textarea [(ngModel)]="serviceDesc" rows="3" placeholder="What does this service include?"></textarea>
+        </div>
+
+        <div class="checkbox-field">
+          <label class="toggle-switch">
+            <input type="checkbox" [(ngModel)]="servicePopular" />
+            <span class="slider"></span>
+          </label>
+          <span class="toggle-text">Mark as Popular / Featured Service</span>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="showNewServiceModal = false" class="btn-cancel">Cancel</button>
+        <button (click)="saveNewService()" class="btn-save">Create Service</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 8: Edit Electrician Service -->
+  <div *ngIf="showEditServiceModal && editingService" class="modal-backdrop">
+    <div class="modal-card glass-card">
+      <div class="modal-header">
+        <h3>Edit Service: {{ editingService.title }}</h3>
+        <button (click)="showEditServiceModal = false" class="modal-close">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Service Title (English) *</label>
+          <input type="text" [(ngModel)]="editingService.title" />
+        </div>
+
+        <div class="form-group">
+          <label>Service Title (Tamil)</label>
+          <input type="text" [(ngModel)]="editingService.tamilTitle" />
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Starting Price (₹) *</label>
+            <input type="number" [(ngModel)]="editingService.startingPrice" />
+          </div>
+          <div class="form-group">
+            <label>Material Symbol Icon</label>
+            <input type="text" [(ngModel)]="editingService.icon" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Description</label>
+          <textarea [(ngModel)]="editingService.description" rows="3"></textarea>
+        </div>
+
+        <div class="checkbox-field">
+          <label class="toggle-switch">
+            <input type="checkbox" [(ngModel)]="editingService.popular" />
+            <span class="slider"></span>
+          </label>
+          <span class="toggle-text">Mark as Popular / Featured Service</span>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="showEditServiceModal = false" class="btn-cancel">Cancel</button>
+        <button (click)="saveEditService()" class="btn-save">Save Service Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 9: Add New Promotional Offer -->
+  <div *ngIf="showNewOfferModal" class="modal-backdrop">
+    <div class="modal-card glass-card">
+      <div class="modal-header">
+        <h3>Create New Promotional Offer / Coupon</h3>
+        <button (click)="showNewOfferModal = false" class="modal-close">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Offer Title *</label>
+          <input type="text" [(ngModel)]="offerTitle" placeholder="e.g. Diwali Wiring Discount Fest" />
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Coupon Code *</label>
+            <input type="text" [(ngModel)]="offerCode" placeholder="e.g. FESTIVE20" />
+          </div>
+          <div class="form-group">
+            <label>Discount Percentage (%) *</label>
+            <input type="number" [(ngModel)]="offerDiscount" placeholder="20" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Offer Description</label>
+          <textarea [(ngModel)]="offerDesc" rows="2" placeholder="Conditions and details for this offer..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Valid Till Date</label>
+          <input type="date" [(ngModel)]="offerValidTill" />
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="showNewOfferModal = false" class="btn-cancel">Cancel</button>
+        <button (click)="saveNewOffer()" class="btn-save">Publish Promotion</button>
+      </div>
+    </div>
+  </div>
+</div>

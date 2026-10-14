@@ -1,0 +1,130 @@
+<div class="products-page">
+  <!-- Top Banner -->
+  <div class="catalog-banner">
+    <div class="container">
+      <span class="badge-pill badge-warning">OFFICIAL ELECTRICAL STORE</span>
+      <h1>Electrical Supplies & Material Catalog</h1>
+      <p>பிராண்டட் எலக்ட்ரிகல் ஒயர்கள், சுவிட்சுகள், LED விளக்குகள் மற்றும் பாதுகாப்பு சாதனங்கள்</p>
+
+      <!-- Search Bar -->
+      <div class="search-box glass-card">
+        <span class="material-symbols-outlined search-icon">search</span>
+        <input 
+          type="text" 
+          [(ngModel)]="searchQuery" 
+          (input)="applyFilters()" 
+          placeholder="Search by brand, product name or spec (e.g. Finolex 2.5, MCB, Roma)..." 
+        />
+        <button *ngIf="searchQuery" (click)="searchQuery = ''; applyFilters()" class="clear-btn">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container main-content">
+    <!-- Category Filter Chips -->
+    <div class="category-chips-bar">
+      <button 
+        (click)="selectCategory('ALL')" 
+        class="chip-btn" 
+        [class.active]="selectedCategory === 'ALL'">
+        All Materials ({{ allProducts.length }})
+      </button>
+      <button 
+        *ngFor="let cat of categories" 
+        (click)="selectCategory(cat)" 
+        class="chip-btn" 
+        [class.active]="selectedCategory === cat">
+        {{ cat }}
+      </button>
+    </div>
+
+    <!-- Filter & Sorting Header -->
+    <div class="filters-summary-bar">
+      <div class="result-count">
+        Showing <strong>{{ filteredProducts.length }}</strong> products
+        <span *ngIf="selectedCategory !== 'ALL'"> in <em>{{ selectedCategory }}</em></span>
+      </div>
+
+      <div class="sort-selector">
+        <label for="sort">Sort By:</label>
+        <select id="sort" [(ngModel)]="sortBy" (change)="applyFilters()">
+          <option value="featured">Featured First</option>
+          <option value="price-asc">Price: Low to High</option>
+          <option value="price-desc">Price: High to Low</option>
+          <option value="rating">Top Rated</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Products Grid -->
+    <div *ngIf="filteredProducts.length > 0; else noProducts" class="products-grid">
+      <div *ngFor="let prod of filteredProducts" class="catalog-card glass-card interactive-card">
+        <!-- Image & Badges -->
+        <div class="card-img-wrap" [routerLink]="['/product', prod.id]">
+          <img [src]="prod.images[0]" [alt]="prod.name" loading="lazy" />
+          <div class="badges-row">
+            <span *ngIf="prod.discountPercentage" class="discount-tag">
+              {{ prod.discountPercentage }}% OFF
+            </span>
+            <span *ngIf="prod.stock <= 5 && prod.inStock" class="stock-tag low-stock">
+              Only {{ prod.stock }} left
+            </span>
+          </div>
+        </div>
+
+        <!-- Content Details -->
+        <div class="card-details">
+          <div class="brand-row">
+            <span class="brand-badge">{{ prod.brand }}</span>
+            <span class="rating-badge" *ngIf="prod.rating">
+              <span class="material-symbols-outlined star-icon">star</span>
+              {{ prod.rating }} ({{ prod.ratingCount }})
+            </span>
+          </div>
+
+          <h3 class="prod-title" [routerLink]="['/product', prod.id]">
+            {{ prod.name }}
+          </h3>
+          <p *ngIf="prod.tamilName" class="tamil-title">{{ prod.tamilName }}</p>
+
+          <!-- Quick Spec Preview -->
+          <div class="specs-preview">
+            <span class="spec-pill" *ngFor="let key of getSpecKeys(prod.specs)">
+              {{ key }}: {{ prod.specs[key] }}
+            </span>
+          </div>
+
+          <!-- Price & CTA -->
+          <div class="card-footer">
+            <div class="price-box">
+              <span class="curr-price">₹{{ prod.price }}</span>
+              <span *ngIf="prod.mrp" class="mrp-striked">₹{{ prod.mrp }}</span>
+              <span class="unit-text">/ {{ prod.unit }}</span>
+            </div>
+
+            <div class="btn-group">
+              <button (click)="addToCart(prod)" class="btn-cart-add" title="Add to Cart">
+                <span class="material-symbols-outlined">add_shopping_cart</span>
+                Add
+              </button>
+              <a [routerLink]="['/product', prod.id]" class="btn-share" title="Share Link & Details">
+                <span class="material-symbols-outlined">share</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #noProducts>
+      <div class="empty-state glass-card">
+        <span class="material-symbols-outlined empty-icon">search_off</span>
+        <h3>No products found</h3>
+        <p>Try searching with another keyword or choose another category.</p>
+        <button (click)="resetFilters()" class="btn-reset">Reset All Filters</button>
+      </div>
+    </ng-template>
+  </div>
+</div>
