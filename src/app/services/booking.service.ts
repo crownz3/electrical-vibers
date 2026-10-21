@@ -222,4 +222,18 @@ export class BookingService {
     });
     this.saveBookings(updated);
   }
+
+  generateWhatsAppLink(booking: Booking): string {
+    const text = encodeURIComponent(
+      `⚡ *Electrical Vibers Service Booking*\n\n` +
+      `*Booking ID:* ${booking.id}\n` +
+      `*Customer:* ${booking.customerName} (${booking.customerPhone})\n` +
+      `*Service:* ${booking.serviceTitle} (${booking.serviceCategory})\n` +
+      `*Schedule:* ${booking.preferredDate} at ${booking.preferredTimeSlot}\n` +
+      `*Address:* ${booking.customerAddress}, ${booking.city}\n` +
+      `*Status:* ${booking.status.toUpperCase()}\n` +
+      `*Estimated Cost:* ₹${booking.estimatedCost || 149}`
+    );
+    return `https://wa.me/919876543210?text=${text}`;
+  }
 }

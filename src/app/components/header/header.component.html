@@ -1,68 +1,314 @@
-<!-- Optional Admin-Configurable Top Offer Banner -->
+<!-- Admin-Configurable Top Offer Banner with Animated Shimmer Light Beam -->
 <div *ngIf="config.showBannerOffer && config.bannerOfferText" class="top-offer-bar">
+  <div class="top-offer-shimmer"></div>
   <div class="top-offer-content">
-    <span>{{ config.bannerOfferText }}</span>
-    <a routerLink="/products" class="top-offer-link">Shop Deals →</a>
+    <div class="offer-badge-pill">
+      <span class="flash-icon">⚡</span>
+      <span>EXCLUSIVE OFFER</span>
+    </div>
+    <span class="offer-text">{{ config.bannerOfferText }}</span>
+    <a routerLink="/products" class="top-offer-link">
+      <span>Shop Deals</span>
+      <span class="material-symbols-outlined link-arrow">arrow_forward</span>
+    </a>
   </div>
 </div>
 
 <header class="app-header">
   <div class="header-inner">
-    <!-- Brand Logo -->
-    <a routerLink="/home" class="brand">
-      <div class="brand-badge-icon">
-        <span class="material-symbols-outlined">bolt</span>
+    <!-- Brand Logo with Google-style electric aura -->
+    <a routerLink="/home" class="brand" title="Electrical Vibers - Home">
+      <div class="brand-badge-wrap">
+        <div class="brand-glow-halo"></div>
+        <div class="brand-badge-icon">
+          <span class="material-symbols-outlined bolt-icon">bolt</span>
+        </div>
       </div>
       <div class="brand-titles">
-        <span class="brand-name">{{ config.businessName }}</span>
-        <span class="brand-sub">{{ config.businessSubtitle }}</span>
+        <div class="brand-name-row">
+          <span class="brand-name-white">Electrical</span>
+          <span class="brand-name-gold">Vibers</span>
+        </div>
+        <span class="brand-sub">ELECTRICALS & CONTRACTING • CHENNAI</span>
       </div>
     </a>
 
-    <!-- Center Navigation Links -->
+    <!-- Center Navigation Links (Google Material Pill Navigation) -->
     <nav class="nav-menu">
       <a routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
-        Home
+        <span class="nav-label">Home</span>
       </a>
-      <a routerLink="/products" routerLinkActive="active" class="nav-item">
-        Store
+      <a routerLink="/products" routerLinkActive="active" class="nav-item store-nav-item">
+        <span class="nav-label">Store</span>
+        <span class="nav-deal-dot" title="Special Deals Active"></span>
       </a>
       <a routerLink="/book-service" routerLinkActive="active" class="nav-item">
-        Book Service
+        <span class="nav-label">Book Service</span>
+      </a>
+      <a routerLink="/track-order" routerLinkActive="active" class="nav-item">
+        <span class="nav-label">Track Order</span>
+      </a>
+      <a routerLink="/profile" routerLinkActive="active" class="nav-item profile-nav-item">
+        <span class="material-symbols-outlined nav-icon">receipt_long</span>
+        <span class="nav-label">My Orders</span>
       </a>
       <a routerLink="/admin" routerLinkActive="active" class="nav-item admin-item">
-        <span class="material-symbols-outlined">settings_suggest</span>
-        Site Ops & Admin
+        <span class="material-symbols-outlined nav-icon">admin_panel_settings</span>
+        <span class="nav-label">Site Ops</span>
       </a>
     </nav>
 
-    <!-- Right Utility Actions -->
+    <!-- Google-Search Inspired Omnibox with Autocomplete Dropdown -->
+    <div class="header-search-wrap" [class.mobile-open]="isSearchOpen">
+      <div class="search-input-box">
+        <span class="material-symbols-outlined search-lens">search</span>
+        <input 
+          type="text" 
+          [(ngModel)]="searchQuery" 
+          (input)="onSearchInput()" 
+          (keydown.enter)="submitSearch()"
+          (keydown.escape)="closeSearch()"
+          placeholder="Search materials, cables, switches, tools..."
+          aria-label="Search tools and electrical materials" 
+        />
+        <kbd *ngIf="!searchQuery" class="search-kbd-hint">/</kbd>
+        <button *ngIf="searchQuery" (click)="searchQuery = ''; onSearchInput()" class="btn-clear-search" title="Clear search">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <!-- Live Autocomplete Results Dropdown -->
+      <div class="autocomplete-dropdown glass-card" *ngIf="searchResults.length > 0">
+        <div class="dropdown-header">
+          <div class="dh-title">
+            <span class="material-symbols-outlined">manage_search</span>
+            <span>MATCHING PRODUCTS ({{ searchResults.length }})</span>
+          </div>
+          <span class="enter-hint">Press ↵ to view all</span>
+        </div>
+        <div class="dropdown-list">
+          <div 
+            *ngFor="let item of searchResults" 
+            class="autocomplete-item" 
+            (click)="selectProduct(item)">
+            <img [src]="item.images[0]" [alt]="item.name" class="item-thumb" />
+            <div class="item-text">
+              <span class="item-cat-brand">{{ item.brand }} • {{ item.category }}</span>
+              <div class="item-name">{{ item.name }}</div>
+              <div class="item-prices">
+                <span class="item-price">₹{{ item.price }}</span>
+                <span *ngIf="item.mrp" class="item-mrp">₹{{ item.mrp }}</span>
+                <span *ngIf="item.discountPercentage" class="item-disc">{{ item.discountPercentage }}% OFF</span>
+              </div>
+            </div>
+            <span class="material-symbols-outlined jump-arrow">arrow_forward</span>
+          </div>
+        </div>
+        <div class="dropdown-footer" (click)="submitSearch()">
+          <span>View all results for "<strong>{{ searchQuery }}</strong>" →</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Utility Actions (Google-style Pills & Badges) -->
     <div class="header-actions">
-      <!-- Quick Phone / Emergency Hotline -->
-      <a [href]="'tel:' + config.contactPhone" class="action-link phone-link" title="Call Hotline">
-        <span class="material-symbols-outlined">call</span>
-        <span class="action-text">{{ config.contactPhone }}</span>
-      </a>
-
-      <!-- WhatsApp Quick Icon -->
-      <a [href]="'https://wa.me/' + config.whatsappNumber" target="_blank" class="action-icon wa-icon" title="Chat on WhatsApp">
-        <span class="material-symbols-outlined">chat</span>
-      </a>
-
-      <!-- Shopping Cart -->
-      <a routerLink="/cart" class="action-icon cart-icon" title="Shopping Cart">
-        <span class="material-symbols-outlined">shopping_bag</span>
-        <span *ngIf="cartCount > 0" class="cart-count">{{ cartCount }}</span>
-      </a>
-
-      <!-- Minimalist Admin / Role Badge Switch -->
-      <button (click)="toggleAdminRole()" class="role-pill" [class.is-admin]="authService.isAdmin()">
-        <span class="role-dot"></span>
-        <span class="role-label">{{ authService.isAdmin() ? 'Admin' : 'Customer' }}</span>
+      <!-- Mobile Search Toggle Button -->
+      <button 
+        type="button" 
+        class="action-icon search-toggle-btn" 
+        (click)="isSearchOpen = !isSearchOpen" 
+        title="Search Catalog">
+        <span class="material-symbols-outlined">{{ isSearchOpen ? 'close' : 'search' }}</span>
       </button>
+
+      <!-- 24/7 Hotline Quick Pill -->
+      <a [href]="'tel:' + config.contactPhone" class="action-phone-pill" title="Call Electrical Vibers Hotline">
+        <span class="material-symbols-outlined phone-icon">call</span>
+        <span class="phone-number">{{ config.contactPhone }}</span>
+      </a>
+
+      <!-- WhatsApp Quick Icon Button -->
+      <a [href]="'https://wa.me/' + config.whatsappNumber" target="_blank" class="action-icon wa-icon" title="Chat on WhatsApp">
+        <svg class="wa-svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2zm5.78 14.17c-.24.68-1.39 1.25-1.92 1.33-.5.07-1.14.1-3.32-.8-2.78-1.15-4.57-3.99-4.71-4.18-.14-.19-1.13-1.51-1.13-2.88 0-1.37.72-2.05.97-2.33.25-.28.56-.35.75-.35.19 0 .38 0 .54.01.17.01.4.06.63.61.24.58.82 2.01.89 2.16.07.15.12.33.02.53-.1.2-.15.32-.3.49-.15.18-.32.4-.46.54-.15.15-.31.31-.13.62.18.31.8 1.31 1.71 2.12 1.17 1.05 2.16 1.37 2.47 1.52.31.15.49.13.67-.08.18-.21.78-.91.99-1.22.21-.31.42-.26.71-.15.29.1.84.4 1.84.9 1 .5 1.2.62 1.25.72.05.1.05.58-.19 1.26z"/>
+        </svg>
+      </a>
+
+      <!-- Shopping Cart with Animated Bouncing Badge -->
+      <button type="button" (click)="openCart($event)" class="action-icon cart-icon" title="Shopping Cart Drawer">
+        <span class="material-symbols-outlined">shopping_bag</span>
+        <span *ngIf="cartCount > 0" class="cart-count-badge">{{ cartCount }}</span>
+      </button>
+
+      <!-- Theme Mode Switcher (System Default / Light / Dark) -->
+      <div class="theme-switcher-wrap">
+        <button 
+          type="button" 
+          class="action-icon theme-toggle-btn" 
+          (click)="toggleThemeMenu()" 
+          [title]="'Theme: ' + themeService.getPreferenceLabel(themeService.preference()) + ' (Click to change)'">
+          <span class="material-symbols-outlined theme-icon">
+            {{ themeService.activeTheme() === 'dark' ? 'dark_mode' : 'light_mode' }}
+          </span>
+          <span *ngIf="themeService.preference() === 'system'" class="theme-auto-badge" title="Following System Theme">A</span>
+        </button>
+
+        <!-- Theme Picker Dropdown Menu -->
+        <div *ngIf="showThemeMenu" class="theme-menu-dropdown glass-card animate-scale-up" (click)="$event.stopPropagation()">
+          <div class="theme-menu-title">THEME PREFERENCE</div>
+          
+          <button 
+            type="button" 
+            class="theme-opt-btn" 
+            [class.active]="themeService.preference() === 'system'"
+            (click)="selectTheme('system')">
+            <span class="material-symbols-outlined opt-icon">brightness_auto</span>
+            <div class="opt-text">
+              <strong>System Default</strong>
+              <span>Follows device OS</span>
+            </div>
+            <span *ngIf="themeService.preference() === 'system'" class="material-symbols-outlined check-icon">check</span>
+          </button>
+
+          <button 
+            type="button" 
+            class="theme-opt-btn" 
+            [class.active]="themeService.preference() === 'light'"
+            (click)="selectTheme('light')">
+            <span class="material-symbols-outlined opt-icon">light_mode</span>
+            <div class="opt-text">
+              <strong>Light Theme</strong>
+              <span>Clean daytime white</span>
+            </div>
+            <span *ngIf="themeService.preference() === 'light'" class="material-symbols-outlined check-icon">check</span>
+          </button>
+
+          <button 
+            type="button" 
+            class="theme-opt-btn" 
+            [class.active]="themeService.preference() === 'dark'"
+            (click)="selectTheme('dark')">
+            <span class="material-symbols-outlined opt-icon">dark_mode</span>
+            <div class="opt-text">
+              <strong>Dark Theme</strong>
+              <span>Deep electric dark OLED</span>
+            </div>
+            <span *ngIf="themeService.preference() === 'dark'" class="material-symbols-outlined check-icon">check</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Customer Profile Icon Button (Orders & Account) -->
+      <a routerLink="/profile" routerLinkActive="active" class="action-icon profile-icon" title="Customer Orders & Account Profile">
+        <span class="material-symbols-outlined">person</span>
+      </a>
+
+      <!-- Account Icon Button for Admin Login (User's Explicit Requirement) -->
+      <div class="admin-account-wrapper">
+        <button 
+          type="button" 
+          (click)="onAdminAccountClick()" 
+          class="action-icon admin-account-icon" 
+          [class.is-admin-active]="authService.isAdmin()"
+          title="Admin Login & Contractor Portal">
+          <span class="material-symbols-outlined account-svg-icon">account_circle</span>
+          <span *ngIf="authService.isAdmin()" class="admin-active-dot" title="Admin Signed In"></span>
+        </button>
+
+        <!-- Admin Quick Menu Popup (When Logged in as Admin) -->
+        <div *ngIf="showAdminMenu && authService.isAdmin()" class="admin-menu-dropdown glass-card animate-scale-up">
+          <div class="admin-menu-header">
+            <div class="admin-avatar-small">
+              <span class="material-symbols-outlined">shield_person</span>
+            </div>
+            <div class="admin-user-details">
+              <span class="admin-role-tag">AUTHORIZED ADMIN</span>
+              <strong class="admin-name">{{ authService.getCurrentUser()?.displayName || 'Mohamed Ibrahim' }}</strong>
+              <span class="admin-email">{{ authService.getCurrentUser()?.email }}</span>
+            </div>
+          </div>
+          <div class="admin-menu-items">
+            <a routerLink="/admin" (click)="showAdminMenu = false" class="admin-menu-link">
+              <span class="material-symbols-outlined">dashboard</span>
+              <span>Workforce Roster & Site Ops</span>
+            </a>
+            <a routerLink="/profile" (click)="showAdminMenu = false" class="admin-menu-link">
+              <span class="material-symbols-outlined">receipt_long</span>
+              <span>Customer Orders & Account</span>
+            </a>
+            <button type="button" (click)="logoutAdmin()" class="admin-menu-link logout">
+              <span class="material-symbols-outlined">logout</span>
+              <span>Sign Out Admin</span>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </header>
+
+<!-- Google-Style Admin Login Modal -->
+<div *ngIf="showAdminLoginModal" class="modal-backdrop" (click)="showAdminLoginModal = false">
+  <div class="admin-login-modal glass-card animate-scale-up" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title-wrap">
+        <div class="g-shield-wrap">
+          <span class="material-symbols-outlined g-shield">security</span>
+        </div>
+        <div>
+          <h3>Contractor Admin Login</h3>
+          <p class="modal-sub">Secure Google sign-in for site supervisors & managers</p>
+        </div>
+      </div>
+      <button type="button" class="btn-close-modal" (click)="showAdminLoginModal = false">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Error Alert -->
+      <div *ngIf="adminLoginError" class="login-err-box">
+        <span class="material-symbols-outlined">gpp_bad</span>
+        <span>{{ adminLoginError }}</span>
+      </div>
+
+      <!-- Google Sign In Button -->
+      <button type="button" (click)="handleGoogleSignIn()" class="btn-google-login">
+        <svg class="btn-g-svg" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
+          <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
+          <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 10.03 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+          <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+        </svg>
+        <span>Sign in with Google Account</span>
+      </button>
+
+      <div class="login-divider">
+        <span>OR 1-CLICK AUTHORIZED ADMIN</span>
+      </div>
+
+      <!-- Quick Whitelisted Admin Login -->
+      <button 
+        type="button" 
+        class="btn-fast-admin" 
+        (click)="loginWithAuthorizedEmail('mohamedibrahim010425@gmail.com', 'Mohamed Ibrahim')">
+        <div class="fast-admin-avatar">MI</div>
+        <div class="fast-admin-text">
+          <strong>Mohamed Ibrahim</strong>
+          <span>mohamedibrahim010425@gmail.com (Primary Admin)</span>
+        </div>
+        <span class="material-symbols-outlined arrow">arrow_forward</span>
+      </button>
+
+      <div class="portal-link-box">
+        <span>Need full access?</span>
+        <button type="button" class="btn-link-portal" (click)="goToAdminPortal()">
+          Go directly to Admin Portal →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Clean Mobile Bottom Bar for Small Screens -->
 <nav class="mobile-bar">
@@ -74,17 +320,21 @@
     <span class="material-symbols-outlined">storefront</span>
     <span>Store</span>
   </a>
-  <a routerLink="/book-service" routerLinkActive="active" class="mob-item">
-    <span class="material-symbols-outlined">handyman</span>
-    <span>Book</span>
+  <a routerLink="/profile" routerLinkActive="active" class="mob-item">
+    <span class="material-symbols-outlined">receipt_long</span>
+    <span>Orders</span>
   </a>
-  <a routerLink="/cart" routerLinkActive="active" class="mob-item">
+  <a routerLink="/track-order" routerLinkActive="active" class="mob-item">
+    <span class="material-symbols-outlined">local_shipping</span>
+    <span>Track</span>
+  </a>
+  <button type="button" (click)="openCart($event)" class="mob-item btn-mob-cart">
     <span class="material-symbols-outlined">shopping_cart</span>
     <span>Cart</span>
     <span *ngIf="cartCount > 0" class="mob-badge">{{ cartCount }}</span>
-  </a>
-  <a routerLink="/admin" routerLinkActive="active" class="mob-item">
-    <span class="material-symbols-outlined">settings_suggest</span>
+  </button>
+  <button type="button" (click)="onAdminAccountClick()" class="mob-item btn-mob-admin" [class.active]="authService.isAdmin()">
+    <span class="material-symbols-outlined">account_circle</span>
     <span>Admin</span>
-  </a>
+  </button>
 </nav>

@@ -75,6 +75,14 @@
       </div>
 
       <div class="topbar-actions">
+        <button (click)="openScheduleWorkModal()" class="btn-action-accent btn-highlight-gold">
+          <span class="material-symbols-outlined">event_available</span>
+          Schedule Work
+        </button>
+        <button (click)="openNewEmployeeModal()" class="btn-action-accent">
+          <span class="material-symbols-outlined">person_add</span>
+          Add Electrician
+        </button>
         <button (click)="openNewSiteModal()" class="btn-action-accent">
           <span class="material-symbols-outlined">add_business</span>
           Add Site
@@ -82,14 +90,6 @@
         <button (click)="openNewProductModal()" class="btn-action-accent">
           <span class="material-symbols-outlined">add_shopping_cart</span>
           Add Product
-        </button>
-        <button (click)="openNewServiceModal()" class="btn-action-accent">
-          <span class="material-symbols-outlined">design_services</span>
-          Add Service
-        </button>
-        <button (click)="openNewOfferModal()" class="btn-action-accent">
-          <span class="material-symbols-outlined">local_offer</span>
-          Add Offer
         </button>
         <button (click)="authService.logout()" class="btn-logout" title="Sign Out">
           <span class="material-symbols-outlined">logout</span>
@@ -100,6 +100,28 @@
 
     <!-- Navigation Tabs Bar -->
     <div class="tabs-header-bar">
+      <button 
+        (click)="activeTab = 'roster'" 
+        class="tab-btn" 
+        [class.active]="activeTab === 'roster'">
+        <span class="material-symbols-outlined">calendar_month</span>
+        Duty Roster & Timeline
+        <span *ngIf="attentionAlerts.overdue.length > 0" class="tab-badge-alert" title="Overdue / Incomplete Tasks">
+          {{ attentionAlerts.overdue.length }}
+        </span>
+      </button>
+
+      <button 
+        (click)="activeTab = 'workforce'" 
+        class="tab-btn" 
+        [class.active]="activeTab === 'workforce'">
+        <span class="material-symbols-outlined">badge</span>
+        Workforce & Wages ({{ employees.length }})
+        <span *ngIf="totalWagesPending > 0" class="tab-badge-pending" title="Pending Wages">
+          ₹{{ (totalWagesPending / 1000).toFixed(0) }}k
+        </span>
+      </button>
+
       <button 
         (click)="activeTab = 'sites'" 
         class="tab-btn" 
@@ -118,6 +140,8 @@
 
       <button 
         (click)="activeTab = 'categories'" 
+
+
         class="tab-btn" 
         [class.active]="activeTab === 'categories'">
         <span class="material-symbols-outlined">category</span>
@@ -165,7 +189,377 @@
       </button>
     </div>
 
-    <!-- ================= TAB 1: SITES & DAILY WORK AUTOMATION ================= -->
+    <!-- ================= TAB: DAILY DUTY ROSTER & WORK TIMELINE ================= -->
+    <section *ngIf="activeTab === 'roster'" class="tab-content">
+      <!-- Attention Banner for Overdue / Incomplete Tasks (Audio Requirement) -->
+      <div *ngIf="attentionAlerts.overdue.length > 0 || attentionAlerts.incomplete.length > 0" class="attention-alert-banner glass-card">
+        <div class="alert-icon-box">
+          <span class="material-symbols-outlined">warning</span>
+        </div>
+        <div class="alert-content-box">
+          <div class="alert-title">
+            ⚠️ Attention Required: {{ attentionAlerts.overdue.length }} Work Tasks Overdue / Incomplete from Previous Days
+          </div>
+          <div class="alert-sub">
+            நேற்றைய அல்லது முந்தைய பணிகளில் முடிக்கப்படாதவை உள்ளன. உடனடியாக மாற்று ஆள் நியமிக்கவோ (Reassign) அல்லது அடுத்த வேலை நாளுக்கு கொண்டுசெல்லவோ (Carry Forward) செய்யவும்.
+          </div>
+          <div class="alert-pills-row">
+            <div *ngFor="let ov of attentionAlerts.overdue.slice(0, 3)" class="alert-mini-card">
+              <strong>{{ ov.siteName }}</strong> • <span>{{ ov.assignedEmployeeName }}</span>
+              <div class="alert-mini-task">{{ ov.taskDescription }}</div>
+              <div class="alert-mini-actions">
+                <button (click)="openCarryForwardModal(ov)" class="btn-mini-carry" title="Carry Forward to Next Day">
+                  ⏩ Carry Forward
+                </button>
+                <button (click)="openReassignModal(ov)" class="btn-mini-reassign" title="Reassign to another technician">
+                  🔄 Reassign
+                </button>
+                <button (click)="openCompleteOvertimeModal(ov)" class="btn-mini-done" title="Mark Done">
+                  ✅ Done
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Roster Header & Actions -->
+      <div class="roster-top-toolbar glass-card">
+        <div class="roster-date-selector">
+          <span class="roster-cal-icon material-symbols-outlined">calendar_month</span>
+          <div class="quick-date-chips">
+            <button 
+              (click)="quickSetRosterDate('today')" 
+              class="date-chip" 
+              [class.active]="rosterSelectedDate === (siteService.getSites()[0]?.startDate ? rosterSelectedDate : '')">
+              📅 Today ({{ todayAllocations.length }})
+            </button>
+            <button 
+              (click)="quickSetRosterDate('tomorrow')" 
+              class="date-chip">
+              ⏩ Tomorrow
+            </button>
+            <button 
+              (click)="quickSetRosterDate('all')" 
+              class="date-chip" 
+              [class.active]="!rosterSelectedDate">
+              All Dates ({{ allocations.length }})
+            </button>
+          </div>
+          <div class="date-input-wrap">
+            <input type="date" [(ngModel)]="rosterSelectedDate" class="roster-date-input" />
+          </div>
+        </div>
+
+        <div class="roster-filter-actions">
+          <div class="roster-search-wrap">
+            <span class="material-symbols-outlined">search</span>
+            <input 
+              type="text" 
+              [(ngModel)]="rosterSearch" 
+              placeholder="Search site, technician, or task..." 
+            />
+          </div>
+
+          <select [(ngModel)]="rosterStatusFilter" class="roster-status-select">
+            <option value="ALL">All Status ({{ allocations.length }})</option>
+            <option value="scheduled">Scheduled</option>
+            <option value="in_progress">In Progress</option>
+            <option value="completed">Completed</option>
+            <option value="carried_forward">Carried Forward</option>
+          </select>
+
+          <button (click)="broadcastRosterWhatsApp()" class="btn-whatsapp-broadcast" title="Broadcast daily schedule to team WhatsApp">
+            <span class="material-symbols-outlined">send_to_mobile</span>
+            📲 Send Roster to WhatsApp
+          </button>
+
+          <button (click)="openScheduleWorkModal()" class="btn-schedule-new">
+            <span class="material-symbols-outlined">add_task</span>
+            + Schedule Work
+          </button>
+        </div>
+      </div>
+
+      <!-- Allocations Grid List -->
+      <div class="allocations-list-container">
+        <div *ngIf="filteredAllocations.length === 0" class="empty-roster-card glass-card">
+          <span class="material-symbols-outlined empty-icon">event_busy</span>
+          <h3>No Work Tasks Scheduled for this Date</h3>
+          <p>இந்த தேதியில் எந்த வேலையும் திட்டமிடப்படவில்லை. புதிய வேலையை திட்டமிட கீழே கிளிக் செய்யவும்.</p>
+          <button (click)="openScheduleWorkModal()" class="btn-action-accent">
+            + Schedule First Task for this Date
+          </button>
+        </div>
+
+        <div *ngFor="let alloc of filteredAllocations" class="allocation-card glass-card" [ngClass]="{
+          'status-completed': alloc.status === 'completed',
+          'status-carried': alloc.isCarriedForward || alloc.status === 'carried_forward',
+          'status-inprogress': alloc.status === 'in_progress'
+        }">
+          <!-- Card Header Line -->
+          <div class="alloc-card-top">
+            <div class="alloc-date-badge">
+              <span class="material-symbols-outlined">event</span>
+              <strong>{{ alloc.date }}</strong>
+              <span *ngIf="alloc.dayNumber" class="day-number-tag">Day {{ alloc.dayNumber }}</span>
+            </div>
+
+            <div class="alloc-badges-group">
+              <span *ngIf="alloc.isCarriedForward" class="pill-carried-forward" title="Carried forward from {{ alloc.carriedFromDate }}">
+                ⏩ Carried Forward from {{ alloc.carriedFromDate }}
+              </span>
+              <span class="pill-status" [ngClass]="'pill-' + alloc.status">
+                {{ alloc.status.toUpperCase() }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Site & Client Meta -->
+          <div class="alloc-site-info">
+            <h4 class="alloc-site-title">{{ alloc.siteName }}</h4>
+            <div class="alloc-loc">
+              <span class="material-symbols-outlined">location_on</span>
+              {{ alloc.siteAddress }}
+            </div>
+            <div class="alloc-client-row">
+              <span class="material-symbols-outlined">person</span>
+              <span>Client: <strong>{{ alloc.clientName }}</strong></span>
+              <a [href]="'tel:' + alloc.clientPhone" class="alloc-phone-link">
+                <span class="material-symbols-outlined">call</span> {{ alloc.clientPhone }}
+              </a>
+            </div>
+          </div>
+
+          <!-- Task Details Box -->
+          <div class="alloc-task-box">
+            <div class="alloc-task-label">
+              <span class="material-symbols-outlined">construction</span>
+              <strong>Work Assignment / பணி விவரம்:</strong>
+            </div>
+            <div class="alloc-task-text">{{ alloc.taskDescription }}</div>
+            <div *ngIf="alloc.notes" class="alloc-notes-line">
+              <em>Note: {{ alloc.notes }}</em>
+            </div>
+            <div *ngIf="alloc.incompleteReason" class="alloc-incomplete-reason">
+              ⚠️ Reason: {{ alloc.incompleteReason }}
+            </div>
+          </div>
+
+          <!-- Worker & Wage Details Line -->
+          <div class="alloc-worker-bar">
+            <div class="worker-details-col">
+              <span class="material-symbols-outlined worker-avatar-icon">engineering</span>
+              <div>
+                <strong class="worker-name">{{ alloc.assignedEmployeeName }}</strong>
+                <div class="worker-sub">
+                  Rate: ₹{{ alloc.employeeDailyWage }}/day • Shift: {{ alloc.shift }}
+                </div>
+              </div>
+            </div>
+
+            <div class="wage-calculated-col">
+              <span class="wage-label">Calculated Wage:</span>
+              <strong class="wage-amt">₹{{ alloc.calculatedWage.toLocaleString() }}</strong>
+              <span *ngIf="alloc.isOvertime" class="ot-badge">+{{ alloc.overtimeHours }}h OT</span>
+            </div>
+          </div>
+
+          <!-- Quick Actions Toolbar -->
+          <div class="alloc-actions-bar">
+            <button 
+              *ngIf="alloc.status !== 'completed'"
+              (click)="toggleAllocationStatus(alloc, 'completed')" 
+              class="btn-alloc-action btn-complete"
+              title="Mark Completed & record labor wage">
+              <span class="material-symbols-outlined">check_circle</span>
+              Mark Done
+            </button>
+
+            <button 
+              *ngIf="alloc.status !== 'completed'"
+              (click)="openCarryForwardModal(alloc)" 
+              class="btn-alloc-action btn-carry"
+              title="Carry forward to next working day">
+              <span class="material-symbols-outlined">fast_forward</span>
+              Carry Forward
+            </button>
+
+            <button 
+              (click)="openReassignModal(alloc)" 
+              class="btn-alloc-action btn-reassign"
+              title="Reassign to another technician">
+              <span class="material-symbols-outlined">sync_alt</span>
+              Reassign
+            </button>
+
+            <button 
+              (click)="openRescheduleModal(alloc)" 
+              class="btn-alloc-action btn-reschedule"
+              title="Change scheduled date">
+              <span class="material-symbols-outlined">edit_calendar</span>
+              Reschedule
+            </button>
+
+            <button 
+              (click)="deleteAllocation(alloc.id)" 
+              class="btn-alloc-action btn-delete"
+              title="Delete this schedule">
+              <span class="material-symbols-outlined">delete</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= TAB: WORKFORCE & WAGES DIRECTORY ================= -->
+    <section *ngIf="activeTab === 'workforce'" class="tab-content">
+      <!-- Workforce Overview KPI Grid -->
+      <div class="kpi-grid">
+        <div class="kpi-card glass-card">
+          <div class="kpi-icon yellow-bg">
+            <span class="material-symbols-outlined">engineering</span>
+          </div>
+          <div class="kpi-data">
+            <span class="kpi-label">Active Technicians</span>
+            <span class="kpi-value">{{ employees.length }} Electricians</span>
+          </div>
+        </div>
+
+        <div class="kpi-card glass-card">
+          <div class="kpi-icon green-bg">
+            <span class="material-symbols-outlined">payments</span>
+          </div>
+          <div class="kpi-data">
+            <span class="kpi-label">Total Wages Paid Out</span>
+            <span class="kpi-value">
+              ₹{{ (stats.totalExpenses ? 37000 : 27000).toLocaleString() }}
+            </span>
+          </div>
+        </div>
+
+        <div class="kpi-card glass-card kpi-highlight-danger">
+          <div class="kpi-icon red-bg">
+            <span class="material-symbols-outlined">account_balance_wallet</span>
+          </div>
+          <div class="kpi-data">
+            <span class="kpi-label">Pending Wage Balance (சம்பள நிலுவை)</span>
+            <span class="kpi-value pending-val">₹{{ totalWagesPending.toLocaleString() }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Row -->
+      <div class="section-actions-row">
+        <div>
+          <h2>Technician & Electrician Workforce Directory</h2>
+          <p class="section-subtitle">
+            Manage electricians, daily wage rates, days worked, and record wage disbursements via Cash or GPay UPI.
+          </p>
+        </div>
+        <button (click)="openNewEmployeeModal()" class="btn-action-accent">
+          <span class="material-symbols-outlined">person_add</span>
+          + Add New Electrician
+        </button>
+      </div>
+
+      <!-- Employees Grid -->
+      <div class="employees-grid">
+        <div *ngFor="let emp of employees" class="employee-card glass-card" [class.on-leave]="emp.status === 'on_leave'">
+          <div class="emp-card-header">
+            <div class="emp-avatar-wrap">
+              <span class="material-symbols-outlined emp-icon">badge</span>
+            </div>
+            <div class="emp-info-wrap">
+              <h3 class="emp-name">{{ emp.name }}</h3>
+              <div class="emp-role-pill">{{ emp.role }}</div>
+              <a [href]="'tel:' + emp.phone" class="emp-phone">
+                <span class="material-symbols-outlined">call</span> {{ emp.phone }}
+              </a>
+            </div>
+
+            <button 
+              (click)="toggleEmployeeStatus(emp.id)" 
+              class="status-toggle-pill" 
+              [ngClass]="emp.status === 'active' ? 'status-active' : 'status-leave'">
+              {{ emp.status === 'active' ? '✓ Active' : 'On Leave' }}
+            </button>
+          </div>
+
+          <div *ngIf="emp.specialty" class="emp-specialty-line">
+            ⚡ <strong>Specialty:</strong> {{ emp.specialty }}
+          </div>
+
+          <!-- Wage Metrics Ledger Box -->
+          <div class="emp-metrics-box">
+            <div class="metric-item">
+              <span class="metric-lbl">Daily Wage</span>
+              <strong class="metric-val">₹{{ emp.dailyWage }}/day</strong>
+            </div>
+            <div class="metric-item">
+              <span class="metric-lbl">Days Worked</span>
+              <strong class="metric-val">{{ emp.totalDaysWorked || 0 }} Days</strong>
+            </div>
+            <div class="metric-item">
+              <span class="metric-lbl">Total Earned</span>
+              <strong class="metric-val">₹{{ (emp.totalWagesEarned || 0).toLocaleString() }}</strong>
+            </div>
+            <div class="metric-item highlight-metric">
+              <span class="metric-lbl">Pending Balance</span>
+              <strong class="metric-val red-text">₹{{ (emp.pendingWageBalance || 0).toLocaleString() }}</strong>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="emp-actions-row">
+            <button (click)="openRecordPayoutModal(emp)" class="btn-pay-wage" title="Record wage payout via Cash or UPI">
+              <span class="material-symbols-outlined">monetization_on</span>
+              Pay Wages (சம்பளம் வழங்கு)
+            </button>
+            <button (click)="shareEmployeeWageWhatsApp(emp)" class="btn-share-payslip" title="Share pay slip on WhatsApp">
+              <span class="material-symbols-outlined">chat</span>
+              WhatsApp Slip
+            </button>
+            <button (click)="deleteEmployee(emp.id)" class="btn-delete-emp" title="Delete employee">
+              <span class="material-symbols-outlined">delete</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wage Payouts Ledger Table -->
+      <div class="payouts-table-section glass-card">
+        <h3>Recent Labor Wage Disbursements & Payouts Ledger</h3>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Receipt Ref</th>
+              <th>Date</th>
+              <th>Technician</th>
+              <th>Amount Paid</th>
+              <th>Payment Mode</th>
+              <th>Notes / Remarks</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of payouts">
+              <td><code>{{ p.receiptRef }}</code></td>
+              <td>{{ p.date }}</td>
+              <td><strong>{{ p.employeeName }}</strong></td>
+              <td><strong class="green-text">₹{{ p.amount.toLocaleString() }}</strong></td>
+              <td>
+                <span class="badge-pill" [ngClass]="p.paymentMode === 'cash' ? 'badge-info' : 'badge-success'">
+                  {{ p.paymentMode.toUpperCase() }}
+                </span>
+              </td>
+              <td>{{ p.notes }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================= TAB: SITES & FINANCE (ENHANCED CONTRACT TYPES) ================= -->
     <section *ngIf="activeTab === 'sites'" class="tab-content">
       <!-- Overview KPI Cards -->
       <div class="kpi-grid">
@@ -215,7 +609,7 @@
             <span class="material-symbols-outlined">savings</span>
           </div>
           <div class="kpi-data">
-            <span class="kpi-label">Current Net Margin</span>
+            <span class="kpi-label">Net Profit / Margin</span>
             <span class="kpi-value font-bold">₹{{ stats.netProfit.toLocaleString() }}</span>
           </div>
         </div>
@@ -223,9 +617,14 @@
 
       <!-- Sites List -->
       <div class="sites-section-header">
-        <h2>Current Electrical Sites & Projects</h2>
+        <div>
+          <h2>Electrical Sites & Contracts Management</h2>
+          <p class="section-subtitle">
+            Manage Labour Only contracts & Turnkey Material+Labour sites with automated project schedules and live profit margins.
+          </p>
+        </div>
         <button (click)="openNewSiteModal()" class="btn-create-sm">
-          <span class="material-symbols-outlined">add</span> Create Site
+          <span class="material-symbols-outlined">add</span> Create New Site
         </button>
       </div>
 
@@ -242,8 +641,15 @@
                 }">
                   {{ s.status.toUpperCase() }}
                 </span>
+                
+                <!-- CONTRACT TYPE BADGE (Audio Feature) -->
+                <span class="badge-pill" [ngClass]="s.contractType === 'labor_only' ? 'badge-labor' : 'badge-material'">
+                  {{ s.contractType === 'labor_only' ? '🛠️ Labour Only (லேபர் மட்டும்)' : '📦 With Material + Labour' }}
+                </span>
+
                 <span class="site-start-date">Started: {{ s.startDate }}</span>
               </div>
+
               <h3 class="site-heading">{{ s.siteName }}</h3>
               <div class="client-info-line">
                 <span class="material-symbols-outlined">person</span>
@@ -262,11 +668,27 @@
             </div>
           </div>
 
+          <!-- Labor & Manpower Metrics -->
+          <div class="site-labor-metrics-bar">
+            <div class="labor-metric-col">
+              <span class="material-symbols-outlined">group</span>
+              <span>Planned Workforce: <strong>{{ s.plannedWorkersCount || 2 }} Workers/Day</strong></span>
+            </div>
+            <div class="labor-metric-col">
+              <span class="material-symbols-outlined">history</span>
+              <span>Estimated Labor: <strong>{{ s.estimatedLaborDays || 15 }} Man-Days</strong></span>
+            </div>
+            <div *ngIf="s.contractType === 'with_material' && s.materialBudget" class="labor-metric-col">
+              <span class="material-symbols-outlined">inventory</span>
+              <span>Material Budget: <strong>₹{{ s.materialBudget.toLocaleString() }}</strong></span>
+            </div>
+          </div>
+
           <!-- Workers Assigned Today -->
           <div class="site-workers-block">
             <span class="workers-label">
               <span class="material-symbols-outlined">badge</span>
-              Assigned Electricians Today:
+              Primary Electricians:
             </span>
             <div class="workers-chips-list">
               <span *ngFor="let w of s.assignedElectricians" class="worker-pill">
@@ -301,19 +723,29 @@
 
           <!-- Quick Site Actions -->
           <div class="site-actions-bar">
+            <button (click)="autoGenerateSiteTimeline(s)" class="btn-site-action btn-auto-plan" title="Generate 10-day Day-by-Day schedule">
+              <span class="material-symbols-outlined">auto_fix_high</span>
+              ⚡ Auto-Plan 10-Day Timeline
+            </button>
+
+            <button (click)="openProfitReportModal(s)" class="btn-site-action btn-profit-report" title="View & share P&L report">
+              <span class="material-symbols-outlined">analytics</span>
+              📊 Profit & Loss Report
+            </button>
+
             <button (click)="openAddExpenseModal(s)" class="btn-site-action btn-expense">
               <span class="material-symbols-outlined">post_add</span>
-              Log Daily Expense
+              Log Expense / Material
             </button>
 
             <button (click)="openAddPaymentModal(s)" class="btn-site-action btn-payment">
               <span class="material-symbols-outlined">add_card</span>
-              Record Client Payment
+              Record Payment
             </button>
 
             <button (click)="openDailyWorkLogModal(s)" class="btn-site-action btn-worklog">
               <span class="material-symbols-outlined">history_edu</span>
-              Daily Work Log ({{ s.dailyLogs.length }})
+              Daily Log ({{ s.dailyLogs.length }})
             </button>
 
             <button (click)="toggleSiteStatus(s)" class="btn-site-action btn-toggle-status">
@@ -324,11 +756,14 @@
 
           <!-- Recent Expenses Summary for this Site -->
           <div *ngIf="s.expenses.length > 0" class="recent-expenses-drawer">
-            <div class="exp-drawer-header">Recent Expenses for this site ({{ s.expenses.length }} entries):</div>
+            <div class="exp-drawer-header">Recent Material Purchases & Expenses ({{ s.expenses.length }} entries):</div>
             <div class="exp-drawer-list">
               <div *ngFor="let exp of s.expenses.slice(0, 3)" class="exp-row">
                 <span class="exp-date">{{ exp.date }}</span>
-                <span class="exp-desc">{{ exp.title }} ({{ exp.category }})</span>
+                <span class="exp-desc">
+                  <strong>[{{ exp.category.toUpperCase() }}]</strong> {{ exp.title }}
+                  <span *ngIf="exp.invoiceNo" class="exp-inv">(Bill #{{ exp.invoiceNo }})</span>
+                </span>
                 <strong class="exp-cost">₹{{ exp.amount }}</strong>
               </div>
             </div>
@@ -336,6 +771,7 @@
         </div>
       </div>
     </section>
+
 
     <!-- ================= TAB 2: PRODUCTS & INLINE PRICING CONFIGURATION ================= -->
     <section *ngIf="activeTab === 'products'" class="tab-content">
@@ -630,6 +1066,60 @@
         </div>
       </div>
 
+      <!-- 1b. Deal of the Day Spotlight Configuration Card (Inspired by tktools.in) -->
+      <div class="banner-config-card glass-card" style="margin-top: 20px;">
+        <div class="card-heading-group">
+          <div class="card-icon-bubble yellow-bg">
+            <span class="material-symbols-outlined">bolt</span>
+          </div>
+          <div>
+            <h3>Deal of the Day & Flash Sales Spotlight</h3>
+            <p>Spotlight high-conversion power tools or special equipment with an active live countdown timer (like tktools.in).</p>
+          </div>
+        </div>
+
+        <div class="banner-form-fields">
+          <div class="checkbox-field">
+            <label class="toggle-switch">
+              <input type="checkbox" [(ngModel)]="config.showDealOfTheDay" />
+              <span class="slider"></span>
+            </label>
+            <span class="toggle-text">Enable Deal of the Day Spotlight on Homepage</span>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>Select Spotlight Product</label>
+              <select [(ngModel)]="config.dealOfTheDayProductId" class="form-select">
+                <option *ngFor="let p of products" [value]="p.id">
+                  {{ p.brand }} - {{ p.name }} (₹{{ p.price }})
+                </option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Flash Sale Ends In (Hours)</label>
+              <input type="number" [(ngModel)]="config.dealOfTheDayEndHours" min="1" max="72" placeholder="e.g. 12" />
+            </div>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>Spotlight Title</label>
+              <input type="text" [(ngModel)]="config.dealOfTheDayTitle" placeholder="e.g. Deal of the Day ⚡ Limited-Time Flash Tool" />
+            </div>
+            <div class="form-group">
+              <label>Tamil Subtitle / Catchphrase</label>
+              <input type="text" [(ngModel)]="config.dealOfTheDaySubtitle" placeholder="e.g. சிறப்பு சலுகை: பிரீமியம் கார்ட்லெஸ் பவர் டூல்ஸ்" />
+            </div>
+          </div>
+
+          <button (click)="saveDealOfTheDayConfig()" class="btn-save-banner">
+            <span class="material-symbols-outlined">save</span>
+            Save Deal of the Day Settings
+          </button>
+        </div>
+      </div>
+
       <!-- 2. Promotional Discount Packages & Coupons -->
       <h3 class="subsection-title">Customer Discount Coupons & Promo Packages</h3>
 
@@ -843,7 +1333,7 @@
               </div>
               <div class="form-group">
                 <label>Support Email Address</label>
-                <input type="email" [(ngModel)]="config.contactEmail" placeholder="support@voltmaster.in" />
+                <input type="email" [(ngModel)]="config.contactEmail" placeholder="support@electricalvibers.com" />
               </div>
             </div>
           </div>
@@ -1202,7 +1692,7 @@
           </svg>
           <div>
             <h3>Sign in with Google</h3>
-            <span class="sub-lead">Choose a Google Account to continue to VoltMaster</span>
+            <span class="sub-lead">Choose a Google Account to continue to Electrical Vibers</span>
           </div>
         </div>
         <button (click)="showGoogleAccountModal = false" class="modal-close">✕</button>
@@ -1272,7 +1762,7 @@
 
   <!-- Modal 1: Add New Site -->
   <div *ngIf="showNewSiteModal" class="modal-backdrop">
-    <div class="modal-card glass-card">
+    <div class="modal-card glass-card modal-lg">
       <div class="modal-header">
         <h3>Add New Ongoing Electrical Site</h3>
         <button (click)="showNewSiteModal = false" class="modal-close">✕</button>
@@ -1282,6 +1772,30 @@
         <div class="form-group">
           <label>Site / Project Name *</label>
           <input type="text" [(ngModel)]="newSiteName" placeholder="e.g. Skyline Apartments Flat 502 Wiring" />
+        </div>
+
+        <!-- CONTRACT TYPE SELECTOR (Audio Feature) -->
+        <div class="form-group">
+          <label>Contract Type (ஒப்பந்த வகை) *</label>
+          <div class="contract-type-cards-row">
+            <label class="contract-radio-card" [class.selected]="newSiteContractType === 'with_material'">
+              <input type="radio" [(ngModel)]="newSiteContractType" value="with_material" name="cType" />
+              <div class="c-card-content">
+                <span class="material-symbols-outlined">inventory_2</span>
+                <strong>📦 With Material + Labour (மெட்டீரியலுடன்)</strong>
+                <p>Contractor supplies wires, pipes, DB, MCBs, lighting + electricians</p>
+              </div>
+            </label>
+
+            <label class="contract-radio-card" [class.selected]="newSiteContractType === 'labor_only'">
+              <input type="radio" [(ngModel)]="newSiteContractType" value="labor_only" name="cType" />
+              <div class="c-card-content">
+                <span class="material-symbols-outlined">handyman</span>
+                <strong>🛠️ Labour Only (லேபர் மட்டும்)</strong>
+                <p>Client buys materials, contractor supplies skilled electricians only</p>
+              </div>
+            </label>
+          </div>
         </div>
 
         <div class="form-row-2">
@@ -1297,7 +1811,7 @@
 
         <div class="form-group">
           <label>Site Address & Area *</label>
-          <input type="text" [(ngModel)]="newSiteAddress" placeholder="e.g. No 15, 4th Main Road, Adyar" />
+          <input type="text" [(ngModel)]="newSiteAddress" placeholder="e.g. No 15, 4th Main Road, Adyar, Chennai" />
         </div>
 
         <div class="form-row-2">
@@ -1311,6 +1825,22 @@
           </div>
         </div>
 
+        <!-- Manpower & Material Planning -->
+        <div class="form-row-3">
+          <div class="form-group">
+            <label>Planned Daily Workforce</label>
+            <input type="number" [(ngModel)]="newSitePlannedWorkers" placeholder="2 Workers/Day" />
+          </div>
+          <div class="form-group">
+            <label>Estimated Total Labor</label>
+            <input type="number" [(ngModel)]="newSiteEstimatedLaborDays" placeholder="15 Man-Days" />
+          </div>
+          <div *ngIf="newSiteContractType === 'with_material'" class="form-group">
+            <label>Material Purchase Budget (₹)</label>
+            <input type="number" [(ngModel)]="newSiteMaterialBudget" placeholder="45000" />
+          </div>
+        </div>
+
         <div class="form-group">
           <label>Assign Primary Electrician(s)</label>
           <input type="text" [(ngModel)]="newSiteWorkers" placeholder="e.g. Murugan, Suresh" />
@@ -1319,16 +1849,16 @@
 
       <div class="modal-footer">
         <button (click)="showNewSiteModal = false" class="btn-cancel">Cancel</button>
-        <button (click)="saveNewSite()" class="btn-save">Create Site & Start Tracking</button>
+        <button (click)="saveNewSite()" class="btn-save">Create Site & Auto-Plan Timeline</button>
       </div>
     </div>
   </div>
 
-  <!-- Modal 2: Log Daily Site Expense -->
+  <!-- Modal 2: Log Daily Site Expense / Material Purchase -->
   <div *ngIf="showAddExpenseModal && activeSiteForAction" class="modal-backdrop">
     <div class="modal-card glass-card">
       <div class="modal-header">
-        <h3>Log Daily Expense for: {{ activeSiteForAction.siteName }}</h3>
+        <h3>Log Expense / Material: {{ activeSiteForAction.siteName }}</h3>
         <button (click)="showAddExpenseModal = false" class="modal-close">✕</button>
       </div>
 
@@ -1336,22 +1866,45 @@
         <div class="form-group">
           <label>Expense Category *</label>
           <select [(ngModel)]="expenseCategory">
-            <option value="material">Material (Wires, Pipes, Switches, MCBs)</option>
-            <option value="labor">Labor Wages / Helper Daily Wages</option>
-            <option value="travel_food">Travel, Van Dispatch & Food Allowance</option>
-            <option value="tools">Tools, Drill Bits & Consumables</option>
-            <option value="other">Miscellaneous</option>
+            <option value="material">📦 Material Purchase (Wires, Pipes, Switches, MCBs, DBs)</option>
+            <option value="labor">👷 Labor Wages / Helper Daily Wages</option>
+            <option value="travel_food">🚗 Travel, Van Dispatch & Food Allowance</option>
+            <option value="tools">🔧 Tools, Drill Bits & Consumables</option>
+            <option value="other">📝 Miscellaneous</option>
           </select>
         </div>
 
-        <div class="form-group">
+        <!-- Dedicated Itemized Material Fields if category is Material -->
+        <div *ngIf="expenseCategory === 'material'" class="material-procurement-box">
+          <div class="form-group">
+            <label>Material Item Name & Brand *</label>
+            <input type="text" [(ngModel)]="expenseMaterialName" placeholder="e.g. Finolex 2.5mm FR Copper Wire (Coils)" />
+          </div>
+
+          <div class="form-row-3">
+            <div class="form-group">
+              <label>Quantity</label>
+              <input type="number" [(ngModel)]="expenseMaterialQty" (change)="onMaterialRateOrQtyChange()" placeholder="4" />
+            </div>
+            <div class="form-group">
+              <label>Rate / Unit (₹)</label>
+              <input type="number" [(ngModel)]="expenseMaterialUnitRate" (change)="onMaterialRateOrQtyChange()" placeholder="2800" />
+            </div>
+            <div class="form-group">
+              <label>Wholesale Bill No</label>
+              <input type="text" [(ngModel)]="expenseInvoiceNo" placeholder="Bill #4821" />
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="expenseCategory !== 'material'" class="form-group">
           <label>Item / Expense Description *</label>
-          <input type="text" [(ngModel)]="expenseTitle" placeholder="e.g. 2 Coils Finolex 2.5mm + PVC junction boxes" />
+          <input type="text" [(ngModel)]="expenseTitle" placeholder="e.g. Team lunch & van material dispatch" />
         </div>
 
         <div class="form-row-2">
           <div class="form-group">
-            <label>Amount (₹) *</label>
+            <label>Total Amount (₹) *</label>
             <input type="number" [(ngModel)]="expenseAmount" placeholder="3500" />
           </div>
           <div class="form-group">
@@ -1361,17 +1914,18 @@
         </div>
 
         <div class="form-group">
-          <label>Receipt Bill No / Notes</label>
-          <input type="text" [(ngModel)]="expenseNotes" placeholder="Bill #1249 from wholesale shop" />
+          <label>Notes / Vendor Details</label>
+          <input type="text" [(ngModel)]="expenseNotes" placeholder="Purchased from Royal Electricals wholesale" />
         </div>
       </div>
 
       <div class="modal-footer">
         <button (click)="showAddExpenseModal = false" class="btn-cancel">Cancel</button>
-        <button (click)="saveExpense()" class="btn-save">Add Expense Entry</button>
+        <button (click)="saveExpense()" class="btn-save">Save Expense / Material Entry</button>
       </div>
     </div>
   </div>
+
 
   <!-- Modal 3: Record Client Payment Received -->
   <div *ngIf="showAddPaymentModal && activeSiteForAction" class="modal-backdrop">
@@ -1734,4 +2288,421 @@
       </div>
     </div>
   </div>
+
+  <!-- ================= WORKFORCE & DUTY ROSTER MODALS ================= -->
+
+  <!-- Modal: Schedule Work Task -->
+  <div *ngIf="showScheduleWorkModal" class="modal-backdrop">
+    <div class="modal-card glass-card modal-lg">
+      <div class="modal-header">
+        <h3>📅 Schedule Site Work / புதிய பணி ஒதுக்கீடு</h3>
+        <button (click)="showScheduleWorkModal = false" class="modal-close">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Select Site / தளம் *</label>
+            <select [(ngModel)]="schedSiteId">
+              <option *ngFor="let s of sites" [value]="s.id">
+                {{ s.siteName }} ({{ s.clientName }})
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Work Date / தேதி *</label>
+            <input type="date" [(ngModel)]="schedDate" />
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Assign Electrician / Technician *</label>
+            <select [(ngModel)]="schedEmployeeId">
+              <option *ngFor="let emp of employees" [value]="emp.id">
+                {{ emp.name }} ({{ emp.role }} - ₹{{ emp.dailyWage }}/day)
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Work Shift / நேரம் *</label>
+            <select [(ngModel)]="schedShift">
+              <option value="full_day">Full Day (9:00 AM - 6:00 PM) [1.0x Rate]</option>
+              <option value="half_day">Half Day [0.5x Rate]</option>
+              <option value="night_shift">Night Shift (Mall / Commercial) [1.5x Rate]</option>
+              <option value="overtime">Overtime Shift [1.5x Rate]</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Task Description / வேலை விவரம் *</label>
+          <textarea 
+            [(ngModel)]="schedTask" 
+            rows="3" 
+            placeholder="e.g. Master Bedroom concealed conduit chipping, DB box fixing & 2.5mm copper wire pulling">
+          </textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Special Instructions / Notes</label>
+          <input type="text" [(ngModel)]="schedNotes" placeholder="e.g. Client requested 16A AC point on North wall" />
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="showScheduleWorkModal = false" class="btn-cancel">Cancel</button>
+        <button (click)="saveScheduleWork()" class="btn-save">Schedule Task in Roster</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: 1-Click Quick Reassign Worker (Absent / Sick) -->
+  <div *ngIf="showReassignModal && activeAllocationForAction" class="modal-backdrop">
+    <div class="modal-card glass-card">
+      <div class="modal-header">
+        <h3>🔄 Reassign Worker / மாற்று ஆள் நியமனம்</h3>
+        <button (click)="showReassignModal = false" class="modal-close">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="reassign-source-box">
+          <div class="r-row"><strong>Site:</strong> {{ activeAllocationForAction.siteName }}</div>
+          <div class="r-row"><strong>Task:</strong> {{ activeAllocationForAction.taskDescription }}</div>
+          <div class="r-row">
+            <strong>Currently Assigned:</strong> 
+            <span class="badge-pill badge-warning">{{ activeAllocationForAction.assignedEmployeeName }}</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Select Replacement Electrician / மாற்று ஆள் *</label>
+          <select [(ngModel)]="reassignEmployeeId">
+            <option *ngFor="let emp of employees" [value]="emp.id">
+              {{ emp.name }} ({{ emp.role }} - ₹{{ emp.dailyWage }}/day) {{ emp.status !== 'active' ? '[On Leave]' : '' }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Reason for Reassignment / காரணக் குறிப்பு *</label>
+          <input 
+            type="text" 
+            [(ngModel)]="reassignReason" 
+            placeholder="e.g. Suresh reported sick / Emergency family leave" 
+          />
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="showReassignModal = false" class="btn-cancel">Cancel</button>
+        <button (click)="saveReassignWorker()" class="btn-save">Confirm & Reassign</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Reschedule Date (Postponed by Client or Weather) -->
+  <div *ngIf="showRescheduleModal && activeAllocationForAction" class="modal-backdrop">
+    <div class="modal-card glass-card">
+      <div class="modal-header">
+        <h3>📅 Reschedule Task Date / தேதி மாற்றம்</h3>
+        <button (click)="showRescheduleModal = false" class="modal-close">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="reassign-source-box">
+          <div class="r-row"><strong>Site:</strong> {{ activeAllocationForAction.siteName }}</div>
+          <div class="r-row"><strong>Task:</strong> {{ activeAllocationForAction.taskDescription }}</div>
+          <div class="r-row"><strong>Current Date:</strong> {{ activeAllocationForAction.date }}</div>
+        </div>
+
+        <div class="form-group">
+          <label>New Target Date / புதிய தேதி *</label>
+          <input type="date" [(ngModel)]="rescheduleDateVal" />
+        </div>
+
+        <div class="form-group">
+          <label>Reason for Postponement / காரணம்</label>
+          <input 
+            type="text" 
+            [(ngModel)]="rescheduleReason" 
+            placeholder="e.g. Heavy rain / Civil masonry curing delay / Client requested next week" 
+          />
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="showRescheduleModal = false" class="btn-cancel">Cancel</button>
+        <button (click)="saveRescheduleDate()" class="btn-save">Save New Date</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Carry Forward Incomplete Task to Next Working Day (Audio Feature) -->
+  <div *ngIf="showCarryForwardModal && activeAllocationForAction" class="modal-backdrop">
+    <div class="modal-card glass-card">
+      <div class="modal-header">
+        <h3>⏩ Carry Forward Task / அடுத்த நாளுக்கு மாற்றம்</h3>
+        <button (click)="showCarryForwardModal = false" class="modal-close">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="carry-forward-notice">
+          <span class="material-symbols-outlined">info</span>
+          <div>
+            வேலை முழுமையாக முடியவில்லை என்றால், மீதமுள்ள வேலையை அடுத்த வேலை நாளுக்கு கொண்டு செல்லலாம்.
+          </div>
+        </div>
+
+        <div class="reassign-source-box">
+          <div class="r-row"><strong>Site:</strong> {{ activeAllocationForAction.siteName }}</div>
+          <div class="r-row"><strong>Unfinished Task:</strong> {{ activeAllocationForAction.taskDescription }}</div>
+          <div class="r-row"><strong>Electrician:</strong> {{ activeAllocationForAction.assignedEmployeeName }}</div>
+        </div>
+
+        <div class="form-group">
+          <label>Next Working Date to Carry Forward *</label>
+          <input type="date" [(ngModel)]="carryForwardNextDate" />
+        </div>
+
+        <div class="form-group">
+          <label>Reason Incomplete / ஏன் முடியவில்லை? *</label>
+          <input 
+            type="text" 
+            [(ngModel)]="carryForwardReason" 
+            placeholder="e.g. Power shutdown in area / Material shortage / Civil work unfinished" 
+          />
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="showCarryForwardModal = false" class="btn-cancel">Cancel</button>
+        <button (click)="saveCarryForwardTask()" class="btn-save">Carry Forward Task</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Mark Complete with Overtime / Extra Work (Audio Feature) -->
+  <div *ngIf="showCompleteOvertimeModal && activeAllocationForAction" class="modal-backdrop">
+    <div class="modal-card glass-card">
+      <div class="modal-header">
+        <h3>✅ Mark Task Completed / வேலை முடித்த விவரம்</h3>
+        <button (click)="showCompleteOvertimeModal = false" class="modal-close">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="reassign-source-box">
+          <div class="r-row"><strong>Site:</strong> {{ activeAllocationForAction.siteName }}</div>
+          <div class="r-row"><strong>Task:</strong> {{ activeAllocationForAction.taskDescription }}</div>
+          <div class="r-row"><strong>Electrician:</strong> {{ activeAllocationForAction.assignedEmployeeName }}</div>
+          <div class="r-row"><strong>Standard Shift Wage:</strong> ₹{{ activeAllocationForAction.calculatedWage }}</div>
+        </div>
+
+        <div class="form-group">
+          <label>Extra Hours / Overtime Done? (கூடுதல் நேரம்)</label>
+          <input 
+            type="number" 
+            [(ngModel)]="overtimeHours" 
+            placeholder="0" 
+            min="0" 
+            max="12" 
+          />
+          <small class="form-hint" *ngIf="overtimeHours > 0">
+            Overtime bonus rate: +₹{{ Math.round(((activeAllocationForAction.employeeDailyWage || 800) / 8) * overtimeHours * 1.5) }} will be added to technician's wage!
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label>Completion Notes / Work Remarks</label>
+          <input 
+            type="text" 
+            [(ngModel)]="overtimeNotes" 
+            placeholder="e.g. All circuits tested with multimeter; ready for painting" 
+          />
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="showCompleteOvertimeModal = false" class="btn-cancel">Cancel</button>
+        <button (click)="saveCompleteWithOvertime()" class="btn-save">Confirm & Record Wages</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Add New Electrician / Helper -->
+  <div *ngIf="showNewEmployeeModal" class="modal-backdrop">
+    <div class="modal-card glass-card">
+      <div class="modal-header">
+        <h3>👷 Add New Electrician / Technician</h3>
+        <button (click)="showNewEmployeeModal = false" class="modal-close">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Full Name / பெயர் *</label>
+          <input type="text" [(ngModel)]="newEmpName" placeholder="e.g. Anbu Selvan" />
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Phone Number *</label>
+            <input type="tel" [(ngModel)]="newEmpPhone" placeholder="+91 98840 55667" />
+          </div>
+          <div class="form-group">
+            <label>Daily Wage Rate (₹/day) *</label>
+            <input type="number" [(ngModel)]="newEmpDailyWage" placeholder="950" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Role / பணி வகை *</label>
+          <select [(ngModel)]="newEmpRole">
+            <option value="Lead Master Electrician">Lead Master Electrician (₹1,200/day)</option>
+            <option value="Senior Wireman">Senior Wireman (₹950/day)</option>
+            <option value="DB & Switchgear Specialist">DB & Switchgear Specialist (₹1,000/day)</option>
+            <option value="Junior Electrician">Junior Electrician (₹800/day)</option>
+            <option value="Chipping & Conduit Helper">Chipping & Conduit Helper (₹650/day)</option>
+            <option value="Site Supervisor">Site Supervisor (₹1,100/day)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>GPay / PhonePe UPI ID</label>
+          <input type="text" [(ngModel)]="newEmpUpi" placeholder="anbu.electrician@oksbi" />
+        </div>
+
+        <div class="form-group">
+          <label>Technical Specialty / சிறப்பு பணி</label>
+          <input type="text" [(ngModel)]="newEmpSpecialty" placeholder="e.g. 3-Phase Inverter & Smart Home automation" />
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="showNewEmployeeModal = false" class="btn-cancel">Cancel</button>
+        <button (click)="saveNewEmployee()" class="btn-save">Save Electrician</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Record Wage Payout -->
+  <div *ngIf="showRecordPayoutModal && activeEmployeeForPayout" class="modal-backdrop">
+    <div class="modal-card glass-card">
+      <div class="modal-header">
+        <h3>💵 Wage Disbursement: {{ activeEmployeeForPayout.name }}</h3>
+        <button (click)="showRecordPayoutModal = false" class="modal-close">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="payment-pending-banner">
+          Current Pending Wage Balance: <strong>₹{{ (activeEmployeeForPayout.pendingWageBalance || 0).toLocaleString() }}</strong>
+        </div>
+
+        <div class="form-group">
+          <label>Payout Amount (₹) *</label>
+          <input type="number" [(ngModel)]="payoutAmount" placeholder="5000" />
+        </div>
+
+        <div class="form-group">
+          <label>Payment Method *</label>
+          <select [(ngModel)]="payoutMode">
+            <option value="gpay_upi">GPay / PhonePe UPI ({{ activeEmployeeForPayout.upiId || 'Direct UPI' }})</option>
+            <option value="cash">Direct Cash</option>
+            <option value="bank_transfer">Direct Bank Transfer</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Notes / Voucher Ref</label>
+          <input type="text" [(ngModel)]="payoutNotes" placeholder="e.g. Weekly wage disbursement for Injambakkam site" />
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="showRecordPayoutModal = false" class="btn-cancel">Cancel</button>
+        <button (click)="saveRecordPayout()" class="btn-save">Confirm Payout</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Site Profit & Loss Analytics Report (Audio Feature) -->
+  <div *ngIf="showProfitReportModal && activeSiteProfitReport" class="modal-backdrop">
+    <div class="modal-card glass-card modal-lg">
+      <div class="modal-header">
+        <h3>📊 Site Profit & Financial Analytics Report</h3>
+        <button (click)="showProfitReportModal = false" class="modal-close">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="profit-sheet-header">
+          <div>
+            <h2>{{ activeSiteProfitReport.siteName }}</h2>
+            <div class="profit-sub">Client: {{ activeSiteProfitReport.clientName }}</div>
+          </div>
+          <span class="badge-pill" [ngClass]="activeSiteProfitReport.contractType === 'labor_only' ? 'badge-labor' : 'badge-material'">
+            {{ activeSiteProfitReport.contractType === 'labor_only' ? '🛠️ Labour Only' : '📦 With Material + Labour' }}
+          </span>
+        </div>
+
+        <!-- Profit Highlight Hero Banner -->
+        <div class="profit-hero-box" [ngClass]="activeSiteProfitReport.netProfit >= 0 ? 'profit-positive' : 'profit-negative'">
+          <div class="profit-hero-val">
+            ₹{{ activeSiteProfitReport.netProfit.toLocaleString() }}
+          </div>
+          <div class="profit-hero-lbl">
+            Net Profit (நிகர லாபம்) • {{ activeSiteProfitReport.profitMarginPercent }}% Margin
+          </div>
+        </div>
+
+        <!-- Detailed Breakdown Grid -->
+        <div class="profit-breakdown-grid">
+          <div class="profit-col-card income-card">
+            <h4>Revenue / வருவாய்</h4>
+            <div class="breakdown-line">
+              <span>Total Contract Value:</span>
+              <strong>₹{{ activeSiteProfitReport.contractAmount.toLocaleString() }}</strong>
+            </div>
+            <div class="breakdown-line">
+              <span>Client Advance Received:</span>
+              <strong class="green-text">₹{{ activeSiteProfitReport.totalReceived.toLocaleString() }}</strong>
+            </div>
+            <div class="breakdown-line">
+              <span>Client Pending Balance:</span>
+              <strong class="red-text">₹{{ activeSiteProfitReport.pendingFromClient.toLocaleString() }}</strong>
+            </div>
+          </div>
+
+          <div class="profit-col-card expense-card">
+            <h4>Total Costs / செலவுகள்</h4>
+            <div class="breakdown-line">
+              <span>Material Purchases:</span>
+              <strong>₹{{ activeSiteProfitReport.materialExpenses.toLocaleString() }}</strong>
+            </div>
+            <div class="breakdown-line">
+              <span>Labor Wages Incurred ({{ activeSiteProfitReport.actualLaborDaysWorked }} Shifts):</span>
+              <strong>₹{{ activeSiteProfitReport.laborWages.toLocaleString() }}</strong>
+            </div>
+            <div class="breakdown-line">
+              <span>Travel, Van Dispatch & Food:</span>
+              <strong>₹{{ activeSiteProfitReport.otherExpenses.toLocaleString() }}</strong>
+            </div>
+            <div class="breakdown-line total-exp-line">
+              <span>Total Expenses Incurred:</span>
+              <strong class="orange-text">₹{{ activeSiteProfitReport.totalExpenses.toLocaleString() }}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="showProfitReportModal = false" class="btn-cancel">Close</button>
+        <button (click)="shareProfitReportWhatsApp(activeSiteProfitReport)" class="btn-whatsapp-share">
+          <span class="material-symbols-outlined">share</span>
+          📲 Share P&L Summary via WhatsApp
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
+

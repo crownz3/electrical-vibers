@@ -1,0 +1,143 @@
+<!-- Overlay backdrop -->
+<div 
+  class="side-cart-backdrop" 
+  *ngIf="cartService.isDrawerOpen$ | async" 
+  (click)="close()">
+</div>
+
+<!-- Drawer Container (380px flyout inspired by tktools) -->
+<aside 
+  class="side-cart-drawer" 
+  [class.open]="cartService.isDrawerOpen$ | async" 
+  aria-label="Shopping Cart Drawer">
+  
+  <!-- Header -->
+  <div class="drawer-header">
+    <div class="header-title">
+      <span class="material-symbols-outlined cart-icon">shopping_bag</span>
+      <h3>Your Cart <span class="badge-count">({{ totalCount }})</span></h3>
+    </div>
+    <button class="btn-close" (click)="close()" aria-label="Close cart">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+  </div>
+
+  <!-- Free Delivery Progress Bar -->
+  <div class="shipping-bar-container" *ngIf="totalCount > 0">
+    <div class="shipping-status-text">
+      <span *ngIf="remainingForFreeShipping > 0">
+        Add <strong>₹{{ remainingForFreeShipping }}</strong> more for <span class="highlight">FREE Delivery</span>
+      </span>
+      <span *ngIf="remainingForFreeShipping === 0" class="free-unlocked">
+        🎉 You've unlocked <strong>FREE Chennai Delivery!</strong>
+      </span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" [style.width.%]="freeShippingProgress"></div>
+    </div>
+  </div>
+
+  <!-- Cart Content Body -->
+  <div class="drawer-body">
+    <!-- If Cart is Empty -->
+    <div class="empty-cart-state" *ngIf="totalCount === 0">
+      <div class="empty-icon-wrap">
+        <span class="material-symbols-outlined">shopping_cart_off</span>
+      </div>
+      <h4>Your cart is empty</h4>
+      <p>Discover top-rated electrical materials, wires, power tools, and switchgears.</p>
+      <a routerLink="/products" (click)="close()" class="btn-browse-store">
+        <span class="material-symbols-outlined">bolt</span>
+        Browse Catalog
+      </a>
+    </div>
+
+    <!-- Items List -->
+    <div class="items-list" *ngIf="totalCount > 0">
+      <div *ngFor="let item of (cartService.items$ | async)" class="cart-item-card">
+        <img [src]="item.product.images[0]" [alt]="item.product.name" class="item-img" />
+        
+        <div class="item-details">
+          <span class="item-brand">{{ item.product.brand }}</span>
+          <h4 class="item-title" [routerLink]="['/product', item.product.id]" (click)="close()">
+            {{ item.product.name }}
+          </h4>
+          
+          <div class="item-pricing">
+            <span class="current-price">₹{{ item.product.price }}</span>
+            <span class="original-mrp" *ngIf="item.product.mrp && item.product.mrp > item.product.price">
+              ₹{{ item.product.mrp }}
+            </span>
+            <span class="item-unit">/ {{ item.product.unit }}</span>
+          </div>
+
+          <!-- Quantity Stepper & Subtotal -->
+          <div class="item-controls-row">
+            <div class="stepper-box">
+              <button 
+                type="button" 
+                class="step-btn" 
+                (click)="cartService.updateQuantity(item.product.id, item.quantity - 1)" 
+                aria-label="Decrease quantity">
+                -
+              </button>
+              <span class="qty-display">{{ item.quantity }}</span>
+              <button 
+                type="button" 
+                class="step-btn" 
+                (click)="cartService.updateQuantity(item.product.id, item.quantity + 1)" 
+                aria-label="Increase quantity">
+                +
+              </button>
+            </div>
+
+            <div class="line-subtotal">₹{{ item.product.price * item.quantity }}</div>
+
+            <button 
+              type="button" 
+              class="btn-delete" 
+              (click)="cartService.removeFromCart(item.product.id)" 
+              title="Remove item">
+              <span class="material-symbols-outlined">delete_outline</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer with Totals & Instant Actions -->
+  <div class="drawer-footer" *ngIf="totalCount > 0">
+    <div class="summary-breakdown">
+      <div class="summary-row" *ngIf="totalSavings > 0">
+        <span class="savings-label">Total Savings</span>
+        <span class="savings-amount">-₹{{ totalSavings }}</span>
+      </div>
+      <div class="summary-row total-row">
+        <div>
+          <span class="total-label">Subtotal</span>
+          <span class="gst-tag">(incl. all taxes)</span>
+        </div>
+        <span class="total-amount">₹{{ subtotal }}</span>
+      </div>
+    </div>
+
+    <!-- Quick Action Buttons -->
+    <div class="actions-group">
+      <button class="btn-checkout" (click)="goToCheckout()">
+        <span class="material-symbols-outlined">shopping_cart_checkout</span>
+        <span>Proceed to Checkout</span>
+        <span class="material-symbols-outlined arrow-icon">arrow_forward</span>
+      </button>
+
+      <button class="btn-whatsapp-order" (click)="orderOnWhatsApp()">
+        <span class="material-symbols-outlined">chat</span>
+        <span>Order via WhatsApp</span>
+      </button>
+    </div>
+
+    <button class="btn-continue" (click)="close()">
+      ← Continue Shopping
+    </button>
+  </div>
+</aside>

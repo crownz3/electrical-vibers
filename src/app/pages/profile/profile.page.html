@@ -1,0 +1,811 @@
+<div class="profile-container">
+  <!-- Toast Notification Feedback -->
+  <div *ngIf="toastMessage" class="toast-banner" [ngClass]="toastType">
+    <span class="material-symbols-outlined">
+      {{ toastType === 'success' ? 'check_circle' : toastType === 'error' ? 'error' : 'info' }}
+    </span>
+    <span>{{ toastMessage }}</span>
+  </div>
+
+  <!-- Hero Profile Banner (Google Material You Aesthetic) -->
+  <section class="profile-hero glass-card">
+    <div class="hero-main">
+      <div class="avatar-wrap">
+        <div class="avatar-aura"></div>
+        <div class="avatar-badge">
+          <span class="avatar-initials">{{ profile.name.slice(0, 2).toUpperCase() }}</span>
+        </div>
+        <span class="verified-dot" title="Verified Customer Account"></span>
+      </div>
+
+      <div class="user-meta">
+        <div class="user-name-row">
+          <h1 class="user-name">{{ profile.name }}</h1>
+          <span class="customer-badge">
+            <span class="material-symbols-outlined badge-icon">verified</span>
+            Verified Customer
+          </span>
+          <span *ngIf="profile.companyName" class="biz-badge">
+            <span class="material-symbols-outlined badge-icon">apartment</span>
+            {{ profile.companyName }}
+          </span>
+        </div>
+
+        <div class="user-contact-row">
+          <span class="meta-pill">
+            <span class="material-symbols-outlined">call</span>
+            {{ profile.phone }}
+          </span>
+          <span class="meta-pill">
+            <span class="material-symbols-outlined">mail</span>
+            {{ profile.email }}
+          </span>
+          <span class="meta-pill">
+            <span class="material-symbols-outlined">location_on</span>
+            {{ profile.city }} - {{ profile.pincode }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Stats Metric Cards -->
+    <div class="hero-stats-grid">
+      <div class="stat-pill">
+        <div class="stat-icon-box orange">
+          <span class="material-symbols-outlined">shopping_bag</span>
+        </div>
+        <div class="stat-info">
+          <span class="stat-val">{{ filteredOrders.length }}</span>
+          <span class="stat-lbl">Total Orders</span>
+        </div>
+      </div>
+
+      <div class="stat-pill">
+        <div class="stat-icon-box blue">
+          <span class="material-symbols-outlined">local_shipping</span>
+        </div>
+        <div class="stat-info">
+          <span class="stat-val">{{ activeDeliveriesCount }}</span>
+          <span class="stat-lbl">Active Shipments</span>
+        </div>
+      </div>
+
+      <div class="stat-pill">
+        <div class="stat-icon-box green">
+          <span class="material-symbols-outlined">payments</span>
+        </div>
+        <div class="stat-info">
+          <span class="stat-val">₹{{ totalSpent | number }}</span>
+          <span class="stat-lbl">Total Purchases</span>
+        </div>
+      </div>
+
+      <div class="stat-pill">
+        <div class="stat-icon-box purple">
+          <span class="material-symbols-outlined">home_pin</span>
+        </div>
+        <div class="stat-info">
+          <span class="stat-val">{{ profile.savedAddresses.length }}</span>
+          <span class="stat-lbl">Saved Addresses</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Segmented Navigation Tabs -->
+  <div class="tabs-segmented-wrapper">
+    <div class="tabs-segmented">
+      <button 
+        type="button" 
+        class="tab-btn" 
+        [class.active]="activeTab === 'orders'"
+        (click)="activeTab = 'orders'">
+        <span class="material-symbols-outlined">receipt_long</span>
+        <span>My Orders</span>
+        <span class="tab-count-pill">{{ filteredOrders.length }}</span>
+      </button>
+
+      <button 
+        type="button" 
+        class="tab-btn" 
+        [class.active]="activeTab === 'edit'"
+        (click)="activeTab = 'edit'">
+        <span class="material-symbols-outlined">manage_accounts</span>
+        <span>Edit Account & GST</span>
+      </button>
+
+      <button 
+        type="button" 
+        class="tab-btn" 
+        [class.active]="activeTab === 'addresses'"
+        (click)="activeTab = 'addresses'">
+        <span class="material-symbols-outlined">pin_drop</span>
+        <span>Delivery Locations</span>
+        <span class="tab-count-pill">{{ profile.savedAddresses.length }}</span>
+      </button>
+
+      <button 
+        type="button" 
+        class="tab-btn" 
+        [class.active]="activeTab === 'preferences'"
+        (click)="activeTab = 'preferences'">
+        <span class="material-symbols-outlined">tune</span>
+        <span>Preferences & Support</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- TAB 1: MY ORDERS                           -->
+  <!-- ========================================== -->
+  <section *ngIf="activeTab === 'orders'" class="tab-pane animate-fade-in">
+    <!-- Filters & Search Toolbar -->
+    <div class="orders-toolbar glass-card">
+      <div class="search-box">
+        <span class="material-symbols-outlined">search</span>
+        <input 
+          type="text" 
+          [(ngModel)]="orderSearchQuery" 
+          placeholder="Search by Order ID, item name or brand..." 
+        />
+        <button *ngIf="orderSearchQuery" (click)="orderSearchQuery = ''" class="clear-btn">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="filter-pills">
+        <button 
+          type="button" 
+          class="pill-filter" 
+          [class.active]="orderFilter === 'ALL'"
+          (click)="orderFilter = 'ALL'">
+          All Orders ({{ orders.length }})
+        </button>
+        <button 
+          type="button" 
+          class="pill-filter" 
+          [class.active]="orderFilter === 'placed'"
+          (click)="orderFilter = 'placed'">
+          Placed
+        </button>
+        <button 
+          type="button" 
+          class="pill-filter" 
+          [class.active]="orderFilter === 'dispatched'"
+          (click)="orderFilter = 'dispatched'">
+          In Transit
+        </button>
+        <button 
+          type="button" 
+          class="pill-filter" 
+          [class.active]="orderFilter === 'delivered'"
+          (click)="orderFilter = 'delivered'">
+          Delivered
+        </button>
+      </div>
+    </div>
+
+    <!-- Empty Orders State -->
+    <div *ngIf="filteredOrders.length === 0" class="empty-orders-card glass-card">
+      <div class="empty-icon-wrap">
+        <span class="material-symbols-outlined">inventory_2</span>
+      </div>
+      <h3>No Orders Found</h3>
+      <p>You haven't placed any orders matching this filter yet.</p>
+      <a routerLink="/products" class="btn-primary-action">
+        <span class="material-symbols-outlined">storefront</span>
+        <span>Explore Electrical Materials Store</span>
+      </a>
+    </div>
+
+    <!-- Orders Cards List -->
+    <div class="orders-list">
+      <div *ngFor="let order of filteredOrders" class="order-card glass-card">
+        <!-- Order Header -->
+        <div class="order-card-header">
+          <div class="order-main-info">
+            <div class="order-id-badge" (click)="copyOrderId(order.id)" title="Click to copy Order ID">
+              <span class="material-symbols-outlined">tag</span>
+              <strong>{{ order.id }}</strong>
+              <span class="copy-hint material-symbols-outlined">content_copy</span>
+            </div>
+            <div class="order-date-time">
+              <span class="material-symbols-outlined">calendar_today</span>
+              <span>Placed on {{ order.orderDate | date:'mediumDate' }} at {{ order.orderDate | date:'shortTime' }}</span>
+            </div>
+          </div>
+
+          <div class="order-header-right">
+            <div class="order-status-badge" [ngClass]="order.orderStatus">
+              <span class="status-pulse-dot"></span>
+              <span class="status-label">{{ order.orderStatus | uppercase }}</span>
+            </div>
+            <div class="order-total-price">
+              ₹{{ order.totalAmount | number }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Order Progress Stepper -->
+        <div class="order-stepper">
+          <div class="step" [class.done]="order.orderStatus !== 'cancelled'" [class.active]="order.orderStatus === 'placed'">
+            <div class="step-circle">
+              <span class="material-symbols-outlined">task_alt</span>
+            </div>
+            <span class="step-title">Order Placed</span>
+          </div>
+
+          <div class="step-line" [class.filled]="order.orderStatus === 'confirmed' || order.orderStatus === 'dispatched' || order.orderStatus === 'delivered'"></div>
+
+          <div class="step" [class.done]="order.orderStatus === 'confirmed' || order.orderStatus === 'dispatched' || order.orderStatus === 'delivered'" [class.active]="order.orderStatus === 'confirmed'">
+            <div class="step-circle">
+              <span class="material-symbols-outlined">verified</span>
+            </div>
+            <span class="step-title">Confirmed</span>
+          </div>
+
+          <div class="step-line" [class.filled]="order.orderStatus === 'dispatched' || order.orderStatus === 'delivered'"></div>
+
+          <div class="step" [class.done]="order.orderStatus === 'dispatched' || order.orderStatus === 'delivered'" [class.active]="order.orderStatus === 'dispatched'">
+            <div class="step-circle">
+              <span class="material-symbols-outlined">local_shipping</span>
+            </div>
+            <span class="step-title">Dispatched</span>
+          </div>
+
+          <div class="step-line" [class.filled]="order.orderStatus === 'delivered'"></div>
+
+          <div class="step" [class.done]="order.orderStatus === 'delivered'" [class.active]="order.orderStatus === 'delivered'">
+            <div class="step-circle">
+              <span class="material-symbols-outlined">home</span>
+            </div>
+            <span class="step-title">Delivered</span>
+          </div>
+        </div>
+
+        <!-- Items Table / Grid -->
+        <div class="order-items-wrap">
+          <div *ngFor="let item of order.items" class="order-item-row">
+            <img [src]="item.product.images[0]" [alt]="item.product.name" class="item-img" />
+            <div class="item-details">
+              <div class="item-brand-cat">{{ item.product.brand }} • {{ item.product.category }}</div>
+              <h4 class="item-name">{{ item.product.name }}</h4>
+              <div class="item-unit-tag">{{ item.product.unit || 'Piece' }}</div>
+            </div>
+            <div class="item-qty-cell">
+              <span class="qty-badge">Qty: {{ item.quantity }}</span>
+            </div>
+            <div class="item-price-cell">
+              <div class="item-price-total">₹{{ item.product.price * item.quantity | number }}</div>
+              <div class="item-price-unit">(₹{{ item.product.price }} each)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Delivery & Payment Summary Bar -->
+        <div class="order-meta-footer">
+          <div class="delivery-address-snippet">
+            <span class="material-symbols-outlined addr-icon">pin_drop</span>
+            <div>
+              <strong>Delivery to:</strong> {{ order.deliveryAddress.street }}, {{ order.deliveryAddress.city }} - {{ order.deliveryAddress.pincode }}
+              <span *ngIf="order.deliveryAddress.landmark" class="landmark-tag">({{ order.deliveryAddress.landmark }})</span>
+            </div>
+          </div>
+
+          <div class="payment-summary-snippet">
+            <span class="material-symbols-outlined pay-icon">credit_card</span>
+            <div>
+              <span>Payment: <strong>{{ order.paymentMethod | uppercase }}</strong></span>
+              <span class="pay-status-pill" [class.paid]="order.paymentStatus === 'paid'">
+                {{ order.paymentStatus | uppercase }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Order Action Buttons -->
+        <div class="order-card-actions">
+          <button type="button" class="btn-action-pill primary" (click)="trackOrder(order)">
+            <span class="material-symbols-outlined">local_shipping</span>
+            <span>Track Order</span>
+          </button>
+
+          <button type="button" class="btn-action-pill whatsapp" (click)="contactWhatsAppForOrder(order)">
+            <svg class="btn-wa-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2zm5.78 14.17c-.24.68-1.39 1.25-1.92 1.33-.5.07-1.14.1-3.32-.8-2.78-1.15-4.57-3.99-4.71-4.18-.14-.19-1.13-1.51-1.13-2.88 0-1.37.72-2.05.97-2.33.25-.28.56-.35.75-.35.19 0 .38 0 .54.01.17.01.4.06.63.61.24.58.82 2.01.89 2.16.07.15.12.33.02.53-.1.2-.15.32-.3.49-.15.18-.32.4-.46.54-.15.15-.31.31-.13.62.18.31.8 1.31 1.71 2.12 1.17 1.05 2.16 1.37 2.47 1.52.31.15.49.13.67-.08.18-.21.78-.91.99-1.22.21-.31.42-.26.71-.15.29.1.84.4 1.84.9 1 .5 1.2.62 1.25.72.05.1.05.58-.19 1.26z"/>
+            </svg>
+            <span>WhatsApp Support</span>
+          </button>
+
+          <button type="button" class="btn-action-pill secondary" (click)="openInvoiceModal(order)">
+            <span class="material-symbols-outlined">receipt</span>
+            <span>View Invoice</span>
+          </button>
+
+          <button type="button" class="btn-action-pill reorder" (click)="reorderItems(order)">
+            <span class="material-symbols-outlined">replay</span>
+            <span>Re-Order Items</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- TAB 2: EDIT ACCOUNT & GST DETAILS          -->
+  <!-- ========================================== -->
+  <section *ngIf="activeTab === 'edit'" class="tab-pane animate-fade-in">
+    <div class="edit-account-grid">
+      <!-- Left Column: Personal & Contact Details -->
+      <div class="edit-card glass-card">
+        <div class="card-title-row">
+          <div class="icon-bubble orange">
+            <span class="material-symbols-outlined">person</span>
+          </div>
+          <div>
+            <h3>Personal & Contact Info</h3>
+            <p>Your details used for order confirmations, delivery and billing</p>
+          </div>
+        </div>
+
+        <div class="form-body">
+          <div class="input-field">
+            <label>Full Name <span class="req">*</span></label>
+            <div class="input-with-icon">
+              <span class="material-symbols-outlined">badge</span>
+              <input type="text" [(ngModel)]="editName" placeholder="Enter your full name" />
+            </div>
+          </div>
+
+          <div class="input-field">
+            <label>Mobile Number <span class="req">*</span></label>
+            <div class="input-with-icon">
+              <span class="material-symbols-outlined">phone_android</span>
+              <input type="tel" [(ngModel)]="editPhone" placeholder="+91 98401 23456" />
+            </div>
+            <span class="input-hint">Used for live WhatsApp & SMS delivery dispatch updates</span>
+          </div>
+
+          <div class="input-field">
+            <label>Email Address</label>
+            <div class="input-with-icon">
+              <span class="material-symbols-outlined">mail</span>
+              <input type="email" [(ngModel)]="editEmail" placeholder="your.email@example.com" />
+            </div>
+            <span class="input-hint">Electronic GST invoices and order confirmations sent here</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Business & GSTIN Information -->
+      <div class="edit-card glass-card">
+        <div class="card-title-row">
+          <div class="icon-bubble blue">
+            <span class="material-symbols-outlined">domain</span>
+          </div>
+          <div>
+            <h3>Business & GSTIN (Optional)</h3>
+            <p>For Electrical Contractors, Interior Builders & B2B Tax Credit</p>
+          </div>
+        </div>
+
+        <div class="form-body">
+          <div class="input-field">
+            <label>Contractor / Company Name</label>
+            <div class="input-with-icon">
+              <span class="material-symbols-outlined">apartment</span>
+              <input type="text" [(ngModel)]="editCompany" placeholder="e.g. Subramanian Electrical Contractors" />
+            </div>
+          </div>
+
+          <div class="input-field">
+            <label>GSTIN Number (15 Digits)</label>
+            <div class="input-with-icon">
+              <span class="material-symbols-outlined">receipt_long</span>
+              <input type="text" [(ngModel)]="editGstin" placeholder="e.g. 33AABCS1429B1Z8" maxlength="15" />
+            </div>
+            <span class="input-hint">Enter your GSTIN to claim 18% / 28% Input Tax Credit on wires, MCBs & switches</span>
+          </div>
+
+          <div class="gst-benefit-box">
+            <span class="material-symbols-outlined">verified</span>
+            <div>
+              <strong>B2B Verified Tax Invoice:</strong>
+              <p>When GSTIN is saved, all purchase receipts are formatted as legal GST invoices with HSN/SAC codes.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Full Width: Primary Shipping Address -->
+      <div class="edit-card glass-card full-col">
+        <div class="card-title-row">
+          <div class="icon-bubble green">
+            <span class="material-symbols-outlined">home_pin</span>
+          </div>
+          <div>
+            <h3>Default Delivery Address</h3>
+            <p>Will be automatically pre-filled at checkout for lightning fast orders</p>
+          </div>
+        </div>
+
+        <div class="form-grid-three">
+          <div class="input-field span-two">
+            <label>Street Address / Door No / Building <span class="req">*</span></label>
+            <div class="input-with-icon">
+              <span class="material-symbols-outlined">location_city</span>
+              <input type="text" [(ngModel)]="editStreet" placeholder="Flat No. 42, 3rd Main Road, Anna Nagar" />
+            </div>
+          </div>
+
+          <div class="input-field">
+            <label>Prominent Landmark</label>
+            <div class="input-with-icon">
+              <span class="material-symbols-outlined">flag</span>
+              <input type="text" [(ngModel)]="editLandmark" placeholder="Near Tower Park Roundabout" />
+            </div>
+          </div>
+
+          <div class="input-field">
+            <label>City <span class="req">*</span></label>
+            <div class="input-with-icon">
+              <span class="material-symbols-outlined">apartment</span>
+              <input type="text" [(ngModel)]="editCity" placeholder="Chennai" />
+            </div>
+          </div>
+
+          <div class="input-field">
+            <label>Postal Pincode <span class="req">*</span></label>
+            <div class="input-with-icon">
+              <span class="material-symbols-outlined">pin</span>
+              <input type="text" [(ngModel)]="editPincode" placeholder="600040" maxlength="6" />
+            </div>
+          </div>
+
+          <div class="input-field">
+            <label>State</label>
+            <input type="text" value="Tamil Nadu" readonly class="readonly-input" />
+          </div>
+        </div>
+
+        <!-- Action Bar -->
+        <div class="form-actions-bar">
+          <button type="button" class="btn-cancel" (click)="resetForm()">
+            <span class="material-symbols-outlined">restart_alt</span>
+            <span>Reset Details</span>
+          </button>
+
+          <button type="button" class="btn-save-primary" (click)="saveProfileChanges()">
+            <span class="material-symbols-outlined">save</span>
+            <span>Save Profile & Billing Details</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- TAB 3: SAVED DELIVERY LOCATIONS            -->
+  <!-- ========================================== -->
+  <section *ngIf="activeTab === 'addresses'" class="tab-pane animate-fade-in">
+    <div class="addresses-header-row">
+      <div>
+        <h2>Saved Delivery Locations</h2>
+        <p>Manage your home, project site, and workshop addresses for 1-click delivery selection</p>
+      </div>
+      <button type="button" class="btn-add-address" (click)="openAddAddressModal()">
+        <span class="material-symbols-outlined">add_location_alt</span>
+        <span>Add New Location</span>
+      </button>
+    </div>
+
+    <div class="addresses-grid">
+      <div *ngFor="let addr of profile.savedAddresses" class="address-card glass-card" [class.is-default]="addr.isDefault">
+        <div class="addr-card-top">
+          <div class="addr-label-pill">
+            <span class="material-symbols-outlined">
+              {{ addr.label === 'Home' ? 'home' : addr.label === 'Work/Site' ? 'construction' : 'business' }}
+            </span>
+            <span>{{ addr.label }}</span>
+          </div>
+
+          <span *ngIf="addr.isDefault" class="default-badge">
+            <span class="material-symbols-outlined">check_circle</span>
+            DEFAULT
+          </span>
+        </div>
+
+        <div class="addr-text">
+          <p class="addr-street">{{ addr.street }}</p>
+          <p class="addr-sub">{{ addr.city }} - {{ addr.pincode }}</p>
+          <p *ngIf="addr.landmark" class="addr-landmark">
+            <span class="material-symbols-outlined">near_me</span>
+            Landmark: {{ addr.landmark }}
+          </p>
+        </div>
+
+        <div class="addr-card-actions">
+          <button *ngIf="!addr.isDefault" type="button" class="btn-set-default" (click)="setDefaultAddress(addr)">
+            <span class="material-symbols-outlined">done</span>
+            <span>Set as Default</span>
+          </button>
+
+          <button type="button" class="btn-delete-addr" (click)="deleteAddress(addr)" title="Remove this address">
+            <span class="material-symbols-outlined">delete</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- TAB 4: PREFERENCES & SUPPORT               -->
+  <!-- ========================================== -->
+  <section *ngIf="activeTab === 'preferences'" class="tab-pane animate-fade-in">
+    <div class="pref-grid">
+      <!-- Notification Preferences -->
+      <div class="pref-card glass-card">
+        <div class="card-title-row">
+          <div class="icon-bubble orange">
+            <span class="material-symbols-outlined">notifications_active</span>
+          </div>
+          <div>
+            <h3>Dispatch & Notification Alerts</h3>
+            <p>Choose how you wish to receive live order updates and invoice copies</p>
+          </div>
+        </div>
+
+        <div class="toggle-list">
+          <label class="toggle-row">
+            <div class="toggle-info">
+              <span class="toggle-title">WhatsApp Order & Delivery Tracking</span>
+              <span class="toggle-desc">Receive real-time driver dispatch alerts and bill slips on WhatsApp</span>
+            </div>
+            <input type="checkbox" [(ngModel)]="prefWhatsapp" (change)="saveProfileChanges()" class="toggle-switch" />
+          </label>
+
+          <label class="toggle-row">
+            <div class="toggle-info">
+              <span class="toggle-title">SMS Dispatch Updates</span>
+              <span class="toggle-desc">Instant OTP and delivery boy arrival notifications</span>
+            </div>
+            <input type="checkbox" [(ngModel)]="prefSms" (change)="saveProfileChanges()" class="toggle-switch" />
+          </label>
+
+          <label class="toggle-row">
+            <div class="toggle-info">
+              <span class="toggle-title">Email Tax Invoices</span>
+              <span class="toggle-desc">Receive automatic PDF tax invoice copies on checkout</span>
+            </div>
+            <input type="checkbox" [(ngModel)]="prefEmail" (change)="saveProfileChanges()" class="toggle-switch" />
+          </label>
+        </div>
+      </div>
+
+      <!-- Quick 24/7 Contractor Support -->
+      <div class="pref-card glass-card">
+        <div class="card-title-row">
+          <div class="icon-bubble green">
+            <span class="material-symbols-outlined">support_agent</span>
+          </div>
+          <div>
+            <h3>Contractor Support Desk</h3>
+            <p>Direct priority hotline for site bulk orders and urgent queries</p>
+          </div>
+        </div>
+
+        <div class="support-actions-box">
+          <a [href]="'tel:' + configService.getConfig().contactPhone" class="btn-support-pill phone">
+            <span class="material-symbols-outlined">call</span>
+            <div>
+              <span class="sup-lbl">Direct Phone Line</span>
+              <span class="sup-val">{{ configService.getConfig().contactPhone }}</span>
+            </div>
+          </a>
+
+          <a [href]="'https://wa.me/' + configService.getConfig().whatsappNumber" target="_blank" class="btn-support-pill wa">
+            <span class="material-symbols-outlined">chat</span>
+            <div>
+              <span class="sup-lbl">WhatsApp Operations Desk</span>
+              <span class="sup-val">+91 {{ configService.getConfig().whatsappNumber }}</span>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- MODAL: ADD NEW ADDRESS                     -->
+  <!-- ========================================== -->
+  <div *ngIf="showNewAddressModal" class="modal-backdrop">
+    <div class="modal-dialog glass-card animate-scale-up">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="material-symbols-outlined modal-icon">add_location_alt</span>
+          <h3>Add New Delivery Location</h3>
+        </div>
+        <button type="button" class="btn-close-modal" (click)="showNewAddressModal = false">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="input-field">
+          <label>Address Label</label>
+          <div class="label-selector">
+            <button 
+              type="button" 
+              class="sel-pill" 
+              [class.active]="newAddressLabel === 'Home'"
+              (click)="newAddressLabel = 'Home'">
+              🏠 Home
+            </button>
+            <button 
+              type="button" 
+              class="sel-pill" 
+              [class.active]="newAddressLabel === 'Work/Site'"
+              (click)="newAddressLabel = 'Work/Site'">
+              🏗️ Project Site
+            </button>
+            <button 
+              type="button" 
+              class="sel-pill" 
+              [class.active]="newAddressLabel === 'Office'"
+              (click)="newAddressLabel = 'Office'">
+              🏢 Office
+            </button>
+            <button 
+              type="button" 
+              class="sel-pill" 
+              [class.active]="newAddressLabel === 'Other'"
+              (click)="newAddressLabel = 'Other'">
+              📍 Other
+            </button>
+          </div>
+        </div>
+
+        <div class="input-field">
+          <label>Street Address / Door No / Site Name <span class="req">*</span></label>
+          <input type="text" [(ngModel)]="newAddressStreet" placeholder="e.g. Site #18, OMR IT Expressway" />
+        </div>
+
+        <div class="input-field">
+          <label>Landmark</label>
+          <input type="text" [(ngModel)]="newAddressLandmark" placeholder="e.g. Near ELCOT SEZ Main Gate" />
+        </div>
+
+        <div class="input-row-half">
+          <div class="input-field">
+            <label>City <span class="req">*</span></label>
+            <input type="text" [(ngModel)]="newAddressCity" placeholder="Chennai" />
+          </div>
+
+          <div class="input-field">
+            <label>Pincode <span class="req">*</span></label>
+            <input type="text" [(ngModel)]="newAddressPincode" placeholder="600119" maxlength="6" />
+          </div>
+        </div>
+
+        <label class="checkbox-row">
+          <input type="checkbox" [(ngModel)]="newAddressIsDefault" />
+          <span>Make this my primary default delivery address</span>
+        </label>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" (click)="showNewAddressModal = false">Cancel</button>
+        <button type="button" class="btn-save-primary" (click)="saveNewAddress()">Save Location</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: ORDER TAX INVOICE SLIP              -->
+  <!-- ========================================== -->
+  <div *ngIf="showInvoiceModal && selectedOrderForInvoice" class="modal-backdrop">
+    <div class="modal-dialog invoice-modal-dialog glass-card animate-scale-up">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="material-symbols-outlined modal-icon">receipt_long</span>
+          <h3>Tax Invoice / Delivery Memo</h3>
+        </div>
+        <div class="modal-actions-right">
+          <button type="button" class="btn-print" (click)="printInvoice()">
+            <span class="material-symbols-outlined">print</span>
+            <span>Print Invoice</span>
+          </button>
+          <button type="button" class="btn-close-modal" (click)="showInvoiceModal = false">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-body printable-invoice">
+        <!-- Invoice Header -->
+        <div class="inv-brand-row">
+          <div>
+            <h2 class="inv-brand-name">ELECTRICAL VIBERS</h2>
+            <p class="inv-brand-sub">Electricals, Hardware & Contracting Services</p>
+            <p class="inv-addr">No. 14, Trunk Road, Porur, Chennai - 600116 | Phone: +91 98765 43210</p>
+            <p class="inv-gst">GSTIN: 33AAAAE1234F1Z5 • State: 33 (Tamil Nadu)</p>
+          </div>
+          <div class="inv-meta-right">
+            <div class="inv-num">INVOICE: <strong>#INV-{{ selectedOrderForInvoice.id }}</strong></div>
+            <div class="inv-date">Date: {{ selectedOrderForInvoice.orderDate | date:'mediumDate' }}</div>
+            <div class="inv-pay-status">Status: <strong>PAID ({{ selectedOrderForInvoice.paymentMethod | uppercase }})</strong></div>
+          </div>
+        </div>
+
+        <hr class="inv-divider" />
+
+        <!-- Customer Bill To Info -->
+        <div class="inv-client-row">
+          <div>
+            <span class="inv-section-title">BILL TO / DELIVER TO:</span>
+            <div class="client-name">{{ selectedOrderForInvoice.customerName }}</div>
+            <div *ngIf="profile.companyName" class="client-co">{{ profile.companyName }}</div>
+            <div class="client-phone">Phone: {{ selectedOrderForInvoice.customerPhone }}</div>
+            <div class="client-addr">
+              {{ selectedOrderForInvoice.deliveryAddress.street }}, 
+              {{ selectedOrderForInvoice.deliveryAddress.city }} - {{ selectedOrderForInvoice.deliveryAddress.pincode }}
+            </div>
+            <div *ngIf="profile.gstin" class="client-gst">Customer GSTIN: <strong>{{ profile.gstin }}</strong></div>
+          </div>
+        </div>
+
+        <!-- Items Table -->
+        <table class="inv-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Description of Electrical Goods</th>
+              <th>Unit</th>
+              <th>Qty</th>
+              <th>Unit Rate (₹)</th>
+              <th>Amount (₹)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let it of selectedOrderForInvoice.items; let idx = index">
+              <td>{{ idx + 1 }}</td>
+              <td>
+                <strong>{{ it.product.name }}</strong>
+                <div class="table-sub">{{ it.product.brand }} • {{ it.product.category }}</div>
+              </td>
+              <td>{{ it.product.unit || 'Piece' }}</td>
+              <td>{{ it.quantity }}</td>
+              <td>₹{{ it.product.price | number }}</td>
+              <td>₹{{ it.product.price * it.quantity | number }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Totals Table -->
+        <div class="inv-totals-row">
+          <div class="inv-declaration">
+            <p><strong>Declaration:</strong> Certified that all electrical items listed in this invoice are genuine branded products covered under standard manufacturer warranty.</p>
+          </div>
+          <div class="inv-totals-box">
+            <div class="total-line">
+              <span>Subtotal:</span>
+              <span>₹{{ selectedOrderForInvoice.subtotal | number }}</span>
+            </div>
+            <div *ngIf="selectedOrderForInvoice.discount" class="total-line discount">
+              <span>Savings & Offers:</span>
+              <span>-₹{{ selectedOrderForInvoice.discount | number }}</span>
+            </div>
+            <div class="total-line">
+              <span>Delivery Charges:</span>
+              <span class="free-text">FREE</span>
+            </div>
+            <div class="total-line grand-total">
+              <span>TOTAL PAYABLE:</span>
+              <span>₹{{ selectedOrderForInvoice.totalAmount | number }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, ActivatedRoute } from '@angular/router';
+import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ProductService } from '../../services/product.service';
 import { CartService } from '../../services/cart.service';
@@ -21,10 +21,16 @@ export class ProductsPage implements OnInit {
   allProducts: Product[] = [];
   filteredProducts: Product[] = [];
   categories: string[] = [];
+  brands: string[] = [];
 
   searchQuery = '';
   selectedCategory = 'ALL';
+  selectedBrand = 'ALL';
+  onlyDeals = false;
+  onlyInStock = false;
   sortBy = 'featured';
+
+  router = inject(Router);
 
   ngOnInit(): void {
     this.productService.categories$.subscribe(cats => {
@@ -34,19 +40,41 @@ export class ProductsPage implements OnInit {
 
     this.productService.products$.subscribe(prods => {
       this.allProducts = prods;
+      this.brands = Array.from(new Set(prods.map(p => p.brand))).sort();
       this.applyFilters();
     });
 
     this.route.queryParams.subscribe(params => {
       if (params['category']) {
         this.selectedCategory = params['category'];
-        this.applyFilters();
       }
+      if (params['q']) {
+        this.searchQuery = params['q'];
+      }
+      if (params['brand']) {
+        this.selectedBrand = params['brand'];
+      }
+      this.applyFilters();
     });
   }
 
   selectCategory(category: string): void {
     this.selectedCategory = category;
+    this.applyFilters();
+  }
+
+  selectBrand(brand: string): void {
+    this.selectedBrand = brand;
+    this.applyFilters();
+  }
+
+  toggleDeals(): void {
+    this.onlyDeals = !this.onlyDeals;
+    this.applyFilters();
+  }
+
+  toggleInStock(): void {
+    this.onlyInStock = !this.onlyInStock;
     this.applyFilters();
   }
 
@@ -56,6 +84,21 @@ export class ProductsPage implements OnInit {
     // Category filter
     if (this.selectedCategory !== 'ALL') {
       prods = prods.filter(p => p.category === this.selectedCategory);
+    }
+
+    // Brand filter
+    if (this.selectedBrand !== 'ALL') {
+      prods = prods.filter(p => p.brand === this.selectedBrand);
+    }
+
+    // Deals Only filter (>= 20% OFF)
+    if (this.onlyDeals) {
+      prods = prods.filter(p => (p.discountPercentage || 0) >= 20);
+    }
+
+    // In Stock Only
+    if (this.onlyInStock) {
+      prods = prods.filter(p => p.inStock && p.stock > 0);
     }
 
     // Search query filter
@@ -84,6 +127,9 @@ export class ProductsPage implements OnInit {
   resetFilters(): void {
     this.searchQuery = '';
     this.selectedCategory = 'ALL';
+    this.selectedBrand = 'ALL';
+    this.onlyDeals = false;
+    this.onlyInStock = false;
     this.sortBy = 'featured';
     this.applyFilters();
   }
@@ -94,5 +140,10 @@ export class ProductsPage implements OnInit {
 
   addToCart(product: Product): void {
     this.cartService.addToCart(product, 1);
+  }
+
+  buyNow(product: Product): void {
+    this.cartService.addToCart(product, 1, false);
+    this.router.navigate(['/cart']);
   }
 }

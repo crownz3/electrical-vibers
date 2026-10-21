@@ -2,9 +2,11 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: #f8fafc;
+  background-color: var(--app-bg, #090d16);
+  color: var(--text-primary, #f1f5f9);
   width: 100%;
   position: relative;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 .app-main-content {

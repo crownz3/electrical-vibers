@@ -13,17 +13,84 @@
 /* Angular Material Prebuilt Theme */
 @import "@angular/material/prebuilt-themes/azure-blue.css";
 
-/* Ensure natural browser window scrolling without absolute position trap */
+/* ==========================================================================
+   THEME DESIGN TOKENS (DARK & LIGHT THEMES WITH SYSTEM DEFAULT)
+   ========================================================================== */
+
+/* 🌙 Dark Theme Design Tokens (Default) */
+:root, [data-theme="dark"], body.theme-dark {
+  --app-bg: #090d16;
+  --app-bg-gradient: radial-gradient(circle at 15% 10%, rgba(245, 158, 11, 0.06) 0%, transparent 45%),
+                     radial-gradient(circle at 85% 60%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
+                     #090d16;
+  --surface-primary: #0f172a;
+  --surface-secondary: #1e293b;
+  --surface-card: rgba(15, 23, 42, 0.78);
+  --surface-glass: rgba(15, 23, 42, 0.76);
+  --surface-glass-header: rgba(8, 14, 26, 0.88);
+  --surface-hover: rgba(255, 255, 255, 0.06);
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-medium: rgba(255, 255, 255, 0.16);
+  --border-strong: rgba(255, 255, 255, 0.25);
+  --card-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  --input-bg: rgba(255, 255, 255, 0.05);
+  --input-border: rgba(255, 255, 255, 0.12);
+  --input-text: #ffffff;
+  --modal-bg: #0f172a;
+  --modal-backdrop: rgba(0, 0, 0, 0.75);
+  --scrollbar-thumb: #334155;
+  --scrollbar-track: #090d16;
+  --header-text: #ffffff;
+  --pill-active-bg: rgba(245, 158, 11, 0.16);
+  --pill-active-color: #fbbf24;
+}
+
+/* ☀️ Light Theme Design Tokens */
+[data-theme="light"], body.theme-light {
+  --app-bg: #f8fafc;
+  --app-bg-gradient: radial-gradient(circle at 15% 10%, rgba(245, 158, 11, 0.08) 0%, transparent 45%),
+                     radial-gradient(circle at 85% 60%, rgba(59, 130, 246, 0.06) 0%, transparent 50%),
+                     #f8fafc;
+  --surface-primary: #ffffff;
+  --surface-secondary: #f1f5f9;
+  --surface-card: #ffffff;
+  --surface-glass: rgba(255, 255, 255, 0.88);
+  --surface-glass-header: rgba(255, 255, 255, 0.94);
+  --surface-hover: rgba(0, 0, 0, 0.04);
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --border-subtle: rgba(0, 0, 0, 0.08);
+  --border-medium: rgba(0, 0, 0, 0.14);
+  --border-strong: rgba(0, 0, 0, 0.22);
+  --card-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.08);
+  --input-bg: #ffffff;
+  --input-border: #cbd5e1;
+  --input-text: #0f172a;
+  --modal-bg: #ffffff;
+  --modal-backdrop: rgba(15, 23, 42, 0.5);
+  --scrollbar-thumb: #cbd5e1;
+  --scrollbar-track: #f1f5f9;
+  --header-text: #0f172a;
+  --pill-active-bg: rgba(245, 158, 11, 0.18);
+  --pill-active-color: #b45309;
+}
+
+/* Root & Body Scroll Properties */
 html, body {
   width: 100% !important;
   min-height: 100% !important;
   height: auto !important;
   overflow-x: hidden !important;
   overflow-y: auto !important;
-  background-color: #f8fafc;
-  color: #1e293b;
+  background-color: var(--app-bg, #090d16);
+  color: var(--text-primary, #f8fafc);
   margin: 0;
   padding: 0;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 /* Neutralize any Ionic absolute container rules on views */
@@ -32,6 +99,7 @@ html, body {
   contain: none !important;
   overflow: visible !important;
   height: auto !important;
+  background: transparent !important;
 }
 
 * {
@@ -55,60 +123,270 @@ h1, h2, h3, h4, h5, h6, .brand-font {
   height: 7px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: var(--scrollbar-track, #f1f5f9);
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: var(--scrollbar-thumb, #cbd5e1);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
 
-/* Glassmorphism & Modern Card Elevation */
-.glass-card {
-  background: rgba(255, 255, 255, 0.98);
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  border-radius: 14px;
-  box-shadow: 0 4px 18px -2px rgba(15, 23, 42, 0.05);
-}
+/* ==========================================================================
+   GLOBAL LIGHT THEME OVERRIDES FOR SEAMLESS CONTRAST
+   ========================================================================== */
 
-.interactive-card {
-  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-  cursor: pointer;
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 24px -4px rgba(15, 23, 42, 0.09);
+body.theme-light {
+  /* Header Light Theme */
+  .app-header {
+    background: var(--surface-glass-header) !important;
+    border-bottom: 1px solid var(--border-subtle) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+
+    .brand-name-white {
+      color: #0f172a !important;
+    }
+
+    .brand-sub {
+      color: #64748b !important;
+    }
+
+    .nav-item {
+      color: #475569 !important;
+      background: transparent;
+
+      &:hover {
+        color: #0f172a !important;
+        background: rgba(0, 0, 0, 0.05) !important;
+      }
+
+      &.active {
+        background: var(--pill-active-bg) !important;
+        color: var(--pill-active-color) !important;
+        border-color: rgba(245, 158, 11, 0.4) !important;
+      }
+    }
+
+    .search-input-box {
+      background: #f1f5f9 !important;
+      border-color: #cbd5e1 !important;
+
+      input {
+        color: #0f172a !important;
+        &::placeholder { color: #94a3b8 !important; }
+      }
+      .search-lens { color: #64748b !important; }
+      .search-kbd-hint {
+        background: #e2e8f0 !important;
+        color: #475569 !important;
+      }
+    }
+
+    .autocomplete-dropdown {
+      background: #ffffff !important;
+      border-color: #e2e8f0 !important;
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.12) !important;
+
+      .dropdown-header {
+        background: #f8fafc !important;
+        border-bottom-color: #e2e8f0 !important;
+        color: #475569 !important;
+      }
+
+      .autocomplete-item {
+        border-bottom-color: #f1f5f9 !important;
+        &:hover { background: #f8fafc !important; }
+        .item-name { color: #0f172a !important; }
+        .item-cat-brand { color: #64748b !important; }
+      }
+    }
+
+    .action-icon {
+      background: #f1f5f9 !important;
+      border-color: #e2e8f0 !important;
+      color: #475569 !important;
+
+      &:hover {
+        background: #e2e8f0 !important;
+        color: #0f172a !important;
+      }
+    }
+
+    .action-phone-pill {
+      background: #f1f5f9 !important;
+      border-color: #e2e8f0 !important;
+      color: #0f172a !important;
+    }
   }
-}
 
-/* Badges */
-.badge-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 3px 8px;
-  border-radius: 9999px;
-  font-size: 0.74rem;
-  font-weight: 600;
-}
+  /* Mobile Bottom Bar in Light */
+  .mobile-bar {
+    background: rgba(255, 255, 255, 0.96) !important;
+    border-top-color: #e2e8f0 !important;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08) !important;
 
-.badge-warning {
-  background: #fef3c7;
-  color: #b45309;
-}
+    .mob-item {
+      color: #64748b !important;
+      &:hover { color: #0f172a !important; }
+      &.active { color: #f59e0b !important; }
+    }
+  }
 
-.badge-success {
-  background: #d1fae5;
-  color: #065f46;
-}
+  /* Glass Cards in Light Theme */
+  .glass-card {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06) !important;
+  }
 
-.badge-info {
-  background: #e0f2fe;
-  color: #0369a1;
-}
+  /* Profile Page Overrides for Light Mode */
+  .profile-hero {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
+    border-color: #e2e8f0 !important;
 
-.badge-danger {
-  background: #fee2e2;
-  color: #991b1b;
+    .user-name { color: #0f172a !important; }
+    .meta-pill {
+      background: #f1f5f9 !important;
+      color: #475569 !important;
+    }
+    .stat-pill {
+      background: #ffffff !important;
+      border-color: #e2e8f0 !important;
+      .stat-val { color: #0f172a !important; }
+      .stat-lbl { color: #64748b !important; }
+    }
+  }
+
+  .tabs-segmented {
+    background: #e2e8f0 !important;
+    border-color: #cbd5e1 !important;
+
+    .tab-btn {
+      color: #475569 !important;
+      &:hover { color: #0f172a !important; }
+      &.active {
+        background: #ffffff !important;
+        color: #0f172a !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+        .tab-count-pill { background: #f59e0b !important; color: #0f172a !important; }
+      }
+    }
+  }
+
+  .orders-toolbar {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+
+    .search-box {
+      background: #f8fafc !important;
+      border-color: #cbd5e1 !important;
+      input { color: #0f172a !important; }
+    }
+
+    .pill-filter {
+      background: #f1f5f9 !important;
+      border-color: #e2e8f0 !important;
+      color: #475569 !important;
+      &.active {
+        background: rgba(245, 158, 11, 0.18) !important;
+        color: #b45309 !important;
+      }
+    }
+  }
+
+  .order-card {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+
+    .order-date-time { color: #64748b !important; }
+    .order-total-price { color: #0f172a !important; }
+    .order-items-wrap { background: #f8fafc !important; }
+    .item-name { color: #0f172a !important; }
+    .item-brand-cat { color: #64748b !important; }
+    .item-price-total { color: #0f172a !important; }
+    .item-qty-cell .qty-badge { background: #e2e8f0 !important; color: #1e293b !important; }
+    .order-meta-footer { background: #f1f5f9 !important; color: #475569 !important; }
+  }
+
+  .edit-card {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+
+    .card-title-row h3 { color: #0f172a !important; }
+    .card-title-row p { color: #64748b !important; }
+    .input-field label { color: #334155 !important; }
+    .input-with-icon {
+      background: #ffffff !important;
+      border-color: #cbd5e1 !important;
+      input { color: #0f172a !important; }
+    }
+    input[type="text"], input[type="tel"], input[type="email"] {
+      background: #ffffff !important;
+      border-color: #cbd5e1 !important;
+      color: #0f172a !important;
+    }
+    .readonly-input { background: #f1f5f9 !important; color: #64748b !important; }
+    .gst-benefit-box { background: #eff6ff !important; border-color: #bfdbfe !important; }
+  }
+
+  .address-card {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    .addr-street { color: #0f172a !important; }
+    .addr-sub { color: #64748b !important; }
+    .addr-label-pill { background: #f1f5f9 !important; color: #b45309 !important; }
+  }
+
+  .pref-card {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    .card-title-row h3 { color: #0f172a !important; }
+    .toggle-row { background: #f8fafc !important; border-color: #e2e8f0 !important; }
+    .toggle-title { color: #0f172a !important; }
+  }
+
+  .modal-dialog {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15) !important;
+
+    .modal-header {
+      border-bottom-color: #e2e8f0 !important;
+      h3 { color: #0f172a !important; }
+    }
+    .modal-footer { border-top-color: #e2e8f0 !important; }
+  }
+
+  .admin-login-modal {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    h3 { color: #0f172a !important; }
+    .btn-fast-admin {
+      background: #f8fafc !important;
+      border-color: #e2e8f0 !important;
+      strong { color: #0f172a !important; }
+    }
+  }
+
+  .admin-menu-dropdown {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12) !important;
+    .admin-menu-header { background: #f8fafc !important; border-bottom-color: #e2e8f0 !important; }
+    .admin-name { color: #0f172a !important; }
+    .admin-menu-link {
+      color: #334155 !important;
+      &:hover { background: #f1f5f9 !important; color: #0f172a !important; }
+    }
+  }
+
+  /* Catalog & Products Light Mode */
+  .product-card, .store-product-card {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    color: #0f172a !important;
+    h3, .product-title { color: #0f172a !important; }
+    .product-price, .price-val { color: #0f172a !important; }
+  }
 }

@@ -438,6 +438,28 @@
   font-size: 0.95rem;
 }
 
+.btn-track-order-direct {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(245, 158, 11, 0.15);
+  color: #b45309;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  padding: 12px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: rgba(245, 158, 11, 0.25);
+    color: #92400e;
+  }
+}
+
 .btn-continue {
   background: #0f172a;
   color: #ffffff;

@@ -57,6 +57,13 @@ export interface AppConfig {
   value4Title: string;
   value4Desc: string;
 
+  // Deal of the Day (inspired by tktools.in)
+  showDealOfTheDay: boolean;
+  dealOfTheDayProductId: string;
+  dealOfTheDayTitle: string;
+  dealOfTheDaySubtitle: string;
+  dealOfTheDayEndHours: number;
+
   // Footer Copy
   footerAboutText: string;
   footerCopyrightText: string;
@@ -76,16 +83,16 @@ export interface StoreOffer {
   providedIn: 'root'
 })
 export class ConfigService {
-  private readonly CONFIG_KEY = 'voltmaster_config_v2';
-  private readonly OFFERS_KEY = 'voltmaster_offers_v1';
+  private readonly CONFIG_KEY = 'electrical_vibers_config_v1';
+  private readonly OFFERS_KEY = 'electrical_vibers_offers_v1';
 
   private defaultConfig: AppConfig = {
-    businessName: 'VoltMaster',
+    businessName: 'Electrical Vibers',
     businessSubtitle: 'Electricals & Contracting',
     tamilQuote: '⚡ தரமான பொருட்கள் • நம்பகமான வயரிங் பணிகள் • நியாயமான கட்டணம்',
     contactPhone: '+91 98765 43210',
     whatsappNumber: '919876543210',
-    contactEmail: 'contact@voltmaster.in',
+    contactEmail: 'contact@electricalvibers.com',
     address: '124, Power Station Road, Anna Nagar, Chennai - 600040',
     baseInspectionFee: 149,
     bannerOfferText: '⚡ Special Offer: Flat 15% OFF on Havells & Finolex Wire Coils + Free Delivery across Chennai!',
@@ -95,11 +102,11 @@ export class ConfigService {
     emergencyResponseTime: '30 Min',
 
     // Social Media Handles
-    instagramUrl: 'https://instagram.com/voltmaster_chennai',
-    facebookUrl: 'https://facebook.com/voltmaster.electricals',
-    youtubeUrl: 'https://youtube.com/@voltmaster_electricals',
+    instagramUrl: 'https://instagram.com/electricalvibers',
+    facebookUrl: 'https://facebook.com/electricalvibers',
+    youtubeUrl: 'https://youtube.com/@electricalvibers',
     googleMapsUrl: 'https://maps.google.com/?q=Anna+Nagar+Chennai',
-    twitterUrl: 'https://x.com/voltmaster_in',
+    twitterUrl: 'https://x.com/electricalvibers',
 
     // Hero Copy
     heroBadgeText: "Government Licensed 'A' Grade Electrical Contractor",
@@ -135,9 +142,16 @@ export class ConfigService {
     value4Title: 'Direct Contractor Support',
     value4Desc: 'Speak directly to our master licensed electrician anytime via WhatsApp or phone call.',
 
+    // Deal of the Day
+    showDealOfTheDay: true,
+    dealOfTheDayProductId: 'prod-7',
+    dealOfTheDayTitle: 'Deal of the Day ⚡ Limited-Time Flash Tool',
+    dealOfTheDaySubtitle: 'சிறப்பு சலுகை: பிரீமியம் கார்ட்லெஸ் பவர் டூல்ஸ் நேரடி தள்ளுபடி விலையில்',
+    dealOfTheDayEndHours: 12,
+
     // Footer
     footerAboutText: 'Professional Licensed Electrical Contractors & Retail Store in Chennai. Delivering safe wiring, smart switchgears, and dependable daily electrical work since 2012.',
-    footerCopyrightText: '© 2026 VoltMaster Electricals & Contracting. All rights reserved.'
+    footerCopyrightText: '© 2026 Electrical Vibers. All rights reserved.'
   };
 
   private initialOffers: StoreOffer[] = [
@@ -173,10 +187,34 @@ export class ConfigService {
   }
 
   private loadConfig(): void {
-    const saved = localStorage.getItem(this.CONFIG_KEY);
+    let saved = localStorage.getItem(this.CONFIG_KEY);
+    if (!saved) {
+      // Check for legacy voltmaster key
+      const legacySaved = localStorage.getItem('voltmaster_config_v2');
+      if (legacySaved) {
+        try {
+          const parsed = JSON.parse(legacySaved);
+          if (parsed.businessName === 'VoltMaster') {
+            parsed.businessName = 'Electrical Vibers';
+          }
+          if (parsed.footerCopyrightText && parsed.footerCopyrightText.includes('VoltMaster')) {
+            parsed.footerCopyrightText = '© 2026 Electrical Vibers. All rights reserved.';
+          }
+          this.saveConfig({ ...this.defaultConfig, ...parsed });
+          return;
+        } catch (e) {
+          console.error('Failed to parse legacy config:', e);
+        }
+      }
+    }
+
     if (saved) {
       try {
-        this.configSubject.next({ ...this.defaultConfig, ...JSON.parse(saved) });
+        const parsed = JSON.parse(saved);
+        if (parsed.businessName === 'VoltMaster') {
+          parsed.businessName = 'Electrical Vibers';
+        }
+        this.configSubject.next({ ...this.defaultConfig, ...parsed });
         return;
       } catch (e) {
         console.error('Failed to load config:', e);

@@ -1,45 +1,134 @@
 <div class="home-page-container">
-  <!-- Hero Section -->
-  <section class="hero-section">
-    <div class="hero-overlay"></div>
+  <!-- Theme-Dependent Dynamic Hero Section with 3D Showcase & Floating Animations -->
+  <section class="hero-section" [class.is-light]="themeService.activeTheme() === 'light'">
+    <div class="hero-ambient-glow"></div>
+    <div class="hero-grid-pattern"></div>
+
     <div class="hero-content">
-      <div class="hero-badge">
-        <span class="material-symbols-outlined">verified</span>
-        <span>{{ config.heroBadgeText }}</span>
-      </div>
-      <h1 class="hero-title">
-        {{ config.heroHeadline }}
-      </h1>
-      <p class="hero-subtitle">
-        {{ config.heroSubheadline }}
-      </p>
-      <div class="hero-cta-group">
-        <a routerLink="/book-service" class="btn btn-primary">
-          <span class="material-symbols-outlined">calendar_month</span>
-          {{ config.heroBookCtaText }}
-        </a>
-        <a routerLink="/products" class="btn btn-secondary">
-          <span class="material-symbols-outlined">shopping_bag</span>
-          {{ config.heroStoreCtaText }}
-        </a>
+      <div class="hero-main-row">
+        <!-- Left Content Column -->
+        <div class="hero-text-col">
+          <div class="hero-badge animate-fade-down">
+            <span class="live-beacon"></span>
+            <span class="material-symbols-outlined badge-icon">verified</span>
+            <span>{{ config.heroBadgeText }}</span>
+          </div>
+
+          <h1 class="hero-title animate-fade-in">
+            Smart Electrical Solutions & <span class="highlight-gradient">Premium Supplies</span> in One Place
+          </h1>
+
+          <p class="hero-subtitle animate-fade-in-delayed">
+            {{ config.heroSubheadline }}
+          </p>
+
+          <div class="hero-cta-group animate-fade-up">
+            <a routerLink="/book-service" class="btn btn-primary">
+              <span class="material-symbols-outlined btn-icon">handyman</span>
+              <span>{{ config.heroBookCtaText }}</span>
+              <span class="material-symbols-outlined btn-arrow">arrow_forward</span>
+            </a>
+            <a routerLink="/products" class="btn btn-secondary">
+              <span class="material-symbols-outlined btn-icon">storefront</span>
+              <span>{{ config.heroStoreCtaText }}</span>
+            </a>
+          </div>
+
+          <!-- Feature Quick Badges -->
+          <div class="hero-quick-badges">
+            <div class="quick-badge">
+              <span class="material-symbols-outlined">schedule</span>
+              <span>24/7 Emergency Dispatch</span>
+            </div>
+            <div class="quick-badge">
+              <span class="material-symbols-outlined">verified_user</span>
+              <span>100% Genuine ISI Branded</span>
+            </div>
+            <div class="quick-badge">
+              <span class="material-symbols-outlined">local_shipping</span>
+              <span>Same-Day Chennai Delivery</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right 3D Visual & Floating Badges Showcase Column -->
+        <div class="hero-visual-col">
+          <div class="hero-showcase-frame">
+            <div class="showcase-halo-glow"></div>
+            
+            <!-- Main Theme-Dependent Hero Showcase Image -->
+            <div class="image-wrapper">
+              <img 
+                [src]="heroImage" 
+                alt="Electrical Vibers Smart Engineering & Supplies Showcase" 
+                class="hero-showcase-img" 
+              />
+              <div class="image-overlay-gradient"></div>
+            </div>
+
+            <!-- Floating Badge 1 (Top Left): Official Logo Badge -->
+            <div class="floating-pill-card badge-brand float-anim-1">
+              <img src="assets/images/logo-text.jpeg" alt="Electrical Vibers" class="floating-logo-img" />
+              <div class="floating-card-info">
+                <strong>Electrical Vibers</strong>
+                <span>Govt. Grade 'A' Licensed</span>
+              </div>
+            </div>
+
+            <!-- Floating Badge 2 (Bottom Right): 30-Min Rapid Response -->
+            <div class="floating-pill-card badge-status float-anim-2">
+              <div class="status-icon-bubble">
+                <span class="material-symbols-outlined">bolt</span>
+              </div>
+              <div class="floating-card-info">
+                <strong>30-Min Rapid Response</strong>
+                <span>Available Across Chennai</span>
+              </div>
+            </div>
+
+            <!-- Floating Badge 3 (Top Right): Special Deal Tag -->
+            <div class="floating-pill-card badge-offer float-anim-3">
+              <span class="offer-flash">⚡</span>
+              <div class="floating-card-info">
+                <strong>Flat 15% OFF Wire Coils</strong>
+                <span>Finolex & Havells Today</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Trust Badges Bar (Dynamic from Admin Config) -->
       <div class="trust-stats-grid">
-        <div class="stat-card">
-          <div class="stat-num">{{ config.stat1Num }}</div>
+        <div class="stat-card glass-card">
+          <div class="stat-num-row">
+            <span class="material-symbols-outlined stat-icon">engineering</span>
+            <div class="stat-num">{{ config.stat1Num }}</div>
+          </div>
           <div class="stat-lbl">{{ config.stat1Label }}</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-num">{{ config.stat2Num }}</div>
+
+        <div class="stat-card glass-card">
+          <div class="stat-num-row">
+            <span class="material-symbols-outlined stat-icon">domain</span>
+            <div class="stat-num">{{ config.stat2Num }}</div>
+          </div>
           <div class="stat-lbl">{{ config.stat2Label }}</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-num">{{ config.stat3Num }}</div>
+
+        <div class="stat-card glass-card">
+          <div class="stat-num-row">
+            <span class="material-symbols-outlined stat-icon">workspace_premium</span>
+            <div class="stat-num">{{ config.stat3Num }}</div>
+          </div>
           <div class="stat-lbl">{{ config.stat3Label }}</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-num">{{ config.stat4Num }}</div>
+
+        <div class="stat-card glass-card">
+          <div class="stat-num-row">
+            <span class="material-symbols-outlined stat-icon">timer</span>
+            <div class="stat-num">{{ config.stat4Num }}</div>
+          </div>
           <div class="stat-lbl">{{ config.stat4Label }}</div>
         </div>
       </div>
@@ -104,6 +193,82 @@
     </div>
   </section>
 
+  <!-- Deal of the Day Section (Inspired by tktools.in) -->
+  <section *ngIf="config.showDealOfTheDay && dealProduct" class="section deal-of-the-day-section">
+    <div class="deal-card glass-card">
+      <div class="deal-badge-bar">
+        <span class="flash-pill">
+          <span class="material-symbols-outlined pulse-icon">local_fire_department</span>
+          DEAL OF THE DAY
+        </span>
+        <div class="countdown-timer">
+          <span class="timer-label">Ends in:</span>
+          <div class="timer-boxes">
+            <span class="box">{{ countdownHours < 10 ? '0' + countdownHours : countdownHours }}h</span>
+            <span class="colon">:</span>
+            <span class="box">{{ countdownMinutes < 10 ? '0' + countdownMinutes : countdownMinutes }}m</span>
+            <span class="colon">:</span>
+            <span class="box highlight-sec">{{ countdownSeconds < 10 ? '0' + countdownSeconds : countdownSeconds }}s</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="deal-content-grid">
+        <div class="deal-media-wrap" [routerLink]="['/product', dealProduct.id]">
+          <img [src]="dealProduct.images[0]" [alt]="dealProduct.name" />
+          <span *ngIf="dealProduct.discountPercentage" class="mega-discount-tag">
+            {{ dealProduct.discountPercentage }}% OFF
+          </span>
+        </div>
+
+        <div class="deal-info">
+          <div class="deal-category-brand">
+            <span class="brand-chip">{{ dealProduct.brand }}</span>
+            <span class="cat-chip">{{ dealProduct.category }}</span>
+          </div>
+
+          <h3 class="deal-title" [routerLink]="['/product', dealProduct.id]">
+            {{ dealProduct.name }}
+          </h3>
+          <p class="deal-tamil" *ngIf="dealProduct.tamilName">{{ dealProduct.tamilName }}</p>
+          <p class="deal-desc">{{ dealProduct.description }}</p>
+
+          <div class="deal-specs-pills" *ngIf="dealProduct.specs">
+            <span class="spec-tag" *ngFor="let item of (dealProduct.specs | keyvalue | slice:0:3)">
+              {{ item.key }}: {{ item.value }}
+            </span>
+          </div>
+
+          <div class="deal-pricing-row">
+            <div class="price-stack">
+              <span class="current-deal-price">₹{{ dealProduct.price }}</span>
+              <span *ngIf="dealProduct.mrp" class="mrp-striked">₹{{ dealProduct.mrp }}</span>
+              <span class="gst-text">(incl. GST)</span>
+            </div>
+            <div class="stock-status-urgency">
+              <span class="dot-live"></span>
+              <span>Only {{ dealProduct.stock }} units left at this price!</span>
+            </div>
+          </div>
+
+          <div class="deal-actions">
+            <button class="btn-deal-buy-now" (click)="buyNow(dealProduct)">
+              <span class="material-symbols-outlined">bolt</span>
+              ⚡ Buy Now
+            </button>
+            <button class="btn-deal-cart" (click)="addToCart(dealProduct)">
+              <span class="material-symbols-outlined">shopping_bag</span>
+              Add to Cart
+            </button>
+            <a [routerLink]="['/product', dealProduct.id]" class="btn-deal-view">
+              View Specs
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Featured Store Products Section -->
   <section class="section store-section">
     <div class="section-header">
@@ -142,10 +307,14 @@
           <div class="product-actions">
             <button (click)="addToCart(prod)" class="btn-add-cart">
               <span class="material-symbols-outlined">add_shopping_cart</span>
-              Add to Cart
+              Cart
+            </button>
+            <button (click)="buyNow(prod)" class="btn-buy-now-home">
+              <span class="material-symbols-outlined">bolt</span>
+              Buy Now
             </button>
             <a [routerLink]="['/product', prod.id]" class="btn-details" title="Share & Details">
-              <span class="material-symbols-outlined">share</span>
+              <span class="material-symbols-outlined">visibility</span>
             </a>
           </div>
         </div>

@@ -1,0 +1,250 @@
+<div class="track-order-page">
+  <!-- Top Banner -->
+  <div class="track-hero">
+    <div class="container">
+      <span class="badge-pill">REAL-TIME SERVICE & DISPATCH TRACKER</span>
+      <h1>Track Your Order & Service Request</h1>
+      <p>Enter your Order ID (e.g. EV-ORD-...), Service Booking ID, or Registered Phone Number</p>
+
+      <!-- Tracker Search Bar -->
+      <div class="tracker-input-box glass-card">
+        <span class="material-symbols-outlined search-icon">search</span>
+        <input 
+          type="text" 
+          [(ngModel)]="searchQuery" 
+          (keydown.enter)="track()"
+          placeholder="e.g. EV-ORD-101 or 9876543210" 
+        />
+        <button (click)="track()" class="btn-track-submit">
+          <span>Track Status</span>
+          <span class="material-symbols-outlined">arrow_forward</span>
+        </button>
+      </div>
+
+      <div class="demo-chip-row">
+        <span>Quick Demo:</span>
+        <button type="button" (click)="fillDemo()" class="demo-btn">
+          ⚡ Auto-fill Recent ID
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container main-content">
+    <!-- 1. Matched Material Order Results -->
+    <div *ngIf="matchedOrder" class="result-wrapper">
+      <div class="status-summary-card glass-card">
+        <div class="card-top-row">
+          <div>
+            <span class="type-pill">MATERIAL STORE ORDER</span>
+            <h2>Order #{{ matchedOrder.id }}</h2>
+            <span class="placed-date">Placed on {{ matchedOrder.orderDate | date:'medium' }}</span>
+          </div>
+          <div class="order-status-badge" [ngClass]="matchedOrder.orderStatus">
+            {{ matchedOrder.orderStatus | uppercase }}
+          </div>
+        </div>
+
+        <!-- Stepped Timeline -->
+        <div class="timeline-stepper">
+          <div class="step-node" [class.done]="getOrderProgressStep(matchedOrder.orderStatus) >= 1">
+            <div class="node-circle">1</div>
+            <div class="node-label">Order Placed</div>
+          </div>
+          <div class="step-line" [class.done]="getOrderProgressStep(matchedOrder.orderStatus) >= 2"></div>
+
+          <div class="step-node" [class.done]="getOrderProgressStep(matchedOrder.orderStatus) >= 2">
+            <div class="node-circle">2</div>
+            <div class="node-label">Confirmed & Packed</div>
+          </div>
+          <div class="step-line" [class.done]="getOrderProgressStep(matchedOrder.orderStatus) >= 3"></div>
+
+          <div class="step-node" [class.done]="getOrderProgressStep(matchedOrder.orderStatus) >= 3">
+            <div class="node-circle">3</div>
+            <div class="node-label">Out for Delivery</div>
+          </div>
+          <div class="step-line" [class.done]="getOrderProgressStep(matchedOrder.orderStatus) >= 4"></div>
+
+          <div class="step-node" [class.done]="getOrderProgressStep(matchedOrder.orderStatus) >= 4">
+            <div class="node-circle">4</div>
+            <div class="node-label">Delivered</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Details Split Grid -->
+      <div class="details-grid">
+        <!-- Items Column -->
+        <div class="card glass-card">
+          <h3>Order Items ({{ matchedOrder.items.length }})</h3>
+          <div class="order-items-list">
+            <div *ngFor="let item of matchedOrder.items" class="order-item-row">
+              <img [src]="item.product.images[0]" [alt]="item.product.name" class="thumb" />
+              <div class="item-meta">
+                <span class="item-b">{{ item.product.brand }}</span>
+                <h4>{{ item.product.name }}</h4>
+                <div class="item-qty-price">
+                  <span>Qty: {{ item.quantity }}</span>
+                  <span class="item-tot">₹{{ item.product.price * item.quantity }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="price-summary-box">
+            <div class="p-row">
+              <span>Subtotal:</span>
+              <span>₹{{ matchedOrder.subtotal }}</span>
+            </div>
+            <div class="p-row" *ngIf="matchedOrder.discount">
+              <span>Savings / Discount:</span>
+              <span class="text-green">-₹{{ matchedOrder.discount }}</span>
+            </div>
+            <div class="p-row total-row">
+              <span>Total Paid / Payable:</span>
+              <span class="highlight">₹{{ matchedOrder.totalAmount }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Customer & Delivery Column -->
+        <div class="card glass-card">
+          <h3>Customer & Delivery Address</h3>
+          <div class="address-box">
+            <p class="name"><strong>{{ matchedOrder.customerName }}</strong></p>
+            <p class="phone">📞 {{ matchedOrder.customerPhone }}</p>
+            <p class="address">
+              📍 {{ matchedOrder.deliveryAddress.street }},<br />
+              {{ matchedOrder.deliveryAddress.city }} - {{ matchedOrder.deliveryAddress.pincode }}
+            </p>
+          </div>
+
+          <div class="payment-method-box">
+            <h4>Payment Method</h4>
+            <div class="pm-badge">
+              <span class="material-symbols-outlined">payments</span>
+              <span>{{ matchedOrder.paymentMethod | uppercase }}</span>
+              <span class="p-status" [class.paid]="matchedOrder.paymentStatus === 'paid'">
+                ({{ matchedOrder.paymentStatus | uppercase }})
+              </span>
+            </div>
+          </div>
+
+          <div class="help-card">
+            <h4>Need to make changes?</h4>
+            <p>Contact our Chennai dispatch coordinator directly on WhatsApp.</p>
+            <a [href]="orderService.generateWhatsAppOrderLink(matchedOrder)" target="_blank" class="btn-wa-support">
+              <span class="material-symbols-outlined">chat</span>
+              WhatsApp Dispatch Help
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Matched Electrician Service Booking Results -->
+    <div *ngIf="matchedBooking" class="result-wrapper">
+      <div class="status-summary-card glass-card">
+        <div class="card-top-row">
+          <div>
+            <span class="type-pill service-pill">ELECTRICIAN SERVICE BOOKING</span>
+            <h2>Booking #{{ matchedBooking.id }}</h2>
+            <span class="placed-date">Scheduled for {{ matchedBooking.preferredDate }} ({{ matchedBooking.preferredTimeSlot }})</span>
+          </div>
+          <div class="order-status-badge status-service" [ngClass]="matchedBooking.status">
+            {{ matchedBooking.status | uppercase }}
+          </div>
+        </div>
+
+        <!-- Stepped Timeline -->
+        <div class="timeline-stepper">
+          <div class="step-node" [class.done]="getBookingProgressStep(matchedBooking.status) >= 1">
+            <div class="node-circle">1</div>
+            <div class="node-label">Booking Received</div>
+          </div>
+          <div class="step-line" [class.done]="getBookingProgressStep(matchedBooking.status) >= 2"></div>
+
+          <div class="step-node" [class.done]="getBookingProgressStep(matchedBooking.status) >= 2">
+            <div class="node-circle">2</div>
+            <div class="node-label">Confirmed & Assigned</div>
+          </div>
+          <div class="step-line" [class.done]="getBookingProgressStep(matchedBooking.status) >= 3"></div>
+
+          <div class="step-node" [class.done]="getBookingProgressStep(matchedBooking.status) >= 3">
+            <div class="node-circle">3</div>
+            <div class="node-label">Electrician En Route</div>
+          </div>
+          <div class="step-line" [class.done]="getBookingProgressStep(matchedBooking.status) >= 4"></div>
+
+          <div class="step-node" [class.done]="getBookingProgressStep(matchedBooking.status) >= 4">
+            <div class="node-circle">4</div>
+            <div class="node-label">Work Completed</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Service Details Grid -->
+      <div class="details-grid">
+        <div class="card glass-card">
+          <h3>Service Job Scope</h3>
+          <div class="service-details-box">
+            <div class="scope-row">
+              <span class="label">Service Category:</span>
+              <strong>{{ matchedBooking.serviceTitle }} ({{ matchedBooking.serviceCategory }})</strong>
+            </div>
+            <div class="scope-row" *ngIf="matchedBooking.estimatedCost">
+              <span class="label">Estimated Base Fee:</span>
+              <span class="highlight">₹{{ matchedBooking.estimatedCost }}</span>
+            </div>
+            <div class="scope-row" *ngIf="matchedBooking.problemDescription">
+              <span class="label">Problem Description:</span>
+              <p class="notes-p">{{ matchedBooking.problemDescription }}</p>
+            </div>
+            <div class="scope-row" *ngIf="matchedBooking.assignedTechnician">
+              <span class="label">Assigned Electrician:</span>
+              <strong>{{ matchedBooking.assignedTechnician }}</strong>
+              <span *ngIf="matchedBooking.technicianPhone"> (📞 {{ matchedBooking.technicianPhone }})</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card glass-card">
+          <h3>Customer & Location</h3>
+          <div class="address-box">
+            <p class="name"><strong>{{ matchedBooking.customerName }}</strong></p>
+            <p class="phone">📞 {{ matchedBooking.customerPhone }}</p>
+            <p class="address">
+              📍 {{ matchedBooking.customerAddress }}, {{ matchedBooking.city }}
+              <span *ngIf="matchedBooking.landmark"> (Near {{ matchedBooking.landmark }})</span>
+            </p>
+          </div>
+
+          <div class="help-card" style="margin-top: 16px;">
+            <h4>Need to reschedule?</h4>
+            <p>Chat with our supervisor to adjust service timing or technician details.</p>
+            <a [href]="bookingService.generateWhatsAppLink(matchedBooking)" target="_blank" class="btn-wa-support">
+              <span class="material-symbols-outlined">chat</span>
+              WhatsApp Service Desk
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- No Match Found State -->
+    <div *ngIf="hasSearched && !matchedOrder && !matchedBooking" class="no-result-card glass-card">
+      <span class="material-symbols-outlined icon-empty">search_off</span>
+      <h3>No Records Found for "{{ searchQuery }}"</h3>
+      <p>Please double check your Order ID (starts with EV-ORD-...), Booking ID, or 10-digit mobile number.</p>
+      <div class="no-result-actions">
+        <button (click)="searchQuery = ''; fillDemo()" class="btn-demo-try">
+          Try Recent Demo ID
+        </button>
+        <a [href]="'https://wa.me/' + config.whatsappNumber + '?text=Hi,%20I%20need%20help%20tracking%20my%20order%20or%20booking.'" target="_blank" class="btn-wa-help">
+          <span class="material-symbols-outlined">chat</span>
+          Inquire via WhatsApp
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

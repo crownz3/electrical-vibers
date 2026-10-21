@@ -1,9 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CartService } from '../../services/cart.service';
 import { OrderService } from '../../services/order.service';
+import { CustomerService } from '../../services/customer.service';
 import { CartItem } from '../../models/product.model';
 import { Order, PaymentMethod } from '../../models/order.model';
 
@@ -14,9 +15,10 @@ import { Order, PaymentMethod } from '../../models/order.model';
   templateUrl: './cart.page.html',
   styleUrls: ['./cart.page.scss']
 })
-export class CartPage {
+export class CartPage implements OnInit {
   cartService = inject(CartService);
   orderService = inject(OrderService);
+  customerService = inject(CustomerService);
   router = inject(Router);
 
   customerName = '';
@@ -29,6 +31,18 @@ export class CartPage {
   selectedPaymentMethod: PaymentMethod = 'razorpay';
   isProcessing = false;
   lastPlacedOrder: Order | null = null;
+
+  ngOnInit(): void {
+    const profile = this.customerService.getProfile();
+    if (profile) {
+      this.customerName = profile.name || '';
+      this.customerPhone = profile.phone || '';
+      this.streetAddress = profile.street || '';
+      this.city = profile.city || 'Chennai';
+      this.pincode = profile.pincode || '';
+      this.landmark = profile.landmark || '';
+    }
+  }
 
   get cartItems(): CartItem[] {
     return this.cartService.getItems();

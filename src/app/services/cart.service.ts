@@ -6,16 +6,34 @@ import { CartItem, Product } from '../models/product.model';
   providedIn: 'root'
 })
 export class CartService {
-  private readonly CART_KEY = 'voltmaster_cart_v1';
+  private readonly CART_KEY = 'electrical_vibers_cart_v1';
   private itemsSubject = new BehaviorSubject<CartItem[]>([]);
   public items$: Observable<CartItem[]> = this.itemsSubject.asObservable();
+
+  private isDrawerOpenSubject = new BehaviorSubject<boolean>(false);
+  public isDrawerOpen$: Observable<boolean> = this.isDrawerOpenSubject.asObservable();
 
   constructor() {
     this.loadCart();
   }
 
+  openDrawer(): void {
+    this.isDrawerOpenSubject.next(true);
+  }
+
+  closeDrawer(): void {
+    this.isDrawerOpenSubject.next(false);
+  }
+
+  toggleDrawer(): void {
+    this.isDrawerOpenSubject.next(!this.isDrawerOpenSubject.getValue());
+  }
+
   private loadCart(): void {
-    const saved = localStorage.getItem(this.CART_KEY);
+    let saved = localStorage.getItem(this.CART_KEY);
+    if (!saved) {
+      saved = localStorage.getItem('voltmaster_cart_v1');
+    }
     if (saved) {
       try {
         this.itemsSubject.next(JSON.parse(saved));
@@ -34,7 +52,7 @@ export class CartService {
     return this.itemsSubject.getValue();
   }
 
-  addToCart(product: Product, quantity = 1): void {
+  addToCart(product: Product, quantity = 1, openDrawer = true): void {
     const current = this.itemsSubject.getValue();
     const existingIndex = current.findIndex(i => i.product.id === product.id);
 
@@ -51,6 +69,9 @@ export class CartService {
     }
 
     this.saveCart(updated);
+    if (openDrawer) {
+      this.openDrawer();
+    }
   }
 
   updateQuantity(productId: string, quantity: number): void {

@@ -26,10 +26,11 @@ export interface CartItem {
 
 export type ProductCategory = 
   | 'Wires & Cables'
+  | 'Electrician Tools'
+  | 'Cordless Battery Tools'
   | 'Switches & Sockets'
   | 'MCB & Distribution'
   | 'LED & Lighting'
   | 'Fans & Ventilation'
   | 'Conduits & Fittings'
-  | 'Pumps & Inverters'
-  | 'Electrician Tools';
+  | 'Pumps & Inverters';

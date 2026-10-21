@@ -3,7 +3,8 @@
 
 <head>
   <meta charset="utf-8" />
-  <title>Ionic App</title>
+  <title>Electrical Vibers | Electrical Solutions & Services</title>
+  <meta name="description" content="Electrical Vibers - Licensed Electrical Contractors & Retail Store. Professional residential wiring, commercial projects, repair services & branded electrical supplies." />
 
   <base href="/" />
 
@@ -22,6 +23,19 @@
   <!-- add to homescreen for ios -->
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+  <!-- Immediate Theme Pre-Initialization -->
+  <script>
+    (function() {
+      try {
+        var pref = localStorage.getItem('electrical_vibers_theme_pref_v1') || 'system';
+        var isDark = pref === 'dark' || (pref === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        var theme = isDark ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', theme);
+        document.documentElement.classList.add('theme-' + theme);
+      } catch (e) {}
+    })();
+  </script>
 </head>
 
 <body>

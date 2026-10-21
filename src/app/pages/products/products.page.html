@@ -40,11 +40,53 @@
       </button>
     </div>
 
+    <!-- Brand Filter Chips & Quick Toggles (like tktools.in) -->
+    <div class="sub-filter-row">
+      <div class="brand-chips-bar">
+        <span class="sub-label">Brand:</span>
+        <button 
+          (click)="selectBrand('ALL')" 
+          class="brand-pill-btn" 
+          [class.active]="selectedBrand === 'ALL'">
+          All
+        </button>
+        <button 
+          *ngFor="let b of brands" 
+          (click)="selectBrand(b)" 
+          class="brand-pill-btn" 
+          [class.active]="selectedBrand === b">
+          {{ b }}
+        </button>
+      </div>
+
+      <div class="quick-toggles-group">
+        <button 
+          type="button" 
+          class="toggle-chip deals-chip" 
+          [class.active]="onlyDeals" 
+          (click)="toggleDeals()">
+          <span class="material-symbols-outlined">local_fire_department</span>
+          Flash Deals
+        </button>
+        <button 
+          type="button" 
+          class="toggle-chip stock-chip" 
+          [class.active]="onlyInStock" 
+          (click)="toggleInStock()">
+          <span class="material-symbols-outlined">check_circle</span>
+          In Stock
+        </button>
+      </div>
+    </div>
+
     <!-- Filter & Sorting Header -->
     <div class="filters-summary-bar">
       <div class="result-count">
         Showing <strong>{{ filteredProducts.length }}</strong> products
         <span *ngIf="selectedCategory !== 'ALL'"> in <em>{{ selectedCategory }}</em></span>
+        <span *ngIf="selectedBrand !== 'ALL'"> • Brand: <strong>{{ selectedBrand }}</strong></span>
+        <span *ngIf="onlyDeals" class="filter-active-tag">🔥 20%+ OFF</span>
+        <span *ngIf="onlyInStock" class="filter-active-tag">✓ Ready Stock</span>
       </div>
 
       <div class="sort-selector">
@@ -107,10 +149,14 @@
             <div class="btn-group">
               <button (click)="addToCart(prod)" class="btn-cart-add" title="Add to Cart">
                 <span class="material-symbols-outlined">add_shopping_cart</span>
-                Add
+                Cart
               </button>
-              <a [routerLink]="['/product', prod.id]" class="btn-share" title="Share Link & Details">
-                <span class="material-symbols-outlined">share</span>
+              <button (click)="buyNow(prod)" class="btn-buy-now" title="Instant Direct Checkout">
+                <span class="material-symbols-outlined">bolt</span>
+                Buy Now
+              </button>
+              <a [routerLink]="['/product', prod.id]" class="btn-share" title="View Specifications">
+                <span class="material-symbols-outlined">visibility</span>
               </a>
             </div>
           </div>

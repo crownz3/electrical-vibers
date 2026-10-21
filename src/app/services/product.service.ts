@@ -6,18 +6,19 @@ import { Product } from '../models/product.model';
   providedIn: 'root'
 })
 export class ProductService {
-  private readonly PRODUCTS_KEY = 'voltmaster_products_v1';
-  private readonly CATEGORIES_KEY = 'voltmaster_categories_v1';
+  private readonly PRODUCTS_KEY = 'electrical_vibers_products_v2';
+  private readonly CATEGORIES_KEY = 'electrical_vibers_categories_v2';
 
   private defaultCategories: string[] = [
     'Wires & Cables',
+    'Electrician Tools',
+    'Cordless Battery Tools',
     'Switches & Sockets',
     'MCB & Distribution',
     'LED & Lighting',
     'Fans & Ventilation',
     'Conduits & Fittings',
-    'Pumps & Inverters',
-    'Electrician Tools'
+    'Pumps & Inverters'
   ];
 
   private initialProducts: Product[] = [
@@ -173,6 +174,118 @@ export class ProductService {
       unit: 'Piece',
       isFeatured: true,
       warranty: '2 + 1 Year Extended Warranty'
+    },
+    {
+      id: 'prod-7',
+      name: 'INGCO 20V Cordless Brushless Impact Wrench 850Nm (CIWLI2085)',
+      tamilName: 'இங்கோ 20V பிரஷ்லெஸ் இம்பாக்ட் ரெஞ்ச் (850Nm)',
+      category: 'Cordless Battery Tools',
+      brand: 'INGCO',
+      price: 8499,
+      mrp: 12999,
+      discountPercentage: 35,
+      rating: 4.9,
+      ratingCount: 164,
+      images: [
+        'https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=600&q=80',
+        'https://images.unsplash.com/photo-1572981779307-38b8cabb2407?auto=format&fit=crop&w=600&q=80'
+      ],
+      description: 'Heavy duty 850Nm Nut-Busting Torque brushless cordless impact wrench. Compatible with INGCO P20S multi-battery platform. Features 3-speed selector, auto-stop reverse function, and LED worklight. Perfect for heavy electrical panel mounting, solar framing, and mechanical fastening.',
+      specs: {
+        'Voltage': '20V Lithium-Ion (P20S)',
+        'Max Torque': '850 Nm',
+        'Motor Type': 'Brushless Long-Life Motor',
+        'Square Drive': '1/2 Inch (12.7mm)',
+        'Battery Kit': 'Includes 2x 4.0Ah Batteries & 2Hr Fast Charger'
+      },
+      stock: 9,
+      inStock: true,
+      unit: 'Kit (Tool + 2 Batteries + Charger)',
+      isFeatured: true,
+      warranty: '1 Year Comprehensive Manufacturer Warranty'
+    },
+    {
+      id: 'prod-8',
+      name: 'Bosch GSB 500W Professional Impact Drill Kit (100 Accessories)',
+      tamilName: 'பாஷ் 500W புரொபஷனல் இம்பாக்ட் டிரில் மெஷின் கிட்',
+      category: 'Electrician Tools',
+      brand: 'Bosch',
+      price: 3850,
+      mrp: 5499,
+      discountPercentage: 30,
+      rating: 4.8,
+      ratingCount: 420,
+      images: [
+        'https://images.unsplash.com/photo-1572981779307-38b8cabb2407?auto=format&fit=crop&w=600&q=80'
+      ],
+      description: 'Legendary Bosch compact impact drill for wall conduit channeling, switchboard anchor fitting, and metal framing. Comes with heavy duty carry case and 100 essential drill bits, screws, and hand tools.',
+      specs: {
+        'Power Input': '500 Watts',
+        'Chuck Capacity': '1.5 - 10 mm Keyed',
+        'No Load Speed': '0 - 2600 RPM',
+        'Drilling Dia in Masonry': '10 mm',
+        'Reverse Mode': 'Yes (Forward/Reverse Switch)'
+      },
+      stock: 18,
+      inStock: true,
+      unit: 'Complete 100-pc Kit',
+      isFeatured: true,
+      warranty: '6 Months Bosch Service Center Warranty'
+    },
+    {
+      id: 'prod-9',
+      name: 'Fluke 101 Pocket Auto-Ranging Digital Multimeter',
+      tamilName: 'ஃப்ளூக் 101 பாக்கெட் டிஜிட்டல் மல்டிமீட்டர்',
+      category: 'Electrician Tools',
+      brand: 'Fluke',
+      price: 2690,
+      mrp: 3450,
+      discountPercentage: 22,
+      rating: 5.0,
+      ratingCount: 295,
+      images: [
+        'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80'
+      ],
+      description: 'Original Fluke pocket multimeter designed for basic electrical testing. True CAT III 600V safety certified. Extremely compact, rugged, and precision-engineered for field electricians.',
+      specs: {
+        'Safety Category': 'CAT III 600 V Rated',
+        'Voltage AC/DC Range': '600 V Auto-ranging',
+        'Resistance Range': 'Up to 40 MΩ',
+        'Continuity Beeper': 'Instant Fast Response',
+        'Weight': 'Only 160g Pocket Size'
+      },
+      stock: 25,
+      inStock: true,
+      unit: 'Piece with Leads',
+      isFeatured: true,
+      warranty: '1 Year Fluke Certified Warranty'
+    },
+    {
+      id: 'prod-10',
+      name: 'Taparia 8-in-1 Insulated Electrician Master Tool Set',
+      tamilName: 'தபாரியா 8-இன்-1 இன்சுலேட்டட் எலக்ட்ரீஷியன் டூல் செட்',
+      category: 'Electrician Tools',
+      brand: 'Taparia',
+      price: 1150,
+      mrp: 1550,
+      discountPercentage: 26,
+      rating: 4.7,
+      ratingCount: 380,
+      images: [
+        'https://images.unsplash.com/photo-1530124566582-a618bc2615dc?auto=format&fit=crop&w=600&q=80'
+      ],
+      description: '1000V tested safety insulated tools for live wire maintenance. Includes combination pliers, long nose pliers, wire stripper, neon phase tester, and magnetic tip screwdrivers in heavy fabric pouch.',
+      specs: {
+        'Insulation Rating': '1000V AC Safe Grip (IS: 3651)',
+        'Steel Grade': 'Drop Forged Chrome Vanadium',
+        'Includes': 'Tester, 8" Plier, Stripper, 5 Screwdrivers',
+        'Pouch': 'Reinforced Ballistic Nylon Case'
+      },
+      stock: 40,
+      inStock: true,
+      unit: 'Set in Roll-up Pouch',
+      isFeatured: true,
+      warranty: 'Lifetime Workmanship Guarantee'
     }
   ];
 
@@ -189,10 +302,15 @@ export class ProductService {
 
   // --- Dynamic Categories ---
   private loadCategories(): void {
-    const saved = localStorage.getItem(this.CATEGORIES_KEY);
+    let saved = localStorage.getItem(this.CATEGORIES_KEY);
+    if (!saved) {
+      saved = localStorage.getItem('voltmaster_categories_v1');
+    }
     if (saved) {
       try {
-        this.categoriesSubject.next(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        const merged = Array.from(new Set([...this.defaultCategories, ...parsed]));
+        this.saveCategories(merged);
         return;
       } catch (e) {
         console.error('Failed to load categories:', e);
@@ -243,10 +361,22 @@ export class ProductService {
 
   // --- Products CRUD ---
   private loadProducts(): void {
-    const saved = localStorage.getItem(this.PRODUCTS_KEY);
+    let saved = localStorage.getItem(this.PRODUCTS_KEY);
+    if (!saved) {
+      saved = localStorage.getItem('voltmaster_products_v1');
+    }
     if (saved) {
       try {
-        this.productsSubject.next(JSON.parse(saved));
+        const parsed: Product[] = JSON.parse(saved);
+        const hasNewTools = parsed.some(p => p.id === 'prod-7');
+        if (!hasNewTools) {
+          // Merge initial tool products with any custom user products
+          const customProds = parsed.filter(p => !this.initialProducts.some(init => init.id === p.id));
+          const merged = [...this.initialProducts, ...customProds];
+          this.saveProducts(merged);
+          return;
+        }
+        this.productsSubject.next(parsed);
         return;
       } catch (e) {
         console.error('Failed to parse saved products:', e);

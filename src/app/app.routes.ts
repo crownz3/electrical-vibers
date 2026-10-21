@@ -27,8 +27,16 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/book-service/book-service.page').then(m => m.BookServicePage)
   },
   {
+    path: 'track-order',
+    loadComponent: () => import('./pages/track-order/track-order.page').then(m => m.TrackOrderPage)
+  },
+  {
     path: 'admin',
     loadComponent: () => import('./pages/admin/admin.page').then(m => m.AdminPage)
+  },
+  {
+    path: 'profile',
+    loadComponent: () => import('./pages/profile/profile.page').then(m => m.ProfilePage)
   },
   {
     path: '**',

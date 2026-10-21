@@ -177,6 +177,12 @@
             Confirm Order on WhatsApp
           </a>
 
+          <!-- Direct Link to Track Status -->
+          <a [routerLink]="['/track-order']" [queryParams]="{id: lastPlacedOrder.id}" (click)="lastPlacedOrder = null" class="btn-track-order-direct">
+            <span class="material-symbols-outlined">local_shipping</span>
+            Track Order Status
+          </a>
+
           <button (click)="lastPlacedOrder = null; router.navigate(['/home'])" class="btn-continue">
             Continue Shopping
           </button>

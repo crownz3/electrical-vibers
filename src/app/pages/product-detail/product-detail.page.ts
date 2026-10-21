@@ -50,14 +50,13 @@ export class ProductDetailPage implements OnInit {
 
   addToCart(): void {
     if (this.product) {
-      this.cartService.addToCart(this.product, this.quantity);
-      alert(`Added ${this.quantity} item(s) of ${this.product.name} to cart!`);
+      this.cartService.addToCart(this.product, this.quantity, true);
     }
   }
 
   buyNow(): void {
     if (this.product) {
-      this.cartService.addToCart(this.product, this.quantity);
+      this.cartService.addToCart(this.product, this.quantity, false);
       this.router.navigate(['/cart']);
     }
   }
@@ -80,7 +79,7 @@ export class ProductDetailPage implements OnInit {
     const text = encodeURIComponent(
       `⚡ *${this.product.name}*\n` +
       `Special Price: ₹${this.product.price} (${this.product.discountPercentage || 0}% OFF)\n` +
-      `Order genuine electrical materials from VoltMaster:\n${url}`
+      `Order genuine electrical materials from Electrical Vibers:\n${url}`
     );
     window.open(`https://wa.me/?text=${text}`, '_blank');
   }
@@ -93,7 +92,7 @@ export class ProductDetailPage implements OnInit {
   getWhatsAppDirectLink(): string {
     if (!this.product) return '';
     const text = encodeURIComponent(
-      `Hello VoltMaster! I'm interested in ordering *${this.product.name}* (Price: ₹${this.product.price}). Please share delivery and availability details.`
+      `Hello Electrical Vibers! I'm interested in ordering *${this.product.name}* (Price: ₹${this.product.price}). Please share delivery and availability details.`
     );
     return `https://wa.me/${this.config.whatsappNumber}?text=${text}`;
   }
