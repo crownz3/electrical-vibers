@@ -1,4 +1,4 @@
-package com.electrician.app;
+package com.electricalvibers.app;
 
 import com.getcapacitor.BridgeActivity;
 

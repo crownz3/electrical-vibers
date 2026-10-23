@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "521509425434",
+    "project_id": "electrical-vibers",
+    "storage_bucket": "electrical-vibers.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:521509425434:android:4fc5293a1c21e77941dca3",
+        "android_client_info": {
+          "package_name": "com.electricalvibers.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCXo-iaMHOKT4-C9NZH-clN-qHO0F5CMI8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

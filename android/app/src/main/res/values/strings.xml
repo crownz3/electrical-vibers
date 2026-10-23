@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">electrician-app</string>
-    <string name="title_activity_main">electrician-app</string>
-    <string name="package_name">com.electrician.app</string>
-    <string name="custom_url_scheme">com.electrician.app</string>
+    <string name="app_name">Electrical Vibers</string>
+    <string name="title_activity_main">Electrical Vibers</string>
+    <string name="package_name">com.electricalvibers.app</string>
+    <string name="custom_url_scheme">com.electricalvibers.app</string>
 </resources>

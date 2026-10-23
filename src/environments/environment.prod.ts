@@ -5,12 +5,12 @@ export const environment = {
   whatsappNumber: '919876543210',
   address: '124, Power Station Road, Anna Nagar, Chennai - 600040',
   firebase: {
-    apiKey: "AIzaSyDemoPlaceholderForFirebaseApiKey123",
+    apiKey: "AIzaSyA69UE1uCDv5pl2qGiQvDk5bdCU86J3sgw",
     authDomain: "electrical-vibers.firebaseapp.com",
     projectId: "electrical-vibers",
-    storageBucket: "electrical-vibers.appspot.com",
-    messagingSenderId: "123456789012",
-    appId: "1:123456789012:web:abcdef123456"
+    storageBucket: "electrical-vibers.firebasestorage.app",
+    messagingSenderId: "521509425434",
+    appId: "1:521509425434:web:811bad678e5c191141dca3"
   },
   razorpayKeyId: "rzp_test_placeholderKey"
 };

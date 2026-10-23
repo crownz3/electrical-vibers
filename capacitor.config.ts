@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.voltmaster.electricals',
-  appName: 'VoltMaster Electricals',
+  appId: 'com.electricalvibers.app',
+  appName: 'Electrical Vibers',
   webDir: 'www'
 };
 
