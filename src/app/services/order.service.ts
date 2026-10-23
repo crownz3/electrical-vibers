@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Order, OrderStatus } from '../models/order.model';
 import { environment } from '../../environments/environment';
+import { FirebaseService } from './firebase.service';
 
 @Injectable({
   providedIn: 'root'
@@ -167,8 +168,33 @@ export class OrderService {
   private ordersSubject = new BehaviorSubject<Order[]>([]);
   public orders$: Observable<Order[]> = this.ordersSubject.asObservable();
 
-  constructor() {
+  constructor(private firebaseService: FirebaseService) {
     this.loadOrders();
+    this.initCloudSync();
+  }
+
+  private initCloudSync(): void {
+    // Real-time Firestore sync
+    this.firebaseService.listenToCollection<Order>('orders', (remoteOrders) => {
+      if (remoteOrders && remoteOrders.length > 0) {
+        // Merge with local state to ensure no orders are lost
+        const localMap = new Map<string, Order>();
+        this.ordersSubject.getValue().forEach(o => localMap.set(o.id, o));
+        remoteOrders.forEach(o => localMap.set(o.id, o));
+        const merged = Array.from(localMap.values()).sort((a, b) => 
+          new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime()
+        );
+        this.saveOrders(merged, false);
+      } else {
+        // If Firestore is empty, seed initial orders to the cloud
+        const current = this.ordersSubject.getValue();
+        if (current.length > 0) {
+          current.forEach(order => {
+            this.firebaseService.setDocument('orders', order.id, order);
+          });
+        }
+      }
+    });
   }
 
   private loadOrders(): void {
@@ -189,7 +215,7 @@ export class OrderService {
     this.saveOrders(this.initialOrders);
   }
 
-  private saveOrders(orders: Order[]): void {
+  private saveOrders(orders: Order[], syncToCloud = true): void {
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(orders));
     this.ordersSubject.next(orders);
   }
@@ -212,6 +238,12 @@ export class OrderService {
 
     const updated = [newOrder, ...this.ordersSubject.getValue()];
     this.saveOrders(updated);
+
+    // Persist to Cloud Firestore immediately
+    this.firebaseService.setDocument('orders', newOrder.id, newOrder).catch(err => {
+      console.warn('Could not persist new order to Firestore:', err);
+    });
+
     return newOrder;
   }
 
@@ -223,6 +255,11 @@ export class OrderService {
       return o;
     });
     this.saveOrders(updated);
+
+    // Persist status change to Firestore
+    this.firebaseService.updateDocument('orders', id, { orderStatus: status }).catch(err => {
+      console.warn('Could not update order status in Firestore:', err);
+    });
   }
 
   generateWhatsAppOrderLink(order: Order): string {

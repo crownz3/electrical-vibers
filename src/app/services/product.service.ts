@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Product } from '../models/product.model';
+import { FirebaseService } from './firebase.service';
 
 @Injectable({
   providedIn: 'root'
@@ -295,9 +296,34 @@ export class ProductService {
   private categoriesSubject = new BehaviorSubject<string[]>([]);
   public categories$: Observable<string[]> = this.categoriesSubject.asObservable();
 
-  constructor() {
+  constructor(private firebaseService: FirebaseService) {
     this.loadProducts();
     this.loadCategories();
+    this.initCloudSync();
+  }
+
+  private initCloudSync(): void {
+    // Sync products in real-time
+    this.firebaseService.listenToCollection<Product>('products', (remoteProducts) => {
+      if (remoteProducts && remoteProducts.length > 0) {
+        this.saveProducts(remoteProducts);
+      } else {
+        // Seed initial products to Firestore
+        const current = this.productsSubject.getValue();
+        if (current.length > 0) {
+          current.forEach(prod => {
+            this.firebaseService.setDocument('products', prod.id, prod);
+          });
+        }
+      }
+    });
+
+    // Sync categories in real-time
+    this.firebaseService.listenToDocument<{ list: string[] }>('app_metadata', 'categories', (data) => {
+      if (data && data.list && Array.isArray(data.list) && data.list.length > 0) {
+        this.saveCategories(data.list);
+      }
+    });
   }
 
   // --- Dynamic Categories ---
@@ -322,6 +348,9 @@ export class ProductService {
   private saveCategories(categories: string[]): void {
     localStorage.setItem(this.CATEGORIES_KEY, JSON.stringify(categories));
     this.categoriesSubject.next(categories);
+    this.firebaseService.setDocument('app_metadata', 'categories', { list: categories }).catch(err => {
+      console.warn('Could not persist categories to Firestore:', err);
+    });
   }
 
   getCategories(): string[] {
@@ -405,10 +434,14 @@ export class ProductService {
     };
     const updated = [newProduct, ...this.productsSubject.getValue()];
     this.saveProducts(updated);
+    this.firebaseService.setDocument('products', newProduct.id, newProduct).catch(err => {
+      console.warn('Could not save product to Firestore:', err);
+    });
     return newProduct;
   }
 
   updateProduct(id: string, updates: Partial<Product>): void {
+    let modifiedProduct: Product | undefined;
     const updated = this.productsSubject.getValue().map(p => {
       if (p.id === id) {
         const merged = { ...p, ...updates };
@@ -416,15 +449,25 @@ export class ProductService {
         if (merged.mrp && merged.price && merged.mrp > merged.price) {
           merged.discountPercentage = Math.round(((merged.mrp - merged.price) / merged.mrp) * 100);
         }
+        modifiedProduct = merged;
         return merged;
       }
       return p;
     });
     this.saveProducts(updated);
+
+    if (modifiedProduct) {
+      this.firebaseService.setDocument('products', id, modifiedProduct).catch(err => {
+        console.warn('Could not update product in Firestore:', err);
+      });
+    }
   }
 
   deleteProduct(id: string): void {
     const updated = this.productsSubject.getValue().filter(p => p.id !== id);
     this.saveProducts(updated);
+    this.firebaseService.deleteDocument('products', id).catch(err => {
+      console.warn('Could not delete product from Firestore:', err);
+    });
   }
 }

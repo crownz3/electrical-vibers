@@ -8,11 +8,12 @@ import { ConfigService, AppConfig, StoreOffer } from '../../services/config.serv
 import { ThemeService } from '../../services/theme.service';
 import { Product } from '../../models/product.model';
 import { ServiceCategory } from '../../models/booking.model';
+import { ScrollAnimateDirective } from '../../directives/scroll-animate.directive';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, ScrollAnimateDirective],
   templateUrl: './home.page.html',
   styleUrls: ['./home.page.scss']
 })

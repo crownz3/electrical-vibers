@@ -9,11 +9,23 @@ import { ConfigService, AppConfig } from '../../services/config.service';
 import { ProductService } from '../../services/product.service';
 import { ThemeService, ThemePreference } from '../../services/theme.service';
 import { Product } from '../../models/product.model';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [
+    CommonModule, 
+    RouterModule, 
+    FormsModule,
+    MatMenuModule,
+    MatButtonModule,
+    MatIconModule,
+    MatDividerModule
+  ],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']
 })

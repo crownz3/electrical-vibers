@@ -71,6 +71,10 @@
           <span class="user-name">{{ currentUser?.displayName }}</span>
           <span class="user-email">({{ currentUser?.email }})</span>
           <span class="verified-tag">✓ Verified Admin</span>
+          <span class="cloud-sync-tag" [ngClass]="firebaseService.syncStatus$ | async">
+            <span class="material-symbols-outlined sync-icon">cloud_done</span>
+            <span>Cloud Sync: {{ (firebaseService.syncStatus$ | async) | titlecase }}</span>
+          </span>
         </div>
       </div>
 

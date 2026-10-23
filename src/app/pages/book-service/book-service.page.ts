@@ -4,6 +4,7 @@ import { RouterModule, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { BookingService } from '../../services/booking.service';
 import { ConfigService, AppConfig } from '../../services/config.service';
+import { CustomerService } from '../../services/customer.service';
 import { Booking, ServiceCategory } from '../../models/booking.model';
 
 @Component({
@@ -16,6 +17,7 @@ import { Booking, ServiceCategory } from '../../models/booking.model';
 export class BookServicePage implements OnInit {
   bookingService = inject(BookingService);
   configService = inject(ConfigService);
+  customerService = inject(CustomerService);
   route = inject(ActivatedRoute);
 
   config: AppConfig = this.configService.getConfig();
@@ -37,6 +39,15 @@ export class BookServicePage implements OnInit {
   lastBooking: Booking | null = null;
 
   ngOnInit(): void {
+    const profile = this.customerService.getProfile();
+    if (profile) {
+      this.customerName = profile.name || '';
+      this.customerPhone = profile.phone || '';
+      this.customerAddress = profile.street || '';
+      this.city = profile.city || 'Chennai';
+      this.landmark = profile.landmark || '';
+    }
+
     this.configService.config$.subscribe(cfg => this.config = cfg);
     this.bookingService.services$.subscribe(srvs => {
       this.services = srvs;
@@ -67,6 +78,14 @@ export class BookServicePage implements OnInit {
     }
 
     this.isSubmitting = true;
+
+    this.customerService.updateProfile({
+      name: this.customerName,
+      phone: this.customerPhone,
+      street: this.customerAddress,
+      city: this.city,
+      landmark: this.landmark
+    });
 
     setTimeout(() => {
       const booking = this.bookingService.createBooking({

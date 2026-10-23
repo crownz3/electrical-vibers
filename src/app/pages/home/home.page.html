@@ -100,7 +100,7 @@
 
       <!-- Trust Badges Bar (Dynamic from Admin Config) -->
       <div class="trust-stats-grid">
-        <div class="stat-card glass-card">
+        <div class="stat-card glass-card" appScrollAnimate="fade-up" [animDelay]="100">
           <div class="stat-num-row">
             <span class="material-symbols-outlined stat-icon">engineering</span>
             <div class="stat-num">{{ config.stat1Num }}</div>
@@ -108,7 +108,7 @@
           <div class="stat-lbl">{{ config.stat1Label }}</div>
         </div>
 
-        <div class="stat-card glass-card">
+        <div class="stat-card glass-card" appScrollAnimate="fade-up" [animDelay]="200">
           <div class="stat-num-row">
             <span class="material-symbols-outlined stat-icon">domain</span>
             <div class="stat-num">{{ config.stat2Num }}</div>
@@ -116,7 +116,7 @@
           <div class="stat-lbl">{{ config.stat2Label }}</div>
         </div>
 
-        <div class="stat-card glass-card">
+        <div class="stat-card glass-card" appScrollAnimate="fade-up" [animDelay]="300">
           <div class="stat-num-row">
             <span class="material-symbols-outlined stat-icon">workspace_premium</span>
             <div class="stat-num">{{ config.stat3Num }}</div>
@@ -124,7 +124,7 @@
           <div class="stat-lbl">{{ config.stat3Label }}</div>
         </div>
 
-        <div class="stat-card glass-card">
+        <div class="stat-card glass-card" appScrollAnimate="fade-up" [animDelay]="400">
           <div class="stat-num-row">
             <span class="material-symbols-outlined stat-icon">timer</span>
             <div class="stat-num">{{ config.stat4Num }}</div>
@@ -137,13 +137,16 @@
 
   <!-- Special Offers / Promotional Discounts (Admin Configured) -->
   <section *ngIf="offers.length > 0" class="section offers-section">
-    <div class="section-header">
+    <div class="section-header" appScrollAnimate="fade-up">
       <span class="section-tag">SEASONAL PROMOTIONS</span>
       <h2 class="section-title">{{ config.offersSectionTitle }}</h2>
     </div>
 
     <div class="offers-grid">
-      <div *ngFor="let off of offers" class="offer-banner-card glass-card">
+      <div *ngFor="let off of offers; let i = index" 
+           class="offer-banner-card glass-card" 
+           appScrollAnimate="zoom-in" 
+           [animDelay]="i * 120">
         <div class="offer-percent-badge">{{ off.discountPercentage }}% OFF</div>
         <div class="offer-info">
           <h3>{{ off.title }}</h3>
@@ -160,14 +163,17 @@
 
   <!-- Services Showcase Section (Dynamic from Admin Services) -->
   <section class="section services-section">
-    <div class="section-header">
+    <div class="section-header" appScrollAnimate="fade-up">
       <span class="section-tag">SERVICES CATALOG</span>
       <h2 class="section-title">{{ config.servicesSectionTitle }}</h2>
       <p class="section-desc">{{ config.servicesSectionSubtitle }}</p>
     </div>
 
     <div class="services-grid">
-      <div *ngFor="let s of services" class="service-card glass-card interactive-card">
+      <div *ngFor="let s of services; let i = index" 
+           class="service-card glass-card interactive-card" 
+           appScrollAnimate="fade-up" 
+           [animDelay]="(i % 4) * 80">
         <div class="service-icon-box">
           <span class="material-symbols-outlined">{{ s.icon }}</span>
         </div>
@@ -195,7 +201,7 @@
 
   <!-- Deal of the Day Section (Inspired by tktools.in) -->
   <section *ngIf="config.showDealOfTheDay && dealProduct" class="section deal-of-the-day-section">
-    <div class="deal-card glass-card">
+    <div class="deal-card glass-card" appScrollAnimate="zoom-in" [animDuration]="800">
       <div class="deal-badge-bar">
         <span class="flash-pill">
           <span class="material-symbols-outlined pulse-icon">local_fire_department</span>
@@ -271,7 +277,7 @@
 
   <!-- Featured Store Products Section -->
   <section class="section store-section">
-    <div class="section-header">
+    <div class="section-header" appScrollAnimate="fade-up">
       <div class="flex-between">
         <div>
           <span class="section-tag">ONLINE ELECTRICAL STORE</span>
@@ -286,7 +292,10 @@
     </div>
 
     <div class="products-grid">
-      <div *ngFor="let prod of featuredProducts" class="product-card glass-card interactive-card">
+      <div *ngFor="let prod of featuredProducts; let i = index" 
+           class="product-card glass-card interactive-card" 
+           appScrollAnimate="fade-up" 
+           [animDelay]="(i % 4) * 80">
         <div class="product-img-wrapper" [routerLink]="['/product', prod.id]">
           <img [src]="prod.images[0]" [alt]="prod.name" loading="lazy" />
           <span *ngIf="prod.discountPercentage" class="discount-badge">
@@ -325,28 +334,28 @@
   <!-- Why Choose Us -->
   <section class="section values-section">
     <div class="values-grid">
-      <div class="value-item">
+      <div class="value-item" appScrollAnimate="fade-up" [animDelay]="100">
         <div class="value-icon">
           <span class="material-symbols-outlined">shield</span>
         </div>
         <h4>{{ config.value1Title }}</h4>
         <p>{{ config.value1Desc }}</p>
       </div>
-      <div class="value-item">
+      <div class="value-item" appScrollAnimate="fade-up" [animDelay]="200">
         <div class="value-icon">
           <span class="material-symbols-outlined">price_check</span>
         </div>
         <h4>{{ config.value2Title }}</h4>
         <p>{{ config.value2Desc }}</p>
       </div>
-      <div class="value-item">
+      <div class="value-item" appScrollAnimate="fade-up" [animDelay]="300">
         <div class="value-icon">
           <span class="material-symbols-outlined">speed</span>
         </div>
         <h4>{{ config.value3Title }}</h4>
         <p>{{ config.value3Desc }}</p>
       </div>
-      <div class="value-item">
+      <div class="value-item" appScrollAnimate="fade-up" [animDelay]="400">
         <div class="value-icon">
           <span class="material-symbols-outlined">support_agent</span>
         </div>

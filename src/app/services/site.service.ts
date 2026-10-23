@@ -13,6 +13,7 @@ import {
   ShiftType,
   AllocationStatus
 } from '../models/site.model';
+import { FirebaseService } from './firebase.service';
 
 @Injectable({
   providedIn: 'root'
@@ -464,11 +465,62 @@ export class SiteService {
   private payoutsSubject = new BehaviorSubject<WorkerWagePayout[]>([]);
   public payouts$: Observable<WorkerWagePayout[]> = this.payoutsSubject.asObservable();
 
-  constructor() {
+  constructor(private firebaseService: FirebaseService) {
     this.loadSites();
     this.loadEmployees();
     this.loadAllocations();
     this.loadPayouts();
+    this.initCloudSync();
+  }
+
+  private initCloudSync(): void {
+    // 1. Sites sync
+    this.firebaseService.listenToCollection<SiteProject>('sites', (remoteSites) => {
+      if (remoteSites && remoteSites.length > 0) {
+        this.saveSites(remoteSites, false);
+      } else {
+        const current = this.sitesSubject.getValue();
+        if (current.length > 0) {
+          current.forEach(site => this.firebaseService.setDocument('sites', site.id, site));
+        }
+      }
+    });
+
+    // 2. Employees sync
+    this.firebaseService.listenToCollection<ElectricianEmployee>('employees', (remoteEmps) => {
+      if (remoteEmps && remoteEmps.length > 0) {
+        this.saveEmployees(remoteEmps, false);
+      } else {
+        const current = this.employeesSubject.getValue();
+        if (current.length > 0) {
+          current.forEach(emp => this.firebaseService.setDocument('employees', emp.id, emp));
+        }
+      }
+    });
+
+    // 3. Allocations sync
+    this.firebaseService.listenToCollection<SiteWorkAllocation>('allocations', (remoteAllocations) => {
+      if (remoteAllocations && remoteAllocations.length > 0) {
+        this.saveAllocations(remoteAllocations, false);
+      } else {
+        const current = this.allocationsSubject.getValue();
+        if (current.length > 0) {
+          current.forEach(alloc => this.firebaseService.setDocument('allocations', alloc.id, alloc));
+        }
+      }
+    });
+
+    // 4. Wage Payouts sync
+    this.firebaseService.listenToCollection<WorkerWagePayout>('wage_payouts', (remotePayouts) => {
+      if (remotePayouts && remotePayouts.length > 0) {
+        this.savePayouts(remotePayouts, false);
+      } else {
+        const current = this.payoutsSubject.getValue();
+        if (current.length > 0) {
+          current.forEach(p => this.firebaseService.setDocument('wage_payouts', p.id, p));
+        }
+      }
+    });
   }
 
   // --- Sites Management ---
@@ -485,7 +537,7 @@ export class SiteService {
     this.saveSites(this.initialSites);
   }
 
-  private saveSites(sites: SiteProject[]): void {
+  private saveSites(sites: SiteProject[], syncCloud = true): void {
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(sites));
     this.sitesSubject.next(sites);
   }
@@ -543,20 +595,31 @@ export class SiteService {
 
     const updated = [newSite, ...this.sitesSubject.getValue()];
     this.saveSites(updated);
+    this.firebaseService.setDocument('sites', newSite.id, newSite).catch(err => {
+      console.warn('Could not save site to Firestore:', err);
+    });
     return newSite;
   }
 
   updateSite(id: string, updates: Partial<SiteProject>): void {
+    let modifiedSite: SiteProject | undefined;
     const updated = this.sitesSubject.getValue().map(site => {
       if (site.id === id) {
         const merged = { ...site, ...updates, updatedAt: new Date().toISOString() };
         merged.pendingBalance = Math.max(0, merged.contractAmount - merged.totalReceived);
         merged.profitOrMargin = merged.totalReceived - merged.totalExpenses;
+        modifiedSite = merged;
         return merged;
       }
       return site;
     });
     this.saveSites(updated);
+
+    if (modifiedSite) {
+      this.firebaseService.setDocument('sites', id, modifiedSite).catch(err => {
+        console.warn('Could not update site in Firestore:', err);
+      });
+    }
   }
 
   addExpense(siteId: string, expense: Omit<SiteExpense, 'id'>): void {
@@ -619,6 +682,9 @@ export class SiteService {
   deleteSite(siteId: string): void {
     const updated = this.sitesSubject.getValue().filter(s => s.id !== siteId);
     this.saveSites(updated);
+    this.firebaseService.deleteDocument('sites', siteId).catch(err => {
+      console.warn('Could not delete site in Firestore:', err);
+    });
   }
 
   // --- Employees & Workforce Management ---
@@ -636,7 +702,7 @@ export class SiteService {
     this.saveEmployees(this.initialEmployees);
   }
 
-  private saveEmployees(emps: ElectricianEmployee[]): void {
+  private saveEmployees(emps: ElectricianEmployee[], syncCloud = true): void {
     localStorage.setItem(this.EMPLOYEES_STORAGE_KEY, JSON.stringify(emps));
     this.employeesSubject.next(emps);
   }
@@ -661,23 +727,38 @@ export class SiteService {
     };
     const updated = [...this.employeesSubject.getValue(), newEmp];
     this.saveEmployees(updated);
+    this.firebaseService.setDocument('employees', newEmp.id, newEmp).catch(err => {
+      console.warn('Could not save employee to Firestore:', err);
+    });
     return newEmp;
   }
 
   updateEmployee(id: string, updates: Partial<ElectricianEmployee>): void {
+    let modifiedEmp: ElectricianEmployee | undefined;
     const updated = this.employeesSubject.getValue().map(emp => {
       if (emp.id === id) {
-        return { ...emp, ...updates };
+        const merged = { ...emp, ...updates };
+        modifiedEmp = merged;
+        return merged;
       }
       return emp;
     });
     this.saveEmployees(updated);
     this.recalculateAllEmployeesWages();
+
+    if (modifiedEmp) {
+      this.firebaseService.setDocument('employees', id, modifiedEmp).catch(err => {
+        console.warn('Could not update employee in Firestore:', err);
+      });
+    }
   }
 
   deleteEmployee(id: string): void {
     const updated = this.employeesSubject.getValue().filter(e => e.id !== id);
     this.saveEmployees(updated);
+    this.firebaseService.deleteDocument('employees', id).catch(err => {
+      console.warn('Could not delete employee in Firestore:', err);
+    });
   }
 
   toggleEmployeeStatus(id: string): void {
@@ -734,10 +815,16 @@ export class SiteService {
     this.saveAllocations(this.initialAllocations);
   }
 
-  private saveAllocations(allocations: SiteWorkAllocation[]): void {
+  private saveAllocations(allocations: SiteWorkAllocation[], syncCloud = true): void {
     localStorage.setItem(this.ALLOCATIONS_STORAGE_KEY, JSON.stringify(allocations));
     this.allocationsSubject.next(allocations);
     this.recalculateAllEmployeesWages();
+
+    if (syncCloud) {
+      allocations.forEach(alloc => {
+        this.firebaseService.setDocument('allocations', alloc.id, alloc).catch(() => {});
+      });
+    }
   }
 
   getAllocations(): SiteWorkAllocation[] {
@@ -1070,6 +1157,9 @@ export class SiteService {
   deleteAllocation(id: string): void {
     const updated = this.allocationsSubject.getValue().filter(a => a.id !== id);
     this.saveAllocations(updated);
+    this.firebaseService.deleteDocument('allocations', id).catch(err => {
+      console.warn('Could not delete allocation from Firestore:', err);
+    });
   }
 
 
@@ -1087,7 +1177,7 @@ export class SiteService {
     this.savePayouts(this.initialPayouts);
   }
 
-  private savePayouts(payouts: WorkerWagePayout[]): void {
+  private savePayouts(payouts: WorkerWagePayout[], syncCloud = true): void {
     localStorage.setItem(this.PAYOUTS_STORAGE_KEY, JSON.stringify(payouts));
     this.payoutsSubject.next(payouts);
     this.recalculateAllEmployeesWages();
@@ -1118,6 +1208,11 @@ export class SiteService {
 
     const updated = [newPayout, ...this.payoutsSubject.getValue()];
     this.savePayouts(updated);
+
+    this.firebaseService.setDocument('wage_payouts', newPayout.id, newPayout).catch(err => {
+      console.warn('Could not save wage payout to Firestore:', err);
+    });
+
     return newPayout;
   }
 

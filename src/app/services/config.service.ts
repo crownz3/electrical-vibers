@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { FirebaseService } from './firebase.service';
 
 export interface AppConfig {
   businessName: string;
@@ -181,9 +182,31 @@ export class ConfigService {
   private offersSubject = new BehaviorSubject<StoreOffer[]>(this.initialOffers);
   public offers$: Observable<StoreOffer[]> = this.offersSubject.asObservable();
 
-  constructor() {
+  constructor(private firebaseService: FirebaseService) {
     this.loadConfig();
     this.loadOffers();
+    this.initCloudSync();
+  }
+
+  private initCloudSync(): void {
+    // Sync main config doc
+    this.firebaseService.listenToDocument<AppConfig>('app_metadata', 'app_config', (remoteConfig) => {
+      if (remoteConfig && remoteConfig.businessName) {
+        this.saveConfig(remoteConfig, false);
+      } else {
+        // Seed initial config to Firestore
+        this.firebaseService.setDocument('app_metadata', 'app_config', this.configSubject.getValue());
+      }
+    });
+
+    // Sync offers list
+    this.firebaseService.listenToDocument<{ list: StoreOffer[] }>('app_metadata', 'store_offers', (remoteOffers) => {
+      if (remoteOffers && Array.isArray(remoteOffers.list) && remoteOffers.list.length > 0) {
+        this.saveOffers(remoteOffers.list, false);
+      } else {
+        this.firebaseService.setDocument('app_metadata', 'store_offers', { list: this.offersSubject.getValue() });
+      }
+    });
   }
 
   private loadConfig(): void {
@@ -223,9 +246,14 @@ export class ConfigService {
     this.saveConfig(this.defaultConfig);
   }
 
-  private saveConfig(config: AppConfig): void {
+  private saveConfig(config: AppConfig, syncCloud = true): void {
     localStorage.setItem(this.CONFIG_KEY, JSON.stringify(config));
     this.configSubject.next(config);
+    if (syncCloud) {
+      this.firebaseService.setDocument('app_metadata', 'app_config', config).catch(err => {
+        console.warn('Could not save config to Firestore:', err);
+      });
+    }
   }
 
   getConfig(): AppConfig {
@@ -251,9 +279,14 @@ export class ConfigService {
     this.saveOffers(this.initialOffers);
   }
 
-  private saveOffers(offers: StoreOffer[]): void {
+  private saveOffers(offers: StoreOffer[], syncCloud = true): void {
     localStorage.setItem(this.OFFERS_KEY, JSON.stringify(offers));
     this.offersSubject.next(offers);
+    if (syncCloud) {
+      this.firebaseService.setDocument('app_metadata', 'store_offers', { list: offers }).catch(err => {
+        console.warn('Could not save offers to Firestore:', err);
+      });
+    }
   }
 
   getOffers(): StoreOffer[] {

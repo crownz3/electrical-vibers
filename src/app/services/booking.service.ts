@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Booking, BookingStatus, ServiceCategory } from '../models/booking.model';
+import { FirebaseService } from './firebase.service';
 
 @Injectable({
   providedIn: 'root'
@@ -111,9 +112,47 @@ export class BookingService {
   private bookingsSubject = new BehaviorSubject<Booking[]>([]);
   public bookings$: Observable<Booking[]> = this.bookingsSubject.asObservable();
 
-  constructor() {
+  constructor(private firebaseService: FirebaseService) {
     this.loadServices();
     this.loadBookings();
+    this.initCloudSync();
+  }
+
+  private initCloudSync(): void {
+    // Listen to real-time bookings
+    this.firebaseService.listenToCollection<Booking>('bookings', (remoteBookings) => {
+      if (remoteBookings && remoteBookings.length > 0) {
+        const localMap = new Map<string, Booking>();
+        this.bookingsSubject.getValue().forEach(b => localMap.set(b.id, b));
+        remoteBookings.forEach(b => localMap.set(b.id, b));
+        const merged = Array.from(localMap.values()).sort((a, b) => 
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        this.saveBookings(merged);
+      } else {
+        // Seed initial bookings to Firestore
+        const current = this.bookingsSubject.getValue();
+        if (current.length > 0) {
+          current.forEach(booking => {
+            this.firebaseService.setDocument('bookings', booking.id, booking);
+          });
+        }
+      }
+    });
+
+    // Listen to real-time service categories
+    this.firebaseService.listenToCollection<ServiceCategory>('services', (remoteServices) => {
+      if (remoteServices && remoteServices.length > 0) {
+        this.saveServices(remoteServices);
+      } else {
+        const current = this.servicesSubject.getValue();
+        if (current.length > 0) {
+          current.forEach(srv => {
+            this.firebaseService.setDocument('services', srv.id, srv);
+          });
+        }
+      }
+    });
   }
 
   // --- Dynamic Services Management ---
@@ -150,6 +189,9 @@ export class BookingService {
     };
     const updated = [...this.servicesSubject.getValue(), newService];
     this.saveServices(updated);
+    this.firebaseService.setDocument('services', newService.id, newService).catch(err => {
+      console.warn('Could not save service to Firestore:', err);
+    });
     return newService;
   }
 
@@ -161,11 +203,17 @@ export class BookingService {
       return s;
     });
     this.saveServices(updated);
+    this.firebaseService.updateDocument('services', id, updates).catch(err => {
+      console.warn('Could not update service in Firestore:', err);
+    });
   }
 
   deleteService(id: string): void {
     const updated = this.servicesSubject.getValue().filter(s => s.id !== id);
     this.saveServices(updated);
+    this.firebaseService.deleteDocument('services', id).catch(err => {
+      console.warn('Could not delete service from Firestore:', err);
+    });
   }
 
   // --- Bookings ---
@@ -204,23 +252,35 @@ export class BookingService {
     };
     const updated = [newBooking, ...this.bookingsSubject.getValue()];
     this.saveBookings(updated);
+
+    // Persist to Cloud Firestore
+    this.firebaseService.setDocument('bookings', newBooking.id, newBooking).catch(err => {
+      console.warn('Could not save booking to Firestore:', err);
+    });
+
     return newBooking;
   }
 
   updateBookingStatus(id: string, status: BookingStatus, assignedTechnician?: string, finalCost?: number): void {
+    const changes: Partial<Booking> = {
+      status,
+      ...(assignedTechnician ? { assignedTechnician } : {}),
+      ...(finalCost !== undefined ? { finalCost } : {}),
+      ...(status === 'completed' ? { completedAt: new Date().toISOString() } : {})
+    };
+
     const updated = this.bookingsSubject.getValue().map(b => {
       if (b.id === id) {
-        return {
-          ...b,
-          status,
-          ...(assignedTechnician ? { assignedTechnician } : {}),
-          ...(finalCost !== undefined ? { finalCost } : {}),
-          ...(status === 'completed' ? { completedAt: new Date().toISOString() } : {})
-        };
+        return { ...b, ...changes };
       }
       return b;
     });
     this.saveBookings(updated);
+
+    // Persist status change to Firestore
+    this.firebaseService.updateDocument('bookings', id, changes).catch(err => {
+      console.warn('Could not update booking in Firestore:', err);
+    });
   }
 
   generateWhatsAppLink(booking: Booking): string {

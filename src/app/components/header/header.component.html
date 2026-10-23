@@ -33,7 +33,7 @@
       </div>
     </a>
 
-    <!-- Center Navigation Links (Google Material Pill Navigation) -->
+    <!-- Center Navigation Links (Main Items Only) -->
     <nav class="nav-menu">
       <a routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
         <span class="nav-label">Home</span>
@@ -44,17 +44,6 @@
       </a>
       <a routerLink="/book-service" routerLinkActive="active" class="nav-item">
         <span class="nav-label">Book Service</span>
-      </a>
-      <a routerLink="/track-order" routerLinkActive="active" class="nav-item">
-        <span class="nav-label">Track Order</span>
-      </a>
-      <a routerLink="/profile" routerLinkActive="active" class="nav-item profile-nav-item">
-        <span class="material-symbols-outlined nav-icon">receipt_long</span>
-        <span class="nav-label">My Orders</span>
-      </a>
-      <a routerLink="/admin" routerLinkActive="active" class="nav-item admin-item">
-        <span class="material-symbols-outlined nav-icon">admin_panel_settings</span>
-        <span class="nav-label">Site Ops</span>
       </a>
     </nav>
 
@@ -110,7 +99,7 @@
       </div>
     </div>
 
-    <!-- Right Utility Actions (Google-style Pills & Badges) -->
+    <!-- Right Utility Actions -->
     <div class="header-actions">
       <!-- Mobile Search Toggle Button -->
       <button 
@@ -121,26 +110,13 @@
         <span class="material-symbols-outlined">{{ isSearchOpen ? 'close' : 'search' }}</span>
       </button>
 
-      <!-- 24/7 Hotline Quick Pill -->
-      <a [href]="'tel:' + config.contactPhone" class="action-phone-pill" title="Call Electrical Vibers Hotline">
-        <span class="material-symbols-outlined phone-icon">call</span>
-        <span class="phone-number">{{ config.contactPhone }}</span>
-      </a>
-
-      <!-- WhatsApp Quick Icon Button -->
-      <a [href]="'https://wa.me/' + config.whatsappNumber" target="_blank" class="action-icon wa-icon" title="Chat on WhatsApp">
-        <svg class="wa-svg" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2zm5.78 14.17c-.24.68-1.39 1.25-1.92 1.33-.5.07-1.14.1-3.32-.8-2.78-1.15-4.57-3.99-4.71-4.18-.14-.19-1.13-1.51-1.13-2.88 0-1.37.72-2.05.97-2.33.25-.28.56-.35.75-.35.19 0 .38 0 .54.01.17.01.4.06.63.61.24.58.82 2.01.89 2.16.07.15.12.33.02.53-.1.2-.15.32-.3.49-.15.18-.32.4-.46.54-.15.15-.31.31-.13.62.18.31.8 1.31 1.71 2.12 1.17 1.05 2.16 1.37 2.47 1.52.31.15.49.13.67-.08.18-.21.78-.91.99-1.22.21-.31.42-.26.71-.15.29.1.84.4 1.84.9 1 .5 1.2.62 1.25.72.05.1.05.58-.19 1.26z"/>
-        </svg>
-      </a>
-
       <!-- Shopping Cart with Animated Bouncing Badge -->
       <button type="button" (click)="openCart($event)" class="action-icon cart-icon" title="Shopping Cart Drawer">
         <span class="material-symbols-outlined">shopping_bag</span>
         <span *ngIf="cartCount > 0" class="cart-count-badge">{{ cartCount }}</span>
       </button>
 
-      <!-- Theme Mode Switcher (System Default / Light / Dark) -->
+      <!-- Theme Mode Switcher -->
       <div class="theme-switcher-wrap">
         <button 
           type="button" 
@@ -156,93 +132,67 @@
         <!-- Theme Picker Dropdown Menu -->
         <div *ngIf="showThemeMenu" class="theme-menu-dropdown glass-card animate-scale-up" (click)="$event.stopPropagation()">
           <div class="theme-menu-title">THEME PREFERENCE</div>
-          
-          <button 
-            type="button" 
-            class="theme-opt-btn" 
-            [class.active]="themeService.preference() === 'system'"
-            (click)="selectTheme('system')">
+          <button type="button" class="theme-opt-btn" [class.active]="themeService.preference() === 'system'" (click)="selectTheme('system')">
             <span class="material-symbols-outlined opt-icon">brightness_auto</span>
-            <div class="opt-text">
-              <strong>System Default</strong>
-              <span>Follows device OS</span>
-            </div>
+            <div class="opt-text"><strong>System Default</strong><span>Follows device OS</span></div>
             <span *ngIf="themeService.preference() === 'system'" class="material-symbols-outlined check-icon">check</span>
           </button>
-
-          <button 
-            type="button" 
-            class="theme-opt-btn" 
-            [class.active]="themeService.preference() === 'light'"
-            (click)="selectTheme('light')">
+          <button type="button" class="theme-opt-btn" [class.active]="themeService.preference() === 'light'" (click)="selectTheme('light')">
             <span class="material-symbols-outlined opt-icon">light_mode</span>
-            <div class="opt-text">
-              <strong>Light Theme</strong>
-              <span>Clean daytime white</span>
-            </div>
+            <div class="opt-text"><strong>Light Theme</strong><span>Clean daytime white</span></div>
             <span *ngIf="themeService.preference() === 'light'" class="material-symbols-outlined check-icon">check</span>
           </button>
-
-          <button 
-            type="button" 
-            class="theme-opt-btn" 
-            [class.active]="themeService.preference() === 'dark'"
-            (click)="selectTheme('dark')">
+          <button type="button" class="theme-opt-btn" [class.active]="themeService.preference() === 'dark'" (click)="selectTheme('dark')">
             <span class="material-symbols-outlined opt-icon">dark_mode</span>
-            <div class="opt-text">
-              <strong>Dark Theme</strong>
-              <span>Deep electric dark OLED</span>
-            </div>
+            <div class="opt-text"><strong>Dark Theme</strong><span>Deep electric dark OLED</span></div>
             <span *ngIf="themeService.preference() === 'dark'" class="material-symbols-outlined check-icon">check</span>
           </button>
         </div>
       </div>
 
-      <!-- Customer Profile Icon Button (Orders & Account) -->
-      <a routerLink="/profile" routerLinkActive="active" class="action-icon profile-icon" title="Customer Orders & Account Profile">
-        <span class="material-symbols-outlined">person</span>
-      </a>
+      <!-- Angular Material Menu (More Options) -->
+      <button 
+        type="button" 
+        [matMenuTriggerFor]="moreMenu" 
+        class="action-icon more-options-btn" 
+        title="More Menu & Options">
+        <span class="material-symbols-outlined">more_vert</span>
+      </button>
 
-      <!-- Account Icon Button for Admin Login (User's Explicit Requirement) -->
-      <div class="admin-account-wrapper">
-        <button 
-          type="button" 
-          (click)="onAdminAccountClick()" 
-          class="action-icon admin-account-icon" 
-          [class.is-admin-active]="authService.isAdmin()"
-          title="Admin Login & Contractor Portal">
-          <span class="material-symbols-outlined account-svg-icon">account_circle</span>
-          <span *ngIf="authService.isAdmin()" class="admin-active-dot" title="Admin Signed In"></span>
+      <mat-menu #moreMenu="matMenu" class="custom-header-mat-menu" xPosition="before">
+        <div class="menu-section-header">CUSTOMER ACCOUNT</div>
+        <button mat-menu-item routerLink="/track-order">
+          <mat-icon>local_shipping</mat-icon>
+          <span>Track Order</span>
+        </button>
+        <button mat-menu-item routerLink="/profile">
+          <mat-icon>receipt_long</mat-icon>
+          <span>My Orders & Invoices</span>
+        </button>
+        <button mat-menu-item routerLink="/profile">
+          <mat-icon>person</mat-icon>
+          <span>Customer Profile</span>
         </button>
 
-        <!-- Admin Quick Menu Popup (When Logged in as Admin) -->
-        <div *ngIf="showAdminMenu && authService.isAdmin()" class="admin-menu-dropdown glass-card animate-scale-up">
-          <div class="admin-menu-header">
-            <div class="admin-avatar-small">
-              <span class="material-symbols-outlined">shield_person</span>
-            </div>
-            <div class="admin-user-details">
-              <span class="admin-role-tag">AUTHORIZED ADMIN</span>
-              <strong class="admin-name">{{ authService.getCurrentUser()?.displayName || 'Mohamed Ibrahim' }}</strong>
-              <span class="admin-email">{{ authService.getCurrentUser()?.email }}</span>
-            </div>
-          </div>
-          <div class="admin-menu-items">
-            <a routerLink="/admin" (click)="showAdminMenu = false" class="admin-menu-link">
-              <span class="material-symbols-outlined">dashboard</span>
-              <span>Workforce Roster & Site Ops</span>
-            </a>
-            <a routerLink="/profile" (click)="showAdminMenu = false" class="admin-menu-link">
-              <span class="material-symbols-outlined">receipt_long</span>
-              <span>Customer Orders & Account</span>
-            </a>
-            <button type="button" (click)="logoutAdmin()" class="admin-menu-link logout">
-              <span class="material-symbols-outlined">logout</span>
-              <span>Sign Out Admin</span>
-            </button>
-          </div>
-        </div>
-      </div>
+        <mat-divider></mat-divider>
+        <div class="menu-section-header">CONTRACTOR & ADMIN</div>
+        <button mat-menu-item (click)="onAdminAccountClick()">
+          <mat-icon class="gold-icon">admin_panel_settings</mat-icon>
+          <span>Site Ops / Admin Portal</span>
+          <span *ngIf="authService.isAdmin()" class="menu-admin-badge">Admin Active</span>
+        </button>
+
+        <mat-divider></mat-divider>
+        <div class="menu-section-header">CONTACT & SUPPORT</div>
+        <a mat-menu-item [href]="'tel:' + config.contactPhone">
+          <mat-icon>call</mat-icon>
+          <span>Call: {{ config.contactPhone }}</span>
+        </a>
+        <a mat-menu-item [href]="'https://wa.me/' + config.whatsappNumber" target="_blank">
+          <mat-icon>chat</mat-icon>
+          <span>WhatsApp Chat</span>
+        </a>
+      </mat-menu>
     </div>
   </div>
 </header>

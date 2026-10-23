@@ -7,6 +7,7 @@ import { OrderService } from '../../services/order.service';
 import { BookingService } from '../../services/booking.service';
 import { AuthService, UserProfile } from '../../services/auth.service';
 import { ConfigService, AppConfig, StoreOffer } from '../../services/config.service';
+import { FirebaseService } from '../../services/firebase.service';
 import { 
   SiteProject, 
   ExpenseCategory, 
@@ -38,6 +39,7 @@ export class AdminPage implements OnInit {
   bookingService = inject(BookingService);
   authService = inject(AuthService);
   configService = inject(ConfigService);
+  firebaseService = inject(FirebaseService);
 
   activeTab: 'roster' | 'workforce' | 'sites' | 'products' | 'categories' | 'services' | 'offers' | 'settings' | 'orders' | 'bookings' = 'roster';
   Math = Math;

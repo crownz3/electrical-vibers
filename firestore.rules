@@ -1,0 +1,68 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function: verify if request is authenticated as master administrator
+    function isAdmin() {
+      return request.auth != null && (
+        request.auth.token.email.lower() == 'mohamedibrahim010425@gmail.com' ||
+        (request.auth.token.email != null && request.auth.token.email.matches('.*@electricalvibers\\.com'))
+      );
+    }
+
+    // Public app configuration, categories, and promotional banners
+    match /app_metadata/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Electrical products catalog
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Electrical service categories
+    match /services/{serviceId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Customer orders
+    match /orders/{orderId} {
+      // Anyone can create an order (guest checkout)
+      allow create: if true;
+      // Allow customers to read order details for tracking status
+      allow read: if true;
+      // Only authorized admins can update status or modify orders
+      allow update, delete: if isAdmin();
+    }
+
+    // Service booking requests
+    match /bookings/{bookingId} {
+      allow create: if true;
+      allow read: if true;
+      allow update, delete: if isAdmin();
+    }
+
+    // Contractor Sites & Construction Projects (Confidential)
+    match /sites/{siteId} {
+      allow read, write: if isAdmin();
+    }
+
+    // Electrician Workforce, Daily Wages & Personnel (Confidential)
+    match /employees/{employeeId} {
+      allow read, write: if isAdmin();
+    }
+
+    // Daily Site Duty Roster & Work Allocations (Confidential)
+    match /allocations/{allocId} {
+      allow read, write: if isAdmin();
+    }
+
+    // Daily & Weekly Wage Payouts History (Confidential)
+    match /wage_payouts/{payoutId} {
+      allow read, write: if isAdmin();
+    }
+  }
+}
