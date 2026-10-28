@@ -1622,17 +1622,34 @@
       <div class="bookings-grid">
         <div *ngFor="let bk of bookings" class="booking-admin-card glass-card">
           <div class="bk-top">
-            <span class="badge-pill" [ngClass]="{
-              'badge-warning': bk.status === 'pending',
-              'badge-info': bk.status === 'assigned' || bk.status === 'in_progress',
-              'badge-success': bk.status === 'completed'
-            }">
-              {{ bk.status.toUpperCase() }}
-            </span>
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+              <span class="badge-pill" [ngClass]="{
+                'badge-warning': bk.status === 'pending',
+                'badge-info': bk.status === 'assigned' || bk.status === 'in_progress',
+                'badge-success': bk.status === 'completed'
+              }">
+                {{ bk.status.toUpperCase() }}
+              </span>
+              <span *ngIf="bk.isCustomService || bk.serviceCategory === 'custom'" class="badge-pill badge-warning" style="background: #f5f3ff; color: #7c3aed; border: 1px solid #d8b4fe;">
+                ✨ Custom Request
+              </span>
+            </div>
             <span class="bk-id">Ref: {{ bk.id }}</span>
           </div>
 
-          <h3>{{ bk.serviceTitle }}</h3>
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-top: 8px;">
+            <h3>{{ bk.serviceTitle }}</h3>
+            <button 
+              *ngIf="bk.isCustomService || bk.serviceCategory === 'custom'" 
+              type="button" 
+              (click)="convertBookingToService(bk)"
+              class="btn-srv-action"
+              style="font-size: 0.72rem; padding: 4px 10px; background: #8b5cf6; color: #ffffff; border-radius: 6px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0;"
+              title="Add this customer requirement as an official service in the catalog">
+              <span class="material-symbols-outlined" style="font-size: 14px;">add_circle</span>
+              Add to Catalog
+            </button>
+          </div>
           <p class="bk-prob">{{ bk.problemDescription }}</p>
 
           <div class="bk-info-grid">
@@ -2173,8 +2190,30 @@
             <input type="number" [(ngModel)]="servicePrice" placeholder="499" />
           </div>
           <div class="form-group">
-            <label>Material Symbol Icon</label>
-            <input type="text" [(ngModel)]="serviceIcon" placeholder="electric_bolt / mode_fan / power_off" />
+            <label>Icon Preview & Name</label>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <div style="width: 38px; height: 38px; border-radius: 8px; background: #fef3c7; color: #d97706; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden;">
+                <span class="material-symbols-outlined">{{ serviceIcon }}</span>
+              </div>
+              <input type="text" [(ngModel)]="serviceIcon" placeholder="electric_bolt" style="flex: 1;" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Icon Picker Chips -->
+        <div class="form-group">
+          <label style="font-size: 0.75rem; color: #64748b;">Quick Select Material Icon:</label>
+          <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px;">
+            <button 
+              type="button" 
+              *ngFor="let item of availableServiceIcons"
+              (click)="setServiceIcon(item.icon)"
+              [style.background]="serviceIcon === item.icon ? '#f59e0b' : '#f1f5f9'"
+              [style.color]="serviceIcon === item.icon ? '#ffffff' : '#334155'"
+              style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 14px; border: none; font-size: 0.75rem; cursor: pointer; transition: all 0.15s;">
+              <span class="material-symbols-outlined" style="font-size: 16px;">{{ item.icon }}</span>
+              {{ item.label }}
+            </button>
           </div>
         </div>
 
@@ -2224,8 +2263,30 @@
             <input type="number" [(ngModel)]="editingService.startingPrice" />
           </div>
           <div class="form-group">
-            <label>Material Symbol Icon</label>
-            <input type="text" [(ngModel)]="editingService.icon" />
+            <label>Icon Preview & Name</label>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <div style="width: 38px; height: 38px; border-radius: 8px; background: #fef3c7; color: #d97706; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden;">
+                <span class="material-symbols-outlined">{{ editingService.icon }}</span>
+              </div>
+              <input type="text" [(ngModel)]="editingService.icon" style="flex: 1;" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Icon Picker Chips -->
+        <div class="form-group">
+          <label style="font-size: 0.75rem; color: #64748b;">Quick Select Material Icon:</label>
+          <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px;">
+            <button 
+              type="button" 
+              *ngFor="let item of availableServiceIcons"
+              (click)="setEditingServiceIcon(item.icon)"
+              [style.background]="editingService.icon === item.icon ? '#f59e0b' : '#f1f5f9'"
+              [style.color]="editingService.icon === item.icon ? '#ffffff' : '#334155'"
+              style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 14px; border: none; font-size: 0.75rem; cursor: pointer; transition: all 0.15s;">
+              <span class="material-symbols-outlined" style="font-size: 16px;">{{ item.icon }}</span>
+              {{ item.label }}
+            </button>
           </div>
         </div>
 

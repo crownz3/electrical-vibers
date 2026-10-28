@@ -337,6 +337,44 @@ export class AdminPage implements OnInit {
     this.showNewServiceModal = true;
   }
 
+  availableServiceIcons: { icon: string; label: string }[] = [
+    { icon: 'electric_bolt', label: 'Wiring' },
+    { icon: 'shield', label: 'Surge/Earthing' },
+    { icon: 'toggle_on', label: 'Switches' },
+    { icon: 'power_off', label: 'MCB Tripping' },
+    { icon: 'mode_fan', label: 'Fan/Light' },
+    { icon: 'battery_charging_full', label: 'Inverter/UPS' },
+    { icon: 'lightbulb', label: 'Lighting' },
+    { icon: 'solar_power', label: 'Solar Rooftop' },
+    { icon: 'electrical_services', label: 'General Electrical' },
+    { icon: 'precision_manufacturing', label: '3-Phase Machinery' },
+    { icon: 'home_repair_service', label: 'Home Repair' },
+    { icon: 'flash_on', label: 'Emergency' },
+    { icon: 'tune', label: 'Custom Panel' },
+    { icon: 'build', label: 'Maintenance' }
+  ];
+
+  setServiceIcon(icon: string): void {
+    this.serviceIcon = icon;
+  }
+
+  setEditingServiceIcon(icon: string): void {
+    if (this.editingService) {
+      this.editingService.icon = icon;
+    }
+  }
+
+  convertBookingToService(bk: Booking): void {
+    this.serviceTitle = bk.serviceTitle;
+    this.serviceTamilTitle = bk.serviceTitle;
+    this.servicePrice = bk.estimatedCost || 499;
+    this.serviceIcon = 'electrical_services';
+    this.serviceDesc = bk.problemDescription || 'Professional custom electrical service.';
+    this.servicePopular = false;
+    this.showNewServiceModal = true;
+    this.activeTab = 'services';
+  }
+
   saveNewService(): void {
     if (!this.serviceTitle.trim() || !this.servicePrice) {
       alert('Please fill in service title and starting price');

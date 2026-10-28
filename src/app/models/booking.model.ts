@@ -32,4 +32,5 @@ export interface Booking {
   createdAt: string;
   completedAt?: string;
   adminNotes?: string;
+  isCustomService?: boolean;
 }

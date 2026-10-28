@@ -60,7 +60,7 @@ export class BookingService {
       id: 'earthing',
       title: 'Chemical Earthing & Surge Protection',
       tamilTitle: 'எர்த்திங் & சர்ஜ் பாதுகாப்பு',
-      icon: 'grounding',
+      icon: 'shield',
       description: 'Copper/GI chemical earthing pit excavation, bentonite compound filling, and lightning surge protection testing.',
       startingPrice: 1800,
       popular: false
@@ -143,7 +143,8 @@ export class BookingService {
     // Listen to real-time service categories
     this.firebaseService.listenToCollection<ServiceCategory>('services', (remoteServices) => {
       if (remoteServices && remoteServices.length > 0) {
-        this.saveServices(remoteServices);
+        const sanitized = remoteServices.map(s => s.icon === 'grounding' ? { ...s, icon: 'shield' } : s);
+        this.saveServices(sanitized);
       } else {
         const current = this.servicesSubject.getValue();
         if (current.length > 0) {
@@ -160,7 +161,19 @@ export class BookingService {
     const saved = localStorage.getItem(this.SERVICES_KEY);
     if (saved) {
       try {
-        this.servicesSubject.next(JSON.parse(saved));
+        const parsed: ServiceCategory[] = JSON.parse(saved);
+        let migrated = false;
+        parsed.forEach(s => {
+          if (s.icon === 'grounding') {
+            s.icon = 'shield';
+            migrated = true;
+          }
+        });
+        if (migrated) {
+          this.saveServices(parsed);
+        } else {
+          this.servicesSubject.next(parsed);
+        }
         return;
       } catch (e) {
         console.error('Failed to parse saved services:', e);

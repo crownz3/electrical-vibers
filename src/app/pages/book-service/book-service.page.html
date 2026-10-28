@@ -55,27 +55,201 @@
       <div class="booking-layout">
         <!-- Left: Step 1 - Choose Service -->
         <div class="left-steps">
-          <div class="card glass-card">
-            <div class="step-badge">STEP 1</div>
-            <h2>Select Service Required</h2>
+          <div class="card glass-card service-step-card">
+            <div class="step-header-row">
+              <div class="step-header-text">
+                <div class="step-badge">STEP 1</div>
+                <h2>Select Service Required</h2>
+                <p class="step-subtitle">Choose from verified electrician service packages or specify custom work</p>
+              </div>
+              <div class="step-count-pill" *ngIf="services.length > 0">
+                <span class="material-symbols-outlined">bolt</span>
+                {{ services.length }} Verified Services
+              </div>
+            </div>
 
-            <div class="service-selector-grid">
+            <!-- Service Filter Tabs & Search -->
+            <div class="service-controls">
+              <div class="service-filter-tabs">
+                <button 
+                  type="button" 
+                  class="filter-pill" 
+                  [class.active]="activeFilter === 'all' && !isCustomService"
+                  (click)="setFilter('all')">
+                  <span class="material-symbols-outlined">format_list_bulleted</span>
+                  All Services ({{ services.length }})
+                </button>
+                <button 
+                  type="button" 
+                  class="filter-pill" 
+                  [class.active]="activeFilter === 'popular' && !isCustomService"
+                  (click)="setFilter('popular')">
+                  <span class="material-symbols-outlined">star</span>
+                  Popular
+                </button>
+                <button 
+                  type="button" 
+                  class="filter-pill custom-pill" 
+                  [class.active]="isCustomService"
+                  (click)="selectCustomService()">
+                  <span class="material-symbols-outlined">tune</span>
+                  Custom Service ✨
+                </button>
+              </div>
+
+              <div class="service-search-box" *ngIf="!isCustomService">
+                <span class="material-symbols-outlined search-ico">search</span>
+                <input 
+                  type="text" 
+                  [(ngModel)]="searchQuery" 
+                  placeholder="Search wiring, MCB, inverter, earthing..." 
+                />
+                <button *ngIf="searchQuery" (click)="searchQuery = ''" class="btn-clear-search">✕</button>
+              </div>
+            </div>
+
+            <!-- Service Cards Grid -->
+            <div class="service-cards-grid">
               <div 
-                *ngFor="let s of services" 
-                (click)="selectedCategory = s"
-                class="service-select-item interactive-card"
-                [class.selected]="selectedCategory?.id === s.id">
-                <div class="s-icon">
-                  <span class="material-symbols-outlined">{{ s.icon }}</span>
+                *ngFor="let s of filteredServices; let idx = index" 
+                (click)="selectStandardService(s)"
+                class="service-card-item interactive-card"
+                [class.selected]="!isCustomService && selectedCategory?.id === s.id"
+                [attr.data-color-idx]="idx % 6">
+
+                <div class="card-glow-accent"></div>
+
+                <div class="card-top-meta">
+                  <div class="service-icon-wrapper">
+                    <span class="material-symbols-outlined">{{ s.icon }}</span>
+                  </div>
+                  <div class="card-badges">
+                    <span *ngIf="s.popular" class="badge-tag badge-popular">
+                      <span class="material-symbols-outlined">star</span> Popular
+                    </span>
+                    <div class="selection-indicator">
+                      <span class="material-symbols-outlined">
+                        {{ (!isCustomService && selectedCategory?.id === s.id) ? 'check_circle' : 'radio_button_unchecked' }}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div class="s-info">
-                  <h4>{{ s.title }}</h4>
-                  <p class="s-tamil">{{ s.tamilTitle }}</p>
-                  <span class="s-price">Starting from ₹{{ s.startingPrice }}</span>
+
+                <div class="card-content">
+                  <h4 class="service-name">{{ s.title }}</h4>
+                  <p class="service-tamil">{{ s.tamilTitle }}</p>
+                  <p class="service-snippet" *ngIf="s.description">{{ s.description }}</p>
                 </div>
-                <span class="material-symbols-outlined radio-check">
-                  {{ selectedCategory?.id === s.id ? 'radio_button_checked' : 'radio_button_unchecked' }}
-                </span>
+
+                <div class="card-footer-pricing">
+                  <div class="price-stack">
+                    <span class="price-prefix">Starts from</span>
+                    <span class="price-figure">₹{{ s.startingPrice }}</span>
+                  </div>
+                  <span class="select-btn-label">
+                    {{ (!isCustomService && selectedCategory?.id === s.id) ? 'Selected' : 'Select' }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Dedicated Custom Service Card inside grid -->
+              <div 
+                (click)="selectCustomService()"
+                class="service-card-item custom-service-card interactive-card"
+                [class.selected]="isCustomService">
+                
+                <div class="card-glow-accent"></div>
+
+                <div class="card-top-meta">
+                  <div class="service-icon-wrapper custom-icon">
+                    <span class="material-symbols-outlined">design_services</span>
+                  </div>
+                  <div class="card-badges">
+                    <span class="badge-tag badge-custom">Custom Request</span>
+                    <div class="selection-indicator">
+                      <span class="material-symbols-outlined">
+                        {{ isCustomService ? 'check_circle' : 'radio_button_unchecked' }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="card-content">
+                  <h4 class="service-name">Custom Electrical Requirement</h4>
+                  <p class="service-tamil">தனிப்பயன் மின்சார சேவை</p>
+                  <p class="service-snippet">Need a specialized job? Tell us what you need and our technicians will inspect and provide a transparent quote.</p>
+                </div>
+
+                <div class="card-footer-pricing">
+                  <div class="price-stack">
+                    <span class="price-prefix">Estimate</span>
+                    <span class="price-figure">Custom Quote</span>
+                  </div>
+                  <span class="select-btn-label">
+                    {{ isCustomService ? 'Configuring' : 'Enter Details' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Custom Service Input Panel (Expands when Custom Service is selected) -->
+            <div *ngIf="isCustomService" class="custom-service-editor glass-card">
+              <div class="editor-header">
+                <div class="editor-title-wrap">
+                  <div class="editor-icon-badge">
+                    <span class="material-symbols-outlined">tune</span>
+                  </div>
+                  <div>
+                    <h3>Specify Your Custom Electrical Work</h3>
+                    <p>Enter the details of the service you need so our electrician arrives prepared.</p>
+                  </div>
+                </div>
+                <button type="button" (click)="resetToStandard()" class="btn-switch-back">
+                  <span class="material-symbols-outlined">arrow_back</span> Choose standard service
+                </button>
+              </div>
+
+              <!-- Quick Presets -->
+              <div class="quick-presets-section">
+                <label>Common Custom Requests (Click to Auto-fill):</label>
+                <div class="preset-chips">
+                  <button 
+                    type="button" 
+                    *ngFor="let p of customPresets" 
+                    (click)="applyPreset(p)" 
+                    class="preset-chip">
+                    + {{ p }}
+                  </button>
+                </div>
+              </div>
+
+              <div class="form-row-2">
+                <div class="form-group">
+                  <label>Custom Service Title *</label>
+                  <input 
+                    type="text" 
+                    [(ngModel)]="customServiceTitle" 
+                    placeholder="e.g. 3-Phase Industrial Panel Wiring / EV Wallbox Charger" 
+                    required 
+                  />
+                </div>
+                <div class="form-group">
+                  <label>Estimated / Expected Budget (₹ Optional)</label>
+                  <input 
+                    type="number" 
+                    [(ngModel)]="customServiceBudget" 
+                    placeholder="e.g. 1500 (Leave blank for on-site estimate)" 
+                  />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Detailed Work Scope & Requirements *</label>
+                <textarea 
+                  [(ngModel)]="customServiceNotes" 
+                  rows="3" 
+                  placeholder="Describe wire gauge requirement, distance in meters, machine load, number of points, or specific brand preferences...">
+                </textarea>
               </div>
             </div>
           </div>
@@ -119,6 +293,19 @@
             <div class="step-badge">STEP 3</div>
             <h2>Your Details & Address</h2>
 
+            <!-- Selected Service Recap Pill -->
+            <div class="chosen-service-banner">
+              <div class="cs-label">SERVICE TO BOOK:</div>
+              <div class="cs-name">
+                <span class="material-symbols-outlined">{{ isCustomService ? 'tune' : (selectedCategory?.icon || 'electrical_services') }}</span>
+                <strong>{{ isCustomService ? (customServiceTitle || 'Custom Electrical Work') : selectedCategory?.title }}</strong>
+              </div>
+              <div class="cs-cost">
+                <span>Estimated Starting:</span>
+                <strong>{{ isCustomService ? (customServiceBudget ? '₹' + customServiceBudget : 'Custom Estimate') : '₹' + selectedCategory?.startingPrice }}</strong>
+              </div>
+            </div>
+
             <div class="form-group">
               <label>Your Name *</label>
               <input type="text" [(ngModel)]="customerName" required placeholder="Full Name" />
@@ -158,7 +345,7 @@
 
             <button (click)="submitBooking()" [disabled]="isSubmitting" class="btn-confirm-booking">
               <span class="material-symbols-outlined">handyman</span>
-              {{ isSubmitting ? 'Registering Booking...' : 'Confirm Electrician Booking' }}
+              {{ isSubmitting ? 'Registering Booking...' : (isCustomService ? 'Confirm Custom Service Booking' : 'Confirm Electrician Booking') }}
             </button>
 
             <div class="emergency-call-banner">

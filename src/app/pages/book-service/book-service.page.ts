@@ -29,6 +29,24 @@ export class BookServicePage implements OnInit {
   preferredTimeSlot = 'Morning 09:00 AM - 12:00 PM';
   problemDescription = '';
 
+  // Custom Service & Filter controls
+  isCustomService = false;
+  customServiceTitle = '';
+  customServiceTamil = '';
+  customServiceBudget: number | null = null;
+  customServiceNotes = '';
+  searchQuery = '';
+  activeFilter: 'all' | 'popular' | 'custom' = 'all';
+
+  customPresets: string[] = [
+    '3-Phase Commercial Panel & DB Dressing',
+    'False Ceiling Profile LED & Chandelier Wiring',
+    'EV Car Charger 16A/32A Dedicated Point',
+    'Garden Waterproof Pathway Spike Lighting',
+    'Solar Water Heater & Geyser Separate Line',
+    'Heavy Machinery Motor Starter Troubleshooting'
+  ];
+
   customerName = '';
   customerPhone = '';
   customerAddress = '';
@@ -51,19 +69,71 @@ export class BookServicePage implements OnInit {
     this.configService.config$.subscribe(cfg => this.config = cfg);
     this.bookingService.services$.subscribe(srvs => {
       this.services = srvs;
-      if (!this.selectedCategory && srvs.length > 0) {
+      if (!this.selectedCategory && srvs.length > 0 && !this.isCustomService) {
         this.selectedCategory = srvs[0];
       }
 
       this.route.queryParams.subscribe(params => {
-        if (params['serviceId']) {
+        if (params['custom'] === 'true') {
+          this.selectCustomService();
+        } else if (params['serviceId']) {
           const found = srvs.find(s => s.id === params['serviceId']);
           if (found) {
-            this.selectedCategory = found;
+            this.selectStandardService(found);
           }
         }
       });
     });
+  }
+
+  get filteredServices(): ServiceCategory[] {
+    let list = this.services;
+    if (this.activeFilter === 'popular') {
+      list = list.filter(s => s.popular);
+    }
+    if (this.searchQuery.trim()) {
+      const q = this.searchQuery.toLowerCase().trim();
+      list = list.filter(s => 
+        s.title.toLowerCase().includes(q) || 
+        (s.tamilTitle && s.tamilTitle.toLowerCase().includes(q)) ||
+        (s.description && s.description.toLowerCase().includes(q))
+      );
+    }
+    return list;
+  }
+
+  setFilter(filter: 'all' | 'popular'): void {
+    this.activeFilter = filter;
+    this.isCustomService = false;
+    if (!this.selectedCategory && this.filteredServices.length > 0) {
+      this.selectedCategory = this.filteredServices[0];
+    }
+  }
+
+  selectStandardService(s: ServiceCategory): void {
+    this.isCustomService = false;
+    this.selectedCategory = s;
+  }
+
+  selectCustomService(): void {
+    this.isCustomService = true;
+    this.selectedCategory = null;
+    this.activeFilter = 'custom';
+  }
+
+  resetToStandard(): void {
+    this.isCustomService = false;
+    this.activeFilter = 'all';
+    if (!this.selectedCategory && this.services.length > 0) {
+      this.selectedCategory = this.services[0];
+    }
+  }
+
+  applyPreset(preset: string): void {
+    this.customServiceTitle = preset;
+    if (!this.customServiceNotes) {
+      this.customServiceNotes = `Requested: ${preset}. Please bring appropriate heavy-gauge wiring, MCB connectors and safety testing meters.`;
+    }
   }
 
   submitBooking(): void {
@@ -72,8 +142,13 @@ export class BookServicePage implements OnInit {
       return;
     }
 
-    if (!this.selectedCategory) {
-      alert('Please select a service.');
+    if (this.isCustomService) {
+      if (!this.customServiceTitle.trim()) {
+        alert('Please enter a brief name for your custom service requirement.');
+        return;
+      }
+    } else if (!this.selectedCategory) {
+      alert('Please select a service from the list or choose Custom Service.');
       return;
     }
 
@@ -87,6 +162,21 @@ export class BookServicePage implements OnInit {
       landmark: this.landmark
     });
 
+    const serviceTitle = this.isCustomService ? this.customServiceTitle.trim() : this.selectedCategory!.title;
+    const serviceCategory = this.isCustomService ? 'custom' : this.selectedCategory!.id;
+    const estCost = this.isCustomService 
+      ? (this.customServiceBudget || this.config.baseInspectionFee) 
+      : this.selectedCategory!.startingPrice;
+
+    let fullProblemDesc = '';
+    if (this.isCustomService) {
+      fullProblemDesc = `[Custom Service]: ${serviceTitle}`;
+      if (this.customServiceNotes) fullProblemDesc += `\nRequirements: ${this.customServiceNotes}`;
+      if (this.problemDescription) fullProblemDesc += `\nAdditional Notes: ${this.problemDescription}`;
+    } else {
+      fullProblemDesc = this.problemDescription || 'General inspection and repair requested.';
+    }
+
     setTimeout(() => {
       const booking = this.bookingService.createBooking({
         customerId: 'cust-' + Date.now(),
@@ -95,12 +185,13 @@ export class BookServicePage implements OnInit {
         customerAddress: this.customerAddress,
         city: this.city,
         landmark: this.landmark,
-        serviceCategory: this.selectedCategory!.id,
-        serviceTitle: this.selectedCategory!.title,
-        problemDescription: this.problemDescription || 'General inspection and repair requested.',
+        serviceCategory,
+        serviceTitle,
+        problemDescription: fullProblemDesc,
         preferredDate: this.preferredDate,
         preferredTimeSlot: this.preferredTimeSlot,
-        estimatedCost: this.selectedCategory!.startingPrice
+        estimatedCost: estCost,
+        isCustomService: this.isCustomService
       });
 
       this.isSubmitting = false;
@@ -109,14 +200,17 @@ export class BookServicePage implements OnInit {
   }
 
   getWhatsAppBookingLink(booking: Booking): string {
+    const isCustom = booking.isCustomService || booking.serviceCategory === 'custom';
+    const tag = isCustom ? '✨ *Custom Service Booking*' : '⚡ *Service Booking*';
     const text = encodeURIComponent(
-      `⚡ *New Service Booking [${booking.id}]*\n\n` +
-      `*Service:* ${booking.serviceTitle}\n` +
+      `${tag} [${booking.id}]\n\n` +
+      `*Service:* ${booking.serviceTitle}${isCustom ? ' (Custom Request)' : ''}\n` +
       `*Customer:* ${booking.customerName} (${booking.customerPhone})\n` +
       `*Address:* ${booking.customerAddress}, ${booking.city}\n` +
-      `*Date/Time:* ${booking.preferredDate} (${booking.preferredTimeSlot})\n` +
-      `*Problem:* ${booking.problemDescription}\n\n` +
-      `Please confirm technician arrival schedule!`
+      `*Schedule:* ${booking.preferredDate} (${booking.preferredTimeSlot})\n` +
+      `*Details:* ${booking.problemDescription}\n` +
+      `*Estimated Rate:* ₹${booking.estimatedCost || this.config.baseInspectionFee}\n\n` +
+      `Please confirm technician dispatch schedule!`
     );
     return `https://wa.me/${this.config.whatsappNumber}?text=${text}`;
   }
