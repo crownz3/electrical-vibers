@@ -44,6 +44,43 @@ export class AdminPage implements OnInit {
   activeTab: 'roster' | 'workforce' | 'sites' | 'products' | 'categories' | 'services' | 'offers' | 'settings' | 'orders' | 'bookings' = 'roster';
   Math = Math;
 
+  // Modern Sidenav State
+  sidebarCollapsed = false;
+  mobileSidebarOpen = false;
+  showQuickAddMenu = false;
+
+  toggleSidebar(): void {
+    this.sidebarCollapsed = !this.sidebarCollapsed;
+  }
+
+  toggleMobileSidebar(): void {
+    this.mobileSidebarOpen = !this.mobileSidebarOpen;
+  }
+
+  closeMobileSidebar(): void {
+    this.mobileSidebarOpen = false;
+  }
+
+  selectTab(tab: 'roster' | 'workforce' | 'sites' | 'products' | 'categories' | 'services' | 'offers' | 'settings' | 'orders' | 'bookings'): void {
+    this.activeTab = tab;
+    this.mobileSidebarOpen = false;
+  }
+
+  get currentModuleMeta(): { title: string; subtitle: string; icon: string } {
+    switch (this.activeTab) {
+      case 'roster': return { title: 'Duty Roster & Timeline', subtitle: 'தினசரி வேலை ஒதுக்கீடு & பணிகள்', icon: 'calendar_month' };
+      case 'workforce': return { title: 'Electrician Workforce & Wages', subtitle: 'பணியாளர்கள் & தினசரி கூலி மேலாண்மை', icon: 'badge' };
+      case 'sites': return { title: 'Construction Sites & Finance', subtitle: 'கட்டுமான தளங்கள் & வரவு செலவு', icon: 'engineering' };
+      case 'products': return { title: 'Products & Live Pricing', subtitle: 'மின்சாதன பொருட்கள் & ஸ்டாக் நிலவரம்', icon: 'inventory_2' };
+      case 'categories': return { title: 'Product Categories & Catalog', subtitle: 'பொருட்கள் பிரிவுகள் & வகைகள்', icon: 'category' };
+      case 'services': return { title: 'Electrician Services & Rate Card', subtitle: 'மின்சார சேவை கட்டண பட்டியல்', icon: 'handyman' };
+      case 'offers': return { title: 'Promotional Offers & Banners', subtitle: 'தள்ளுபடி கூப்பன்கள் & சலுகைகள்', icon: 'loyalty' };
+      case 'orders': return { title: 'Customer Orders Pipeline', subtitle: 'வாடிக்கையாளர் ஆர்டர்கள் & டெலிவரி', icon: 'local_shipping' };
+      case 'bookings': return { title: 'Electrician Service Bookings', subtitle: 'சேவை முன்பதிவுகள் & தொழில்நுட்ப வருகை', icon: 'calendar_today' };
+      case 'settings': return { title: 'Global Website Settings', subtitle: 'தள அமைப்புகள் & அறிவிப்புகள்', icon: 'tune' };
+      default: return { title: 'Admin Workspace', subtitle: 'நிர்வாக கட்டுப்பாட்டு அறை', icon: 'dashboard' };
+    }
+  }
 
   // Google Authentication State
   showGoogleAccountModal = false;

@@ -55,146 +55,310 @@
     </div>
   </div>
 
-  <!-- Authenticated Admin Workspace -->
-  <div *ngIf="authService.isAdmin()" class="admin-workspace">
-    <!-- Top Workspace Bar -->
-    <header class="admin-topbar">
-      <div class="admin-title-group">
-        <h1>⚡ Business Operations & Global Configuration</h1>
-        <div class="admin-user-pill">
-          <svg class="tiny-g-icon" viewBox="0 0 24 24">
-            <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
-            <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
-            <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 10.03 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
-            <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
-          </svg>
-          <span class="user-name">{{ currentUser?.displayName }}</span>
-          <span class="user-email">({{ currentUser?.email }})</span>
-          <span class="verified-tag">✓ Verified Admin</span>
-          <span class="cloud-sync-tag" [ngClass]="firebaseService.syncStatus$ | async">
-            <span class="material-symbols-outlined sync-icon">cloud_done</span>
-            <span>Cloud Sync: {{ (firebaseService.syncStatus$ | async) | titlecase }}</span>
-          </span>
-        </div>
-      </div>
+  <!-- Authenticated Admin Workspace with Modern Sidenav Layout -->
+  <div *ngIf="authService.isAdmin()" class="admin-shell" [class.sidebar-collapsed]="sidebarCollapsed">
 
-      <div class="topbar-actions">
-        <button (click)="openScheduleWorkModal()" class="btn-action-accent btn-highlight-gold">
-          <span class="material-symbols-outlined">event_available</span>
-          Schedule Work
-        </button>
-        <button (click)="openNewEmployeeModal()" class="btn-action-accent">
-          <span class="material-symbols-outlined">person_add</span>
-          Add Electrician
-        </button>
-        <button (click)="openNewSiteModal()" class="btn-action-accent">
-          <span class="material-symbols-outlined">add_business</span>
-          Add Site
-        </button>
-        <button (click)="openNewProductModal()" class="btn-action-accent">
-          <span class="material-symbols-outlined">add_shopping_cart</span>
-          Add Product
-        </button>
-        <button (click)="authService.logout()" class="btn-logout" title="Sign Out">
-          <span class="material-symbols-outlined">logout</span>
-          Sign Out
-        </button>
-      </div>
-    </header>
-
-    <!-- Navigation Tabs Bar -->
-    <div class="tabs-header-bar">
-      <button 
-        (click)="activeTab = 'roster'" 
-        class="tab-btn" 
-        [class.active]="activeTab === 'roster'">
-        <span class="material-symbols-outlined">calendar_month</span>
-        Duty Roster & Timeline
-        <span *ngIf="attentionAlerts.overdue.length > 0" class="tab-badge-alert" title="Overdue / Incomplete Tasks">
-          {{ attentionAlerts.overdue.length }}
-        </span>
-      </button>
-
-      <button 
-        (click)="activeTab = 'workforce'" 
-        class="tab-btn" 
-        [class.active]="activeTab === 'workforce'">
-        <span class="material-symbols-outlined">badge</span>
-        Workforce & Wages ({{ employees.length }})
-        <span *ngIf="totalWagesPending > 0" class="tab-badge-pending" title="Pending Wages">
-          ₹{{ (totalWagesPending / 1000).toFixed(0) }}k
-        </span>
-      </button>
-
-      <button 
-        (click)="activeTab = 'sites'" 
-        class="tab-btn" 
-        [class.active]="activeTab === 'sites'">
-        <span class="material-symbols-outlined">engineering</span>
-        Sites & Finance ({{ sites.length }})
-      </button>
-
-      <button 
-        (click)="activeTab = 'products'" 
-        class="tab-btn" 
-        [class.active]="activeTab === 'products'">
-        <span class="material-symbols-outlined">inventory_2</span>
-        Products & Pricing ({{ products.length }})
-      </button>
-
-      <button 
-        (click)="activeTab = 'categories'" 
-
-
-        class="tab-btn" 
-        [class.active]="activeTab === 'categories'">
-        <span class="material-symbols-outlined">category</span>
-        Categories ({{ categories.length }})
-      </button>
-
-      <button 
-        (click)="activeTab = 'services'" 
-        class="tab-btn" 
-        [class.active]="activeTab === 'services'">
-        <span class="material-symbols-outlined">handyman</span>
-        Electrician Services ({{ services.length }})
-      </button>
-
-      <button 
-        (click)="activeTab = 'offers'" 
-        class="tab-btn" 
-        [class.active]="activeTab === 'offers'">
-        <span class="material-symbols-outlined">loyalty</span>
-        Offers & Banner ({{ offers.length }})
-      </button>
-
-      <button 
-        (click)="activeTab = 'settings'" 
-        class="tab-btn" 
-        [class.active]="activeTab === 'settings'">
-        <span class="material-symbols-outlined">tune</span>
-        Store Settings
-      </button>
-
-      <button 
-        (click)="activeTab = 'orders'" 
-        class="tab-btn" 
-        [class.active]="activeTab === 'orders'">
-        <span class="material-symbols-outlined">local_shipping</span>
-        Orders ({{ orders.length }})
-      </button>
-
-      <button 
-        (click)="activeTab = 'bookings'" 
-        class="tab-btn" 
-        [class.active]="activeTab === 'bookings'">
-        <span class="material-symbols-outlined">calendar_today</span>
-        Bookings ({{ bookings.length }})
-      </button>
+    <!-- Mobile Overlay Backdrop -->
+    <div 
+      *ngIf="mobileSidebarOpen" 
+      class="sidebar-mobile-backdrop" 
+      (click)="closeMobileSidebar()">
     </div>
 
-    <!-- ================= TAB: DAILY DUTY ROSTER & WORK TIMELINE ================= -->
-    <section *ngIf="activeTab === 'roster'" class="tab-content">
+    <!-- ================= MODERN ADMIN SIDENAV ================= -->
+    <aside class="admin-sidenav" [class.mobile-open]="mobileSidebarOpen">
+      <!-- Sidenav Brand Header -->
+      <div class="sidenav-header">
+        <div class="sidenav-brand">
+          <div class="brand-bolt-glow">
+            <span class="material-symbols-outlined">bolt</span>
+          </div>
+          <div class="brand-text-col" *ngIf="!sidebarCollapsed">
+            <span class="brand-title">Electrical Vibers</span>
+            <span class="brand-badge">ADMIN CONSOLE</span>
+          </div>
+        </div>
+
+        <button 
+          type="button" 
+          class="btn-toggle-sidebar" 
+          (click)="toggleSidebar()" 
+          [title]="sidebarCollapsed ? 'Expand Sidenav' : 'Collapse Sidenav'">
+          <span class="material-symbols-outlined">
+            {{ sidebarCollapsed ? 'menu_open' : 'first_page' }}
+          </span>
+        </button>
+      </div>
+
+      <!-- Sidenav Navigation Scroll Area -->
+      <nav class="sidenav-nav-scroller">
+        <!-- GROUP 1: OPERATIONS & SITE CONTRACTS -->
+        <div class="nav-section-group">
+          <div class="nav-group-label" *ngIf="!sidebarCollapsed">
+            <span>FIELD OPERATIONS</span>
+          </div>
+
+          <button 
+            type="button"
+            class="nav-item-btn" 
+            [class.active]="activeTab === 'roster'"
+            (click)="selectTab('roster')"
+            title="Daily Duty Roster & Timeline">
+            <div class="nav-item-icon-box">
+              <span class="material-symbols-outlined">calendar_month</span>
+            </div>
+            <span class="nav-item-label" *ngIf="!sidebarCollapsed">Duty Roster & Tasks</span>
+            <span *ngIf="attentionAlerts.overdue.length > 0" class="nav-counter-pill alert-pill">
+              {{ attentionAlerts.overdue.length }}
+            </span>
+          </button>
+
+          <button 
+            type="button"
+            class="nav-item-btn" 
+            [class.active]="activeTab === 'workforce'"
+            (click)="selectTab('workforce')"
+            title="Electrician Workforce & Wages">
+            <div class="nav-item-icon-box">
+              <span class="material-symbols-outlined">badge</span>
+            </div>
+            <span class="nav-item-label" *ngIf="!sidebarCollapsed">Workforce & Wages</span>
+            <span *ngIf="totalWagesPending > 0" class="nav-counter-pill pending-pill">
+              ₹{{ (totalWagesPending / 1000).toFixed(0) }}k
+            </span>
+          </button>
+
+          <button 
+            type="button"
+            class="nav-item-btn" 
+            [class.active]="activeTab === 'sites'"
+            (click)="selectTab('sites')"
+            title="Sites & Project Finance">
+            <div class="nav-item-icon-box">
+              <span class="material-symbols-outlined">engineering</span>
+            </div>
+            <span class="nav-item-label" *ngIf="!sidebarCollapsed">Sites & Project Finance</span>
+            <span class="nav-counter-pill default-pill" *ngIf="!sidebarCollapsed">
+              {{ sites.length }}
+            </span>
+          </button>
+        </div>
+
+        <!-- GROUP 2: STORE CATALOG & PRICING -->
+        <div class="nav-section-group">
+          <div class="nav-group-label" *ngIf="!sidebarCollapsed">
+            <span>STORE & CATALOG</span>
+          </div>
+
+          <button 
+            type="button"
+            class="nav-item-btn" 
+            [class.active]="activeTab === 'products'"
+            (click)="selectTab('products')"
+            title="Products & Live Pricing">
+            <div class="nav-item-icon-box">
+              <span class="material-symbols-outlined">inventory_2</span>
+            </div>
+            <span class="nav-item-label" *ngIf="!sidebarCollapsed">Products & Stock</span>
+            <span class="nav-counter-pill default-pill" *ngIf="!sidebarCollapsed">
+              {{ products.length }}
+            </span>
+          </button>
+
+          <button 
+            type="button"
+            class="nav-item-btn" 
+            [class.active]="activeTab === 'categories'"
+            (click)="selectTab('categories')"
+            title="Product Categories">
+            <div class="nav-item-icon-box">
+              <span class="material-symbols-outlined">category</span>
+            </div>
+            <span class="nav-item-label" *ngIf="!sidebarCollapsed">Categories</span>
+            <span class="nav-counter-pill default-pill" *ngIf="!sidebarCollapsed">
+              {{ categories.length }}
+            </span>
+          </button>
+
+          <button 
+            type="button"
+            class="nav-item-btn" 
+            [class.active]="activeTab === 'services'"
+            (click)="selectTab('services')"
+            title="Electrician Services & Rate Card">
+            <div class="nav-item-icon-box">
+              <span class="material-symbols-outlined">handyman</span>
+            </div>
+            <span class="nav-item-label" *ngIf="!sidebarCollapsed">Services & Rates</span>
+            <span class="nav-counter-pill default-pill" *ngIf="!sidebarCollapsed">
+              {{ services.length }}
+            </span>
+          </button>
+
+          <button 
+            type="button"
+            class="nav-item-btn" 
+            [class.active]="activeTab === 'offers'"
+            (click)="selectTab('offers')"
+            title="Promotional Offers & Banners">
+            <div class="nav-item-icon-box">
+              <span class="material-symbols-outlined">loyalty</span>
+            </div>
+            <span class="nav-item-label" *ngIf="!sidebarCollapsed">Offers & Banners</span>
+          </button>
+        </div>
+
+        <!-- GROUP 3: CUSTOMER PIPELINE -->
+        <div class="nav-section-group">
+          <div class="nav-group-label" *ngIf="!sidebarCollapsed">
+            <span>CUSTOMER PIPELINE</span>
+          </div>
+
+          <button 
+            type="button"
+            class="nav-item-btn" 
+            [class.active]="activeTab === 'orders'"
+            (click)="selectTab('orders')"
+            title="Customer Orders Pipeline">
+            <div class="nav-item-icon-box">
+              <span class="material-symbols-outlined">local_shipping</span>
+            </div>
+            <span class="nav-item-label" *ngIf="!sidebarCollapsed">Customer Orders</span>
+            <span class="nav-counter-pill default-pill" *ngIf="!sidebarCollapsed">
+              {{ orders.length }}
+            </span>
+          </button>
+
+          <button 
+            type="button"
+            class="nav-item-btn" 
+            [class.active]="activeTab === 'bookings'"
+            (click)="selectTab('bookings')"
+            title="Electrician Service Bookings">
+            <div class="nav-item-icon-box">
+              <span class="material-symbols-outlined">calendar_today</span>
+            </div>
+            <span class="nav-item-label" *ngIf="!sidebarCollapsed">Service Bookings</span>
+            <span class="nav-counter-pill default-pill" *ngIf="!sidebarCollapsed">
+              {{ bookings.length }}
+            </span>
+          </button>
+        </div>
+
+        <!-- GROUP 4: SYSTEM SETTINGS -->
+        <div class="nav-section-group">
+          <div class="nav-group-label" *ngIf="!sidebarCollapsed">
+            <span>SYSTEM CONFIGURATION</span>
+          </div>
+
+          <button 
+            type="button"
+            class="nav-item-btn" 
+            [class.active]="activeTab === 'settings'"
+            (click)="selectTab('settings')"
+            title="Global Website Settings">
+            <div class="nav-item-icon-box">
+              <span class="material-symbols-outlined">tune</span>
+            </div>
+            <span class="nav-item-label" *ngIf="!sidebarCollapsed">Website Settings</span>
+          </button>
+        </div>
+      </nav>
+
+      <!-- Sidenav User & Sign Out Footer -->
+      <div class="sidenav-footer">
+        <div class="admin-profile-card" *ngIf="!sidebarCollapsed">
+          <div class="user-avatar-circle">
+            {{ (currentUser?.displayName || 'Admin')[0].toUpperCase() }}
+          </div>
+          <div class="user-info-text">
+            <div class="user-name-line">
+              <span class="uname">{{ currentUser?.displayName }}</span>
+              <span class="verified-check" title="Verified Admin">✓</span>
+            </div>
+            <span class="uemail">{{ currentUser?.email }}</span>
+          </div>
+        </div>
+
+        <button (click)="authService.logout()" class="btn-sidebar-signout" title="Sign Out">
+          <span class="material-symbols-outlined">logout</span>
+          <span *ngIf="!sidebarCollapsed">Sign Out</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- ================= MAIN VIEWPORT CONTAINER ================= -->
+    <main class="admin-main-viewport">
+      <!-- Top Action & Status Bar -->
+      <header class="admin-glass-topbar">
+        <div class="topbar-left-col">
+          <!-- Mobile Menu Toggle Button -->
+          <button type="button" class="btn-mobile-nav-toggle" (click)="toggleMobileSidebar()">
+            <span class="material-symbols-outlined">menu</span>
+          </button>
+
+          <!-- Breadcrumbs & Active Module Info -->
+          <div class="module-title-wrap">
+            <div class="module-title-row">
+              <span class="material-symbols-outlined module-icon">{{ currentModuleMeta.icon }}</span>
+              <h2>{{ currentModuleMeta.title }}</h2>
+            </div>
+            <span class="module-tamil-subtitle">{{ currentModuleMeta.subtitle }}</span>
+          </div>
+        </div>
+
+        <div class="topbar-right-col">
+          <!-- Cloud Sync Status Pill -->
+          <div class="cloud-sync-pill" [ngClass]="firebaseService.syncStatus$ | async">
+            <span class="sync-dot"></span>
+            <span class="material-symbols-outlined sync-icon">cloud_done</span>
+            <span>Cloud Sync: {{ (firebaseService.syncStatus$ | async) | titlecase }}</span>
+          </div>
+
+          <!-- Quick Action Buttons -->
+          <div class="topbar-buttons-cluster">
+            <button (click)="openScheduleWorkModal()" class="btn-quick-primary">
+              <span class="material-symbols-outlined">event_available</span>
+              <span>Schedule Work</span>
+            </button>
+
+            <!-- Quick Add Dropdown Menu -->
+            <div class="quick-add-dropdown-wrap">
+              <button 
+                type="button" 
+                class="btn-quick-secondary" 
+                (click)="showQuickAddMenu = !showQuickAddMenu">
+                <span class="material-symbols-outlined">add</span>
+                <span>Quick Add</span>
+                <span class="material-symbols-outlined arrow-icon">arrow_drop_down</span>
+              </button>
+
+              <div *ngIf="showQuickAddMenu" class="quick-add-popover glass-card">
+                <button (click)="openNewEmployeeModal(); showQuickAddMenu = false" class="popover-item">
+                  <span class="material-symbols-outlined">person_add</span> Add Electrician
+                </button>
+                <button (click)="openNewSiteModal(); showQuickAddMenu = false" class="popover-item">
+                  <span class="material-symbols-outlined">add_business</span> Add Site Project
+                </button>
+                <button (click)="openNewProductModal(); showQuickAddMenu = false" class="popover-item">
+                  <span class="material-symbols-outlined">add_shopping_cart</span> Add Store Product
+                </button>
+                <button (click)="openNewServiceModal(); showQuickAddMenu = false" class="popover-item">
+                  <span class="material-symbols-outlined">handyman</span> Add Service Rate
+                </button>
+                <button (click)="openNewOfferModal(); showQuickAddMenu = false" class="popover-item">
+                  <span class="material-symbols-outlined">loyalty</span> Add Promo Offer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Animated Module Content Stage -->
+      <div class="admin-content-stage">
+        <!-- ================= TAB: DAILY DUTY ROSTER & WORK TIMELINE ================= -->
+        <section *ngIf="activeTab === 'roster'" class="tab-content">
       <!-- Attention Banner for Overdue / Incomplete Tasks (Audio Requirement) -->
       <div *ngIf="attentionAlerts.overdue.length > 0 || attentionAlerts.incomplete.length > 0" class="attention-alert-banner glass-card">
         <div class="alert-icon-box">
@@ -1698,7 +1862,9 @@
         </div>
       </div>
     </section>
-  </div>
+      </div> <!-- /.admin-content-stage -->
+    </main> <!-- /.admin-main-viewport -->
+  </div> <!-- /.admin-shell -->
 
   <!-- ================= MODAL: GOOGLE ACCOUNT CHOOSER (NATIVE & WEB SECURE SIGN-IN) ================= -->
   <div *ngIf="showGoogleAccountModal" class="modal-backdrop">
