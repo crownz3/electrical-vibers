@@ -1,9 +1,9 @@
-<div class="app-root-shell">
+<div class="app-root-shell" [class.is-admin-view]="isAdminRoute">
   <app-header></app-header>
   <main class="app-main-content">
     <router-outlet></router-outlet>
   </main>
-  <app-footer></app-footer>
-  <app-side-cart></app-side-cart>
-  <app-floating-whatsapp></app-floating-whatsapp>
+  <app-footer *ngIf="!isAdminRoute"></app-footer>
+  <app-side-cart *ngIf="!isAdminRoute"></app-side-cart>
+  <app-floating-whatsapp *ngIf="!isAdminRoute"></app-floating-whatsapp>
 </div>
