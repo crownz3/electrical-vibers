@@ -90,13 +90,13 @@ export class ConfigService {
   private defaultConfig: AppConfig = {
     businessName: 'Electrical Vibers',
     businessSubtitle: 'Electricals & Contracting',
-    tamilQuote: '⚡ தரமான பொருட்கள் • நம்பகமான வயரிங் பணிகள் • நியாயமான கட்டணம்',
+    tamilQuote: 'தரமான பொருட்கள் • நம்பகமான வயரிங் பணிகள் • நியாயமான கட்டணம்',
     contactPhone: '+91 98765 43210',
     whatsappNumber: '919876543210',
     contactEmail: 'contact@electricalvibers.com',
     address: '124, Power Station Road, Anna Nagar, Chennai - 600040',
     baseInspectionFee: 149,
-    bannerOfferText: '⚡ Special Offer: Flat 15% OFF on Havells & Finolex Wire Coils + Free Delivery across Chennai!',
+    bannerOfferText: 'Special Offer: Flat 15% OFF on Havells & Finolex Wire Coils + Free Delivery across Chennai!',
     showBannerOffer: true,
     yearsExperience: 14,
     completedSitesCount: 580,
@@ -146,7 +146,7 @@ export class ConfigService {
     // Deal of the Day
     showDealOfTheDay: true,
     dealOfTheDayProductId: 'prod-7',
-    dealOfTheDayTitle: 'Deal of the Day ⚡ Limited-Time Flash Tool',
+    dealOfTheDayTitle: 'Deal of the Day - Limited-Time Flash Tool',
     dealOfTheDaySubtitle: 'சிறப்பு சலுகை: பிரீமியம் கார்ட்லெஸ் பவர் டூல்ஸ் நேரடி தள்ளுபடி விலையில்',
     dealOfTheDayEndHours: 12,
 

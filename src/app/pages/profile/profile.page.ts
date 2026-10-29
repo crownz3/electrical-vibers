@@ -147,7 +147,7 @@ export class ProfilePage implements OnInit {
       }
     });
 
-    this.showToast('Profile and billing details saved successfully! ✅', 'success');
+    this.showToast('Profile and billing details saved successfully!', 'success');
   }
 
   resetForm(): void {
@@ -182,7 +182,7 @@ export class ProfilePage implements OnInit {
     });
 
     this.showNewAddressModal = false;
-    this.showToast('New delivery location added! 📍', 'success');
+    this.showToast('New delivery location added!', 'success');
   }
 
   setDefaultAddress(addr: SavedAddress): void {
@@ -202,7 +202,7 @@ export class ProfilePage implements OnInit {
     for (const item of order.items) {
       this.cartService.addToCart(item.product, item.quantity, false);
     }
-    this.showToast(`${order.items.length} items added to your shopping cart! 🛒`, 'success');
+    this.showToast(`${order.items.length} items added to your shopping cart!`, 'success');
     this.cartService.openDrawer();
   }
 
@@ -226,7 +226,7 @@ export class ProfilePage implements OnInit {
 
   copyOrderId(id: string): void {
     navigator.clipboard?.writeText(id);
-    this.showToast(`Copied Order ID: ${id} 📋`, 'info');
+    this.showToast(`Copied Order ID: ${id}`, 'info');
   }
 
   showToast(msg: string, type: 'success' | 'info' | 'error' = 'success'): void {

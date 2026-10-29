@@ -19,439 +19,10 @@ import { FirebaseService } from './firebase.service';
   providedIn: 'root'
 })
 export class SiteService {
-  private readonly STORAGE_KEY = 'voltmaster_sites_v1';
-  private readonly EMPLOYEES_STORAGE_KEY = 'voltmaster_employees_v1';
-  private readonly ALLOCATIONS_STORAGE_KEY = 'voltmaster_allocations_v1';
-  private readonly PAYOUTS_STORAGE_KEY = 'voltmaster_wage_payouts_v1';
-
-  // Seed sample realistic sites for the electrical contractor
-  private initialSites: SiteProject[] = [
-    {
-      id: 'site-101',
-      siteName: 'Green Meadows Luxury Villa - 3BHK Wiring',
-      clientName: 'Dr. S. Sundararajan',
-      clientPhone: '+91 98840 11223',
-      siteAddress: 'Plot 42, 3rd Avenue, Injambakkam, ECR',
-      city: 'Chennai',
-      contractType: 'with_material',
-      estimatedLaborDays: 24,
-      plannedWorkersCount: 3,
-      materialBudget: 65000,
-      status: 'ongoing',
-      startDate: '2026-10-01',
-      expectedCompletionDate: '2026-10-25',
-      contractAmount: 185000,
-      totalReceived: 90000,
-      pendingBalance: 95000, // 185000 - 90000
-      totalExpenses: 48600,
-      profitOrMargin: 41400, // 90000 received - 48600 expenses
-      assignedElectricians: ['Murugan (Lead)', 'Suresh', 'Vignesh'],
-      description: 'Complete concealed PVC piping, 1100V copper wiring, distribution board assembly, VRV AC circuiting, home theatre wiring, and terrace garden decorative lighting.',
-      progressPercentage: 65,
-      createdAt: '2026-10-01T09:00:00Z',
-      updatedAt: '2026-10-12T08:30:00Z',
-
-      expenses: [
-        {
-          id: 'exp-1',
-          date: '2026-10-02',
-          title: 'Finolex 2.5mm & 1.5mm Wire Coils (8 Coils)',
-          category: 'material',
-          amount: 22400,
-          notes: 'Purchased from Royal Electricals wholesale with bill #4829',
-          recordedBy: 'Admin'
-        },
-        {
-          id: 'exp-2',
-          date: '2026-10-04',
-          title: 'Precision 25mm Heavy Duty PVC Pipes & Metal Junction Boxes',
-          category: 'material',
-          amount: 8200,
-          notes: 'Ground floor and first floor conduit fittings',
-          recordedBy: 'Murugan (Lead)'
-        },
-        {
-          id: 'exp-3',
-          date: '2026-10-07',
-          title: 'Weekly Labor Wages (Suresh & Vignesh - Chipping & Wall Cutting)',
-          category: 'labor',
-          amount: 14000,
-          notes: 'Wall grooving and conduit insertion labor',
-          recordedBy: 'Admin'
-        },
-        {
-          id: 'exp-4',
-          date: '2026-10-11',
-          title: 'Team Tea, Lunch & Van Transport for Materials',
-          category: 'travel_food',
-          amount: 4000,
-          notes: 'Material dispatch to ECR site and daily food allowance',
-          recordedBy: 'Murugan (Lead)'
-        }
-      ],
-      payments: [
-        {
-          id: 'pay-1',
-          date: '2026-10-01',
-          amount: 50000,
-          paymentMode: 'bank_transfer',
-          receiptNo: 'REC-001',
-          notes: 'Initial work commencement advance via NEFT'
-        },
-        {
-          id: 'pay-2',
-          date: '2026-10-08',
-          amount: 40000,
-          paymentMode: 'gpay_upi',
-          receiptNo: 'REC-002',
-          notes: 'Second milestone: Concealed piping & box fixing completed'
-        }
-      ],
-      dailyLogs: [
-        {
-          id: 'log-1',
-          date: '2026-10-10',
-          workerName: 'Murugan (Lead)',
-          workDescription: 'Distribution Box (DB) neutral busbar wiring & MCB sorting on 1st Floor.'
-        },
-        {
-          id: 'log-2',
-          date: '2026-10-11',
-          workerName: 'Suresh',
-          workDescription: 'Wire pulling completed for Bed Room 1 & Living Room profile light grooves.'
-        },
-        {
-          id: 'log-3',
-          date: '2026-10-12',
-          workerName: 'Vignesh',
-          workDescription: 'Earthing pit chemical salt compound dumping and copper strip testing.'
-        }
-      ]
-    },
-    {
-      id: 'site-102',
-      siteName: 'Trends Boutique & Showroom - Track Lighting & DB Upgrade',
-      clientName: 'Mrs. Jayashree Kumar',
-      clientPhone: '+91 94443 77889',
-      siteAddress: 'Shop 14, Usman Road, T. Nagar',
-      city: 'Chennai',
-      contractType: 'with_material',
-      estimatedLaborDays: 14,
-      plannedWorkersCount: 2,
-      materialBudget: 28000,
-      status: 'ongoing',
-      startDate: '2026-10-08',
-      expectedCompletionDate: '2026-10-25',
-      contractAmount: 75000,
-      totalReceived: 35000,
-      pendingBalance: 40000, // 75000 - 35000
-      totalExpenses: 21500,
-      profitOrMargin: 13500,
-      assignedElectricians: ['Ravi', 'Kuppusamy'],
-      description: 'Commercial showroom aesthetic track light installation, display counter spotlights, 63A TP MCB DB setup, and 10kVA stabilizer connection.',
-      progressPercentage: 55,
-      createdAt: '2026-10-08T10:00:00Z',
-      updatedAt: '2026-10-12T07:15:00Z',
-      expenses: [
-        {
-          id: 'exp-5',
-          date: '2026-10-09',
-          title: 'Aluminum Track Rails (12m) & High-CRI 20W COB Spotlights',
-          category: 'material',
-          amount: 16500,
-          recordedBy: 'Admin'
-        },
-        {
-          id: 'exp-6',
-          date: '2026-10-10',
-          title: 'Night Shift Overtime Allowance for 2 Electricians',
-          category: 'labor',
-          amount: 5000,
-          notes: 'Mall restrictions: Work conducted from 9:30 PM to 4:00 AM',
-          recordedBy: 'Ravi'
-        }
-      ],
-      payments: [
-        {
-          id: 'pay-3',
-          date: '2026-10-08',
-          amount: 35000,
-          paymentMode: 'gpay_upi',
-          receiptNo: 'REC-003',
-          notes: 'Advance 50% booking payment'
-        }
-      ],
-      dailyLogs: [
-        {
-          id: 'log-4',
-          date: '2026-10-11',
-          workerName: 'Ravi',
-          workDescription: 'Track rails aligned with laser level and secured to false ceiling channel.'
-        }
-      ]
-    },
-    {
-      id: 'site-103',
-      siteName: 'AeroTech Office Floor - Server Room UPS & Redundant Power',
-      clientName: 'Mr. Rajesh Menon (Facilities Mgr)',
-      clientPhone: '+91 99620 44556',
-      siteAddress: 'Module 4A, Olympia Tech Park, Guindy',
-      city: 'Chennai',
-      contractType: 'labor_only',
-      estimatedLaborDays: 20,
-      plannedWorkersCount: 2,
-      materialBudget: 0,
-      status: 'completed',
-      startDate: '2026-09-15',
-      expectedCompletionDate: '2026-09-28',
-      contractAmount: 120000,
-      totalReceived: 120000,
-      pendingBalance: 0,
-      totalExpenses: 68000,
-      profitOrMargin: 52000,
-      assignedElectricians: ['Murugan (Lead)', 'Ravi'],
-      description: 'Dual UPS power bus duct connection, server rack PDU sockets, surge protection device (SPD) installation, and phase load balancing (Labor Only contract - Client provided bus duct materials).',
-      progressPercentage: 100,
-
-      createdAt: '2026-09-15T09:00:00Z',
-      updatedAt: '2026-09-29T16:00:00Z',
-      expenses: [],
-      payments: [
-        {
-          id: 'pay-4',
-          date: '2026-09-15',
-          amount: 60000,
-          paymentMode: 'bank_transfer',
-          receiptNo: 'REC-004'
-        },
-        {
-          id: 'pay-5',
-          date: '2026-09-29',
-          amount: 60000,
-          paymentMode: 'bank_transfer',
-          receiptNo: 'REC-005',
-          notes: 'Final settlement after inspection signoff'
-        }
-      ],
-      dailyLogs: []
-    }
-  ];
-
-  // Realistic seed employees (Electricians, Wiremen, Helpers)
-  private initialEmployees: ElectricianEmployee[] = [
-    {
-      id: 'emp-1',
-      name: 'Murugan S.',
-      phone: '+91 98841 23456',
-      role: 'Lead Master Electrician',
-      dailyWage: 1200,
-      status: 'active',
-      joiningDate: '2024-02-15',
-      upiId: 'murugan.elec@okaxis',
-      specialty: '3-Phase DB Dressing & Inverter/Solar Sync',
-      totalDaysWorked: 18,
-      totalWagesEarned: 21600,
-      totalWagesPaid: 15000,
-      pendingWageBalance: 6600
-    },
-    {
-      id: 'emp-2',
-      name: 'Suresh Kumar',
-      phone: '+91 97910 88765',
-      role: 'Senior Wireman',
-      dailyWage: 950,
-      status: 'active',
-      joiningDate: '2024-05-10',
-      upiId: 'sureshwireman@ybl',
-      specialty: 'Concealed Conduit & Profile Lighting Grooves',
-      totalDaysWorked: 16,
-      totalWagesEarned: 15200,
-      totalWagesPaid: 12000,
-      pendingWageBalance: 3200
-    },
-    {
-      id: 'emp-3',
-      name: 'Ravi Shankar',
-      phone: '+91 94445 11982',
-      role: 'DB & Switchgear Specialist',
-      dailyWage: 1000,
-      status: 'active',
-      joiningDate: '2024-08-01',
-      upiId: 'ravi.tech@oksbi',
-      specialty: 'Commercial Track Lights & Industrial Starters',
-      totalDaysWorked: 12,
-      totalWagesEarned: 12000,
-      totalWagesPaid: 10000,
-      pendingWageBalance: 2000
-    },
-    {
-      id: 'emp-4',
-      name: 'Kuppusamy M.',
-      phone: '+91 90031 44552',
-      role: 'Junior Electrician',
-      dailyWage: 800,
-      status: 'active',
-      joiningDate: '2025-01-12',
-      upiId: 'kuppu.elec@icici',
-      specialty: 'Modular Switch Plate Mounting & Megger Earthing',
-      totalDaysWorked: 14,
-      totalWagesEarned: 11200,
-      totalWagesPaid: 9000,
-      pendingWageBalance: 2200
-    },
-    {
-      id: 'emp-5',
-      name: 'Vignesh P.',
-      phone: '+91 91762 33441',
-      role: 'Chipping & Conduit Helper',
-      dailyWage: 650,
-      status: 'active',
-      joiningDate: '2025-03-20',
-      upiId: 'vigneshhelper@paytm',
-      specialty: 'Wall Grooving Chipping, Pipe Laying & Wire Pulling',
-      totalDaysWorked: 15,
-      totalWagesEarned: 9750,
-      totalWagesPaid: 7500,
-      pendingWageBalance: 2250
-    }
-  ];
-
-  // Pre-scheduled Daily Work Allocations (Roster)
-  private initialAllocations: SiteWorkAllocation[] = [
-    {
-      id: 'alloc-1',
-      siteId: 'site-101',
-      siteName: 'Green Meadows Luxury Villa - 3BHK Wiring',
-      clientName: 'Dr. S. Sundararajan',
-      clientPhone: '+91 98840 11223',
-      siteAddress: 'Plot 42, 3rd Avenue, Injambakkam, ECR',
-      date: new Date().toISOString().split('T')[0], // Today
-      taskDescription: '1st Floor Master Bedroom DB wiring & AC 4.0 sq.mm cable pulling',
-      shift: 'full_day',
-      assignedEmployeeId: 'emp-1',
-      assignedEmployeeName: 'Murugan S.',
-      employeeDailyWage: 1200,
-      wageMultiplier: 1.0,
-      calculatedWage: 1200,
-      status: 'in_progress',
-      createdAt: '2026-10-18T10:00:00Z',
-      notes: 'Ensure proper phase load balancing on Legrand 8-way TPN DB'
-    },
-    {
-      id: 'alloc-2',
-      siteId: 'site-101',
-      siteName: 'Green Meadows Luxury Villa - 3BHK Wiring',
-      clientName: 'Dr. S. Sundararajan',
-      clientPhone: '+91 98840 11223',
-      siteAddress: 'Plot 42, 3rd Avenue, Injambakkam, ECR',
-      date: new Date().toISOString().split('T')[0], // Today
-      taskDescription: 'Living Room concealed aluminum profile light groove wiring & driver installation',
-      shift: 'full_day',
-      assignedEmployeeId: 'emp-2',
-      assignedEmployeeName: 'Suresh Kumar',
-      employeeDailyWage: 950,
-      wageMultiplier: 1.0,
-      calculatedWage: 950,
-      status: 'in_progress',
-      createdAt: '2026-10-18T10:00:00Z'
-    },
-    {
-      id: 'alloc-3',
-      siteId: 'site-101',
-      siteName: 'Green Meadows Luxury Villa - 3BHK Wiring',
-      clientName: 'Dr. S. Sundararajan',
-      clientPhone: '+91 98840 11223',
-      siteAddress: 'Plot 42, 3rd Avenue, Injambakkam, ECR',
-      date: new Date().toISOString().split('T')[0], // Today
-      taskDescription: 'Wall chipping for staircase 2-way switch conduit & kitchen chimney 16A point',
-      shift: 'full_day',
-      assignedEmployeeId: 'emp-5',
-      assignedEmployeeName: 'Vignesh P.',
-      employeeDailyWage: 650,
-      wageMultiplier: 1.0,
-      calculatedWage: 650,
-      status: 'scheduled',
-      createdAt: '2026-10-18T10:00:00Z'
-    },
-    {
-      id: 'alloc-4',
-      siteId: 'site-102',
-      siteName: 'Trends Boutique & Showroom - Track Lighting & DB Upgrade',
-      clientName: 'Mrs. Jayashree Kumar',
-      clientPhone: '+91 94443 77889',
-      siteAddress: 'Shop 14, Usman Road, T. Nagar',
-      date: new Date().toISOString().split('T')[0], // Today
-      taskDescription: 'Ceiling track rail alignment and 20W COB warm-white spotlight aiming',
-      shift: 'full_day',
-      assignedEmployeeId: 'emp-3',
-      assignedEmployeeName: 'Ravi Shankar',
-      employeeDailyWage: 1000,
-      wageMultiplier: 1.0,
-      calculatedWage: 1000,
-      status: 'scheduled',
-      createdAt: '2026-10-19T09:00:00Z'
-    },
-    {
-      id: 'alloc-5',
-      siteId: 'site-101',
-      siteName: 'Green Meadows Luxury Villa - 3BHK Wiring',
-      clientName: 'Dr. S. Sundararajan',
-      clientPhone: '+91 98840 11223',
-      siteAddress: 'Plot 42, 3rd Avenue, Injambakkam, ECR',
-      date: getTomorrowDateString(), // Tomorrow
-      taskDescription: 'Terrace solar inverter dual-source changeover switchboard installation & copper earthing test',
-      shift: 'full_day',
-      assignedEmployeeId: 'emp-1',
-      assignedEmployeeName: 'Murugan S.',
-      employeeDailyWage: 1200,
-      wageMultiplier: 1.0,
-      calculatedWage: 1200,
-      status: 'scheduled',
-      createdAt: '2026-10-19T11:00:00Z'
-    },
-    {
-      id: 'alloc-6',
-      siteId: 'site-102',
-      siteName: 'Trends Boutique & Showroom - Track Lighting & DB Upgrade',
-      clientName: 'Mrs. Jayashree Kumar',
-      clientPhone: '+91 94443 77889',
-      siteAddress: 'Shop 14, Usman Road, T. Nagar',
-      date: getTomorrowDateString(), // Tomorrow
-      taskDescription: 'Cash counter 1.5kVA UPS socket wiring & 40A 4-Pole MCB line hookup',
-      shift: 'full_day',
-      assignedEmployeeId: 'emp-4',
-      assignedEmployeeName: 'Kuppusamy M.',
-      employeeDailyWage: 800,
-      wageMultiplier: 1.0,
-      calculatedWage: 800,
-      status: 'scheduled',
-      createdAt: '2026-10-19T11:00:00Z'
-    }
-  ];
-
-  // Wage payouts history
-  private initialPayouts: WorkerWagePayout[] = [
-    {
-      id: 'payw-1',
-      employeeId: 'emp-1',
-      employeeName: 'Murugan S.',
-      date: '2026-10-15',
-      amount: 15000,
-      paymentMode: 'gpay_upi',
-      notes: 'Bi-weekly labor wage settlement',
-      receiptRef: 'UPI-WAGE-98421'
-    },
-    {
-      id: 'payw-2',
-      employeeId: 'emp-2',
-      employeeName: 'Suresh Kumar',
-      date: '2026-10-15',
-      amount: 12000,
-      paymentMode: 'cash',
-      notes: 'Cash wage disbursement at ECR site office',
-      receiptRef: 'CASH-REC-102'
-    }
-  ];
+  private readonly STORAGE_KEY = 'electrical_vibers_sites_v2';
+  private readonly EMPLOYEES_STORAGE_KEY = 'electrical_vibers_employees_v2';
+  private readonly ALLOCATIONS_STORAGE_KEY = 'electrical_vibers_allocations_v2';
+  private readonly PAYOUTS_STORAGE_KEY = 'electrical_vibers_wage_payouts_v2';
 
   private sitesSubject = new BehaviorSubject<SiteProject[]>([]);
   public sites$: Observable<SiteProject[]> = this.sitesSubject.asObservable();
@@ -466,6 +37,7 @@ export class SiteService {
   public payouts$: Observable<WorkerWagePayout[]> = this.payoutsSubject.asObservable();
 
   constructor(private firebaseService: FirebaseService) {
+    this.purgeLegacyDummyData();
     this.loadSites();
     this.loadEmployees();
     this.loadAllocations();
@@ -473,52 +45,124 @@ export class SiteService {
     this.initCloudSync();
   }
 
+  
+  private isDummySite(s: any): boolean {
+    if (!s) return false;
+    const dummyIds = ['site-101', 'site-102', 'site-103'];
+    return dummyIds.includes(s.id) ||
+      (s.siteName && s.siteName.includes('Green Meadows')) ||
+      (s.clientName && s.clientName.includes('Sundararajan'));
+  }
+
+  private isDummyEmployee(e: any): boolean {
+    if (!e) return false;
+    const dummyIds = ['emp-1', 'emp-2', 'emp-3', 'emp-4', 'emp-5', 'emp-6'];
+    const dummyNames = ['Murugan S.', 'Suresh Kumar', 'Vignesh P.', 'Karthikeyan M.', 'Manikandan R.', 'Senthil Nathan'];
+    return dummyIds.includes(e.id) && dummyNames.includes(e.fullName);
+  }
+
+  private isDummyAllocation(a: any): boolean {
+    if (!a) return false;
+    const dummyIds = ['alloc-1', 'alloc-2', 'alloc-3', 'alloc-4', 'alloc-5', 'alloc-6', 'alloc-7', 'alloc-8'];
+    return dummyIds.includes(a.id) ||
+      a.siteId === 'site-101' ||
+      (a.siteName && a.siteName.includes('Green Meadows')) ||
+      (a.clientName && a.clientName.includes('Sundararajan'));
+  }
+
+  private isDummyPayout(p: any): boolean {
+    if (!p) return false;
+    const dummyIds = ['pay-1', 'pay-2', 'pay-3'];
+    return dummyIds.includes(p.id) ||
+      (p.employeeName && (p.employeeName.includes('Murugan') || p.employeeName.includes('Suresh')));
+  }
+
+  private purgeLegacyDummyData(): void {
+    const legacyKeys = [
+      'voltmaster_sites_v1',
+      'voltmaster_employees_v1',
+      'voltmaster_allocations_v1',
+      'voltmaster_wage_payouts_v1'
+    ];
+    legacyKeys.forEach(k => {
+      try { localStorage.removeItem(k); } catch (_) {}
+    });
+
+    const dummyAllocIds = ['alloc-1', 'alloc-2', 'alloc-3', 'alloc-4', 'alloc-5', 'alloc-6', 'alloc-7', 'alloc-8'];
+    dummyAllocIds.forEach(id => {
+      this.firebaseService.deleteDocument('allocations', id).catch(() => {});
+    });
+
+    const dummySiteIds = ['site-101', 'site-102', 'site-103'];
+    dummySiteIds.forEach(id => {
+      this.firebaseService.deleteDocument('sites', id).catch(() => {});
+    });
+
+    const dummyEmpIds = ['emp-1', 'emp-2', 'emp-3', 'emp-4', 'emp-5', 'emp-6'];
+    dummyEmpIds.forEach(id => {
+      this.firebaseService.deleteDocument('employees', id).catch(() => {});
+    });
+
+    const dummyPayoutIds = ['pay-1', 'pay-2', 'pay-3'];
+    dummyPayoutIds.forEach(id => {
+      this.firebaseService.deleteDocument('wage_payouts', id).catch(() => {});
+    });
+  }
+
   private initCloudSync(): void {
     // 1. Sites sync
     this.firebaseService.listenToCollection<SiteProject>('sites', (remoteSites) => {
       if (remoteSites && remoteSites.length > 0) {
-        this.saveSites(remoteSites, false);
-      } else {
-        const current = this.sitesSubject.getValue();
-        if (current.length > 0) {
-          current.forEach(site => this.firebaseService.setDocument('sites', site.id, site));
-        }
+        const clean = remoteSites.filter(s => {
+          if (this.isDummySite(s)) {
+            this.firebaseService.deleteDocument('sites', s.id).catch(() => {});
+            return false;
+          }
+          return true;
+        });
+        this.saveSites(clean, false);
       }
     });
 
     // 2. Employees sync
     this.firebaseService.listenToCollection<ElectricianEmployee>('employees', (remoteEmps) => {
       if (remoteEmps && remoteEmps.length > 0) {
-        this.saveEmployees(remoteEmps, false);
-      } else {
-        const current = this.employeesSubject.getValue();
-        if (current.length > 0) {
-          current.forEach(emp => this.firebaseService.setDocument('employees', emp.id, emp));
-        }
+        const clean = remoteEmps.filter(e => {
+          if (this.isDummyEmployee(e)) {
+            this.firebaseService.deleteDocument('employees', e.id).catch(() => {});
+            return false;
+          }
+          return true;
+        });
+        this.saveEmployees(clean, false);
       }
     });
 
     // 3. Allocations sync
     this.firebaseService.listenToCollection<SiteWorkAllocation>('allocations', (remoteAllocations) => {
       if (remoteAllocations && remoteAllocations.length > 0) {
-        this.saveAllocations(remoteAllocations, false);
-      } else {
-        const current = this.allocationsSubject.getValue();
-        if (current.length > 0) {
-          current.forEach(alloc => this.firebaseService.setDocument('allocations', alloc.id, alloc));
-        }
+        const clean = remoteAllocations.filter(a => {
+          if (this.isDummyAllocation(a)) {
+            this.firebaseService.deleteDocument('allocations', a.id).catch(() => {});
+            return false;
+          }
+          return true;
+        });
+        this.saveAllocations(clean, false);
       }
     });
 
     // 4. Wage Payouts sync
     this.firebaseService.listenToCollection<WorkerWagePayout>('wage_payouts', (remotePayouts) => {
       if (remotePayouts && remotePayouts.length > 0) {
-        this.savePayouts(remotePayouts, false);
-      } else {
-        const current = this.payoutsSubject.getValue();
-        if (current.length > 0) {
-          current.forEach(p => this.firebaseService.setDocument('wage_payouts', p.id, p));
-        }
+        const clean = remotePayouts.filter(p => {
+          if (this.isDummyPayout(p)) {
+            this.firebaseService.deleteDocument('wage_payouts', p.id).catch(() => {});
+            return false;
+          }
+          return true;
+        });
+        this.savePayouts(clean, false);
       }
     });
   }
@@ -528,13 +172,13 @@ export class SiteService {
     const saved = localStorage.getItem(this.STORAGE_KEY);
     if (saved) {
       try {
-        this.sitesSubject.next(JSON.parse(saved));
+        const parsed = JSON.parse(saved) as SiteProject[]; const clean = Array.isArray(parsed) ? parsed.filter(s => !this.isDummySite(s)) : []; this.sitesSubject.next(clean);
         return;
       } catch (e) {
         console.error('Failed to parse saved sites:', e);
       }
     }
-    this.saveSites(this.initialSites);
+    this.saveSites([]);
   }
 
   private saveSites(sites: SiteProject[], syncCloud = true): void {
@@ -692,14 +336,14 @@ export class SiteService {
     const saved = localStorage.getItem(this.EMPLOYEES_STORAGE_KEY);
     if (saved) {
       try {
-        this.employeesSubject.next(JSON.parse(saved));
+        const parsed = JSON.parse(saved) as ElectricianEmployee[]; const clean = Array.isArray(parsed) ? parsed.filter(e => !this.isDummyEmployee(e)) : []; this.employeesSubject.next(clean);
         this.recalculateAllEmployeesWages();
         return;
       } catch (e) {
         console.error('Failed to parse saved employees:', e);
       }
     }
-    this.saveEmployees(this.initialEmployees);
+    this.saveEmployees([]);
   }
 
   private saveEmployees(emps: ElectricianEmployee[], syncCloud = true): void {
@@ -806,13 +450,13 @@ export class SiteService {
     const saved = localStorage.getItem(this.ALLOCATIONS_STORAGE_KEY);
     if (saved) {
       try {
-        this.allocationsSubject.next(JSON.parse(saved));
+        const parsed = JSON.parse(saved) as SiteWorkAllocation[]; const clean = Array.isArray(parsed) ? parsed.filter(a => !this.isDummyAllocation(a)) : []; this.allocationsSubject.next(clean);
         return;
       } catch (e) {
         console.error('Failed to parse saved allocations:', e);
       }
     }
-    this.saveAllocations(this.initialAllocations);
+    this.saveAllocations([]);
   }
 
   private saveAllocations(allocations: SiteWorkAllocation[], syncCloud = true): void {
@@ -1168,13 +812,13 @@ export class SiteService {
     const saved = localStorage.getItem(this.PAYOUTS_STORAGE_KEY);
     if (saved) {
       try {
-        this.payoutsSubject.next(JSON.parse(saved));
+        const parsed = JSON.parse(saved) as WorkerWagePayout[]; const clean = Array.isArray(parsed) ? parsed.filter(p => !this.isDummyPayout(p)) : []; this.payoutsSubject.next(clean);
         return;
       } catch (e) {
         console.error('Failed to parse saved payouts:', e);
       }
     }
-    this.savePayouts(this.initialPayouts);
+    this.savePayouts([]);
   }
 
   private savePayouts(payouts: WorkerWagePayout[], syncCloud = true): void {
@@ -1272,23 +916,23 @@ export class SiteService {
   generateWhatsAppRosterText(date: string): string {
     const allocations = this.getAllocationsForDate(date);
     if (allocations.length === 0) {
-      return `⚡ *ELECTRICAL VIBERS - DAILY DUTY ROSTER*\n📅 Date: ${date}\n\nNo site duties scheduled for this date.`;
+      return `*ELECTRICAL VIBERS - DAILY DUTY ROSTER*\nDate: ${date}\n\nNo site duties scheduled for this date.`;
     }
 
-    let text = `⚡ *ELECTRICAL VIBERS - DAILY DUTY ROSTER*\n📅 Date: ${date}\n\n`;
+    let text = `*ELECTRICAL VIBERS - DAILY DUTY ROSTER*\nDate: ${date}\n\n`;
     text += `அனைத்து எலக்ட்ரீஷியன்களும் கீழே கொடுக்கப்பட்டுள்ள சைட் மற்றும் வேலைகளுக்கு குறித்த நேரத்தில் செல்லவும்:\n\n`;
 
     allocations.forEach((alloc, index) => {
       text += `*${index + 1}. ${alloc.assignedEmployeeName.toUpperCase()}*\n`;
-      text += `📍 *Site:* ${alloc.siteName}\n`;
-      text += `🏢 *Address:* ${alloc.siteAddress}\n`;
-      text += `📞 *Client:* ${alloc.clientName} (${alloc.clientPhone})\n`;
-      text += `🔧 *Task:* ${alloc.taskDescription}\n`;
-      text += `⏰ *Shift:* ${alloc.shift === 'full_day' ? 'Full Day (9 AM - 6 PM)' : alloc.shift === 'half_day' ? 'Half Day' : 'Night Shift / Overtime'}\n`;
+      text += `*Site:* ${alloc.siteName}\n`;
+      text += `*Address:* ${alloc.siteAddress}\n`;
+      text += `*Client:* ${alloc.clientName} (${alloc.clientPhone})\n`;
+      text += `*Task:* ${alloc.taskDescription}\n`;
+      text += `*Shift:* ${alloc.shift === 'full_day' ? 'Full Day (9 AM - 6 PM)' : alloc.shift === 'half_day' ? 'Half Day' : 'Night Shift / Overtime'}\n`;
       text += `------------------------------------\n`;
     });
 
-    text += `\nசந்தேகங்களுக்கு உடனே அட்மினை தொடர்பு கொள்ளவும். Best of Luck Team! ⚡`;
+    text += `\nசந்தேகங்களுக்கு உடனே அட்மினை தொடர்பு கொள்ளவும். Best of Luck Team!`;
     return text;
   }
 

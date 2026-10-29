@@ -2,13 +2,14 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Booking, BookingStatus, ServiceCategory } from '../models/booking.model';
 import { FirebaseService } from './firebase.service';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BookingService {
-  private readonly BOOKINGS_KEY = 'voltmaster_bookings_v1';
-  private readonly SERVICES_KEY = 'voltmaster_services_v1';
+  private readonly BOOKINGS_KEY = 'electrical_vibers_bookings_v1';
+  private readonly SERVICES_KEY = 'electrical_vibers_services_v1';
 
   private defaultServices: ServiceCategory[] = [
     {
@@ -67,50 +68,11 @@ export class BookingService {
     }
   ];
 
-  private initialBookings: Booking[] = [
-    {
-      id: 'BK-1001',
-      customerId: 'cust-1',
-      customerName: 'Karthik Subramanian',
-      customerPhone: '+91 98401 23456',
-      customerAddress: 'Flat 3B, Sunshine Apartments, 2nd Cross Street',
-      city: 'Anna Nagar, Chennai',
-      landmark: 'Near Roundtana',
-      serviceCategory: 'mcb-tripping',
-      serviceTitle: 'MCB Tripping & Short Circuit Diagnosis',
-      problemDescription: 'Main MCB trips whenever AC and Geyser are turned on together. Burning smell near main distribution box.',
-      preferredDate: '2026-10-14',
-      preferredTimeSlot: 'Morning 10:00 AM - 01:00 PM',
-      status: 'assigned',
-      assignedTechnician: 'Murugan (Senior Tech)',
-      technicianPhone: '+91 94441 55667',
-      estimatedCost: 650,
-      createdAt: new Date().toISOString()
-    },
-    {
-      id: 'BK-1002',
-      customerId: 'cust-2',
-      customerName: 'Priya Ramesh',
-      customerPhone: '+91 97910 88990',
-      customerAddress: 'No 45, Velachery Main Road',
-      city: 'Velachery, Chennai',
-      landmark: 'Opposite Grand Mall',
-      serviceCategory: 'inverter-ups',
-      serviceTitle: 'Inverter & Battery Wiring Setup',
-      problemDescription: 'Bought new Luminous 900VA Inverter. Need full household backup wiring connection.',
-      preferredDate: '2026-10-15',
-      preferredTimeSlot: 'Afternoon 02:00 PM - 05:00 PM',
-      status: 'pending',
-      estimatedCost: 800,
-      createdAt: new Date().toISOString()
-    }
-  ];
-
-  private servicesSubject = new BehaviorSubject<ServiceCategory[]>([]);
-  public services$: Observable<ServiceCategory[]> = this.servicesSubject.asObservable();
-
   private bookingsSubject = new BehaviorSubject<Booking[]>([]);
   public bookings$: Observable<Booking[]> = this.bookingsSubject.asObservable();
+
+  private servicesSubject = new BehaviorSubject<ServiceCategory[]>(this.defaultServices);
+  public services$: Observable<ServiceCategory[]> = this.servicesSubject.asObservable();
 
   constructor(private firebaseService: FirebaseService) {
     this.loadServices();
@@ -119,24 +81,13 @@ export class BookingService {
   }
 
   private initCloudSync(): void {
-    // Listen to real-time bookings
+    // Listen to real-time bookings from Firestore
     this.firebaseService.listenToCollection<Booking>('bookings', (remoteBookings) => {
-      if (remoteBookings && remoteBookings.length > 0) {
-        const localMap = new Map<string, Booking>();
-        this.bookingsSubject.getValue().forEach(b => localMap.set(b.id, b));
-        remoteBookings.forEach(b => localMap.set(b.id, b));
-        const merged = Array.from(localMap.values()).sort((a, b) => 
+      if (remoteBookings) {
+        const sorted = [...remoteBookings].sort((a, b) => 
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
-        this.saveBookings(merged);
-      } else {
-        // Seed initial bookings to Firestore
-        const current = this.bookingsSubject.getValue();
-        if (current.length > 0) {
-          current.forEach(booking => {
-            this.firebaseService.setDocument('bookings', booking.id, booking);
-          });
-        }
+        this.saveBookings(sorted);
       }
     });
 
@@ -162,19 +113,10 @@ export class BookingService {
     if (saved) {
       try {
         const parsed: ServiceCategory[] = JSON.parse(saved);
-        let migrated = false;
-        parsed.forEach(s => {
-          if (s.icon === 'grounding') {
-            s.icon = 'shield';
-            migrated = true;
-          }
-        });
-        if (migrated) {
-          this.saveServices(parsed);
-        } else {
+        if (Array.isArray(parsed) && parsed.length > 0) {
           this.servicesSubject.next(parsed);
+          return;
         }
-        return;
       } catch (e) {
         console.error('Failed to parse saved services:', e);
       }
@@ -234,13 +176,18 @@ export class BookingService {
     const saved = localStorage.getItem(this.BOOKINGS_KEY);
     if (saved) {
       try {
-        this.bookingsSubject.next(JSON.parse(saved));
-        return;
+        const parsed: Booking[] = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          // Filter out any legacy dummy bookings
+          const real = parsed.filter(b => b.customerName !== 'Karthik Subramanian' && b.id !== 'BK-1001' && b.id !== 'BK-1002');
+          this.bookingsSubject.next(real);
+          return;
+        }
       } catch (e) {
         console.error('Failed to parse saved bookings:', e);
       }
     }
-    this.saveBookings(this.initialBookings);
+    this.bookingsSubject.next([]);
   }
 
   private saveBookings(bookings: Booking[]): void {
@@ -254,6 +201,14 @@ export class BookingService {
 
   getBookingById(id: string): Booking | undefined {
     return this.bookingsSubject.getValue().find(b => b.id === id);
+  }
+
+  getBookingsByPhone(phone: string): Booking[] {
+    const clean = phone.replace(/\D/g, '');
+    return this.bookingsSubject.getValue().filter(b => {
+      const bookPhone = b.customerPhone.replace(/\D/g, '');
+      return bookPhone.includes(clean) || clean.includes(bookPhone);
+    });
   }
 
   createBooking(booking: Omit<Booking, 'id' | 'createdAt' | 'status'>): Booking {
@@ -298,15 +253,15 @@ export class BookingService {
 
   generateWhatsAppLink(booking: Booking): string {
     const text = encodeURIComponent(
-      `⚡ *Electrical Vibers Service Booking*\n\n` +
+      `*Electrical Vibers Service Booking*\n\n` +
       `*Booking ID:* ${booking.id}\n` +
       `*Customer:* ${booking.customerName} (${booking.customerPhone})\n` +
       `*Service:* ${booking.serviceTitle} (${booking.serviceCategory})\n` +
       `*Schedule:* ${booking.preferredDate} at ${booking.preferredTimeSlot}\n` +
       `*Address:* ${booking.customerAddress}, ${booking.city}\n` +
       `*Status:* ${booking.status.toUpperCase()}\n` +
-      `*Estimated Cost:* ₹${booking.estimatedCost || 149}`
+      `*Estimated Cost:* Rs. ${booking.estimatedCost || 149}`
     );
-    return `https://wa.me/919876543210?text=${text}`;
+    return `https://wa.me/${environment.whatsappNumber}?text=${text}`;
   }
 }

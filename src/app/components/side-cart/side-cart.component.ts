@@ -59,7 +59,7 @@ export class SideCartComponent {
       .join('\n');
 
     const message = encodeURIComponent(
-      `⚡ *Quick Order from Electrical Vibers Website*\n\n` +
+      `*Quick Order from Electrical Vibers Website*\n\n` +
       `*Items in Cart:*\n${itemsSummary}\n\n` +
       `*Total Amount:* ₹${this.subtotal} (incl. GST)\n` +
       `*Estimated Savings:* ₹${this.totalSavings}\n\n` +

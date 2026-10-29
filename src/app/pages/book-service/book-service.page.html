@@ -93,7 +93,7 @@
                   [class.active]="isCustomService"
                   (click)="selectCustomService()">
                   <span class="material-symbols-outlined">tune</span>
-                  Custom Service ✨
+                  Custom Service
                 </button>
               </div>
 
@@ -104,7 +104,7 @@
                   [(ngModel)]="searchQuery" 
                   placeholder="Search wiring, MCB, inverter, earthing..." 
                 />
-                <button *ngIf="searchQuery" (click)="searchQuery = ''" class="btn-clear-search">✕</button>
+                <button *ngIf="searchQuery" (click)="searchQuery = ''" class="btn-clear-search"><span class="material-symbols-outlined">close</span></button>
               </div>
             </div>
 
@@ -271,7 +271,7 @@
                   <option value="Morning 09:00 AM - 12:00 PM">Morning 09:00 AM - 12:00 PM</option>
                   <option value="Afternoon 12:00 PM - 03:00 PM">Afternoon 12:00 PM - 03:00 PM</option>
                   <option value="Evening 03:00 PM - 06:00 PM">Evening 03:00 PM - 06:00 PM</option>
-                  <option value="Emergency (Within 60 Mins)">🚨 Emergency (Within 60 Mins)</option>
+                  <option value="Emergency (Within 60 Mins)">Emergency (Within 60 Mins)</option>
                 </select>
               </div>
             </div>

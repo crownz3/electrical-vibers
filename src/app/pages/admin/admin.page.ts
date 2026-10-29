@@ -1,6 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { SiteService } from '../../services/site.service';
 import { ProductService } from '../../services/product.service';
 import { OrderService } from '../../services/order.service';
@@ -28,7 +29,7 @@ import { Booking, ServiceCategory } from '../../models/booking.model';
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './admin.page.html',
   styleUrls: ['./admin.page.scss']
 })
@@ -491,7 +492,7 @@ export class AdminPage implements OnInit {
       dealOfTheDaySubtitle: this.config.dealOfTheDaySubtitle,
       dealOfTheDayEndHours: this.config.dealOfTheDayEndHours
     });
-    alert('⚡ Deal of the Day configuration saved successfully! Spotlight updated on website.');
+    alert('Deal of the Day configuration saved successfully! Spotlight updated on website.');
   }
 
   openEditProductModal(product: Product): void {
@@ -979,15 +980,15 @@ export class AdminPage implements OnInit {
 
   // Share Employee Wage Slip via WhatsApp
   shareEmployeeWageWhatsApp(emp: ElectricianEmployee): void {
-    const text = `⚡ *ELECTRICAL VIBERS - TECHNICIAN WAGE SUMMARY*\n` +
-      `👤 *Name:* ${emp.name} (${emp.role})\n` +
-      `📞 *Phone:* ${emp.phone}\n` +
-      `💰 *Daily Rate:* ₹${emp.dailyWage}/day\n` +
-      `📅 *Days / Shifts Worked:* ${emp.totalDaysWorked || 0} Days\n` +
-      `💵 *Total Wages Earned:* ₹${(emp.totalWagesEarned || 0).toLocaleString()}\n` +
-      `✅ *Total Wages Paid Out:* ₹${(emp.totalWagesPaid || 0).toLocaleString()}\n` +
-      `⏳ *Pending Wage Balance:* ₹${(emp.pendingWageBalance || 0).toLocaleString()}\n` +
-      `📱 *UPI ID:* ${emp.upiId || 'N/A'}\n\n` +
+    const text = `*ELECTRICAL VIBERS - TECHNICIAN WAGE SUMMARY*\n` +
+      `*Name:* ${emp.name} (${emp.role})\n` +
+      `*Phone:* ${emp.phone}\n` +
+      `*Daily Rate:* ₹${emp.dailyWage}/day\n` +
+      `*Days / Shifts Worked:* ${emp.totalDaysWorked || 0} Days\n` +
+      `*Total Wages Earned:* ₹${(emp.totalWagesEarned || 0).toLocaleString()}\n` +
+      `*Total Wages Paid Out:* ₹${(emp.totalWagesPaid || 0).toLocaleString()}\n` +
+      `*Pending Wage Balance:* ₹${(emp.pendingWageBalance || 0).toLocaleString()}\n` +
+      `*UPI ID:* ${emp.upiId || 'N/A'}\n\n` +
       `Electrical Vibers Operations Office, Chennai.`;
     window.open(`https://api.whatsapp.com/send?phone=${emp.phone.replace(/[^0-9]/g, '')}&text=${encodeURIComponent(text)}`, '_blank');
   }
@@ -999,23 +1000,23 @@ export class AdminPage implements OnInit {
   }
 
   shareProfitReportWhatsApp(report: SiteProfitReport): void {
-    const typeLabel = report.contractType === 'labor_only' ? '🛠️ Labour Only (லேபர் மட்டும்)' : '📦 With Material + Labour (மெட்டீரியலுடன்)';
-    const text = `⚡ *ELECTRICAL VIBERS - SITE FINANCIAL & PROFIT REPORT*\n` +
-      `🏢 *Site:* ${report.siteName}\n` +
-      `👤 *Client:* ${report.clientName}\n` +
-      `📝 *Contract Type:* ${typeLabel}\n` +
+    const typeLabel = report.contractType === 'labor_only' ? 'Labour Only (லேபர் மட்டும்)' : 'With Material + Labour (மெட்டீரியலுடன்)';
+    const text = `*ELECTRICAL VIBERS - SITE FINANCIAL & PROFIT REPORT*\n` +
+      `*Site:* ${report.siteName}\n` +
+      `*Client:* ${report.clientName}\n` +
+      `*Contract Type:* ${typeLabel}\n` +
       `------------------------------------\n` +
-      `💼 *Total Contract Value:* ₹${report.contractAmount.toLocaleString()}\n` +
-      `💰 *Client Payment Received:* ₹${report.totalReceived.toLocaleString()}\n` +
-      `⏳ *Pending from Client:* ₹${report.pendingFromClient.toLocaleString()}\n` +
+      `*Total Contract Value:* ₹${report.contractAmount.toLocaleString()}\n` +
+      `*Client Payment Received:* ₹${report.totalReceived.toLocaleString()}\n` +
+      `*Pending from Client:* ₹${report.pendingFromClient.toLocaleString()}\n` +
       `------------------------------------\n` +
-      `📦 *Material Purchases:* ₹${report.materialExpenses.toLocaleString()}\n` +
-      `👷 *Labor Wages Incurred:* ₹${report.laborWages.toLocaleString()} (${report.actualLaborDaysWorked} Man-Days)\n` +
-      `🚗 *Travel & Site Food:* ₹${report.otherExpenses.toLocaleString()}\n` +
-      `🔴 *Total Site Costs:* ₹${report.totalExpenses.toLocaleString()}\n` +
+      `*Material Purchases:* ₹${report.materialExpenses.toLocaleString()}\n` +
+      `*Labor Wages Incurred:* ₹${report.laborWages.toLocaleString()} (${report.actualLaborDaysWorked} Man-Days)\n` +
+      `*Travel & Site Food:* ₹${report.otherExpenses.toLocaleString()}\n` +
+      `*Total Site Costs:* ₹${report.totalExpenses.toLocaleString()}\n` +
       `------------------------------------\n` +
-      `✨ *NET PROFIT (நிகர லாபம்):* ₹${report.netProfit.toLocaleString()}\n` +
-      `📈 *Profit Margin:* ${report.profitMarginPercent}%\n` +
+      `*NET PROFIT (நிகர லாபம்):* ₹${report.netProfit.toLocaleString()}\n` +
+      `*Profit Margin:* ${report.profitMarginPercent}%\n` +
       `------------------------------------\n` +
       `Verified by Electrical Vibers Contracting Management.`;
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');

@@ -51,6 +51,13 @@
         <p class="google-disclaimer">
           Native Android & Web Google OAuth 2.0 • Unauthorized accounts are automatically restricted
         </p>
+
+        <div class="auth-return-store-wrap">
+          <a routerLink="/home" class="btn-return-store">
+            <span class="material-symbols-outlined">arrow_back</span>
+            <span>Return to Electrical Vibers Website</span>
+          </a>
+        </div>
       </div>
     </div>
   </div>
@@ -69,7 +76,7 @@
     <aside class="admin-sidenav" [class.mobile-open]="mobileSidebarOpen">
       <!-- Sidenav Brand Header -->
       <div class="sidenav-header">
-        <div class="sidenav-brand">
+        <div class="sidenav-brand" *ngIf="!sidebarCollapsed">
           <div class="brand-bolt-glow">
             <span class="material-symbols-outlined">dashboard_customize</span>
           </div>
@@ -267,23 +274,30 @@
 
       <!-- Sidenav User & Sign Out Footer -->
       <div class="sidenav-footer">
-        <div class="admin-profile-card" *ngIf="!sidebarCollapsed">
+        <div class="admin-profile-card" [title]="(currentUser?.displayName || 'Admin') + ' (' + (currentUser?.email || '') + ')'">
           <div class="user-avatar-circle">
             {{ (currentUser?.displayName || 'Admin')[0].toUpperCase() }}
           </div>
-          <div class="user-info-text">
+          <div class="user-info-text" *ngIf="!sidebarCollapsed">
             <div class="user-name-line">
               <span class="uname">{{ currentUser?.displayName }}</span>
-              <span class="verified-check" title="Verified Admin">✓</span>
+              <span class="verified-check" title="Verified Admin">Verified</span>
             </div>
             <span class="uemail">{{ currentUser?.email }}</span>
           </div>
         </div>
 
-        <button (click)="authService.logout()" class="btn-sidebar-signout" title="Sign Out">
-          <span class="material-symbols-outlined">logout</span>
-          <span *ngIf="!sidebarCollapsed">Sign Out</span>
-        </button>
+        <div class="sidenav-actions-row">
+          <a routerLink="/home" class="btn-sidebar-store" title="Return to Website Store">
+            <span class="material-symbols-outlined">storefront</span>
+            <span *ngIf="!sidebarCollapsed">Store</span>
+          </a>
+
+          <button (click)="authService.logout()" class="btn-sidebar-signout" title="Sign Out">
+            <span class="material-symbols-outlined">logout</span>
+            <span *ngIf="!sidebarCollapsed">Sign Out</span>
+          </button>
+        </div>
       </div>
     </aside>
 
@@ -317,6 +331,11 @@
 
           <!-- Quick Action Buttons -->
           <div class="topbar-buttons-cluster">
+            <a routerLink="/home" class="btn-topbar-store" title="Go to Website Store">
+              <span class="material-symbols-outlined">storefront</span>
+              <span>View Store</span>
+            </a>
+
             <button (click)="openScheduleWorkModal()" class="btn-quick-primary">
               <span class="material-symbols-outlined">event_available</span>
               <span>Schedule Work</span>
@@ -366,7 +385,7 @@
         </div>
         <div class="alert-content-box">
           <div class="alert-title">
-            ⚠️ Attention Required: {{ attentionAlerts.overdue.length }} Work Tasks Overdue / Incomplete from Previous Days
+            Attention Required: {{ attentionAlerts.overdue.length }} Work Tasks Overdue / Incomplete from Previous Days
           </div>
           <div class="alert-sub">
             நேற்றைய அல்லது முந்தைய பணிகளில் முடிக்கப்படாதவை உள்ளன. உடனடியாக மாற்று ஆள் நியமிக்கவோ (Reassign) அல்லது அடுத்த வேலை நாளுக்கு கொண்டுசெல்லவோ (Carry Forward) செய்யவும்.
@@ -377,13 +396,13 @@
               <div class="alert-mini-task">{{ ov.taskDescription }}</div>
               <div class="alert-mini-actions">
                 <button (click)="openCarryForwardModal(ov)" class="btn-mini-carry" title="Carry Forward to Next Day">
-                  ⏩ Carry Forward
+                  <span class="material-symbols-outlined">fast_forward</span> Carry Forward
                 </button>
                 <button (click)="openReassignModal(ov)" class="btn-mini-reassign" title="Reassign to another technician">
-                  🔄 Reassign
+                  <span class="material-symbols-outlined">swap_horiz</span> Reassign
                 </button>
                 <button (click)="openCompleteOvertimeModal(ov)" class="btn-mini-done" title="Mark Done">
-                  ✅ Done
+                  <span class="material-symbols-outlined">check</span> Done
                 </button>
               </div>
             </div>
@@ -400,12 +419,12 @@
               (click)="quickSetRosterDate('today')" 
               class="date-chip" 
               [class.active]="rosterSelectedDate === (siteService.getSites()[0]?.startDate ? rosterSelectedDate : '')">
-              📅 Today ({{ todayAllocations.length }})
+              <span class="material-symbols-outlined">today</span> Today ({{ todayAllocations.length }})
             </button>
             <button 
               (click)="quickSetRosterDate('tomorrow')" 
               class="date-chip">
-              ⏩ Tomorrow
+              <span class="material-symbols-outlined">event</span> Tomorrow
             </button>
             <button 
               (click)="quickSetRosterDate('all')" 
@@ -439,7 +458,7 @@
 
           <button (click)="broadcastRosterWhatsApp()" class="btn-whatsapp-broadcast" title="Broadcast daily schedule to team WhatsApp">
             <span class="material-symbols-outlined">send_to_mobile</span>
-            📲 Send Roster to WhatsApp
+            <span class="material-symbols-outlined">send</span> Send Roster to WhatsApp
           </button>
 
           <button (click)="openScheduleWorkModal()" class="btn-schedule-new">
@@ -475,7 +494,7 @@
 
             <div class="alloc-badges-group">
               <span *ngIf="alloc.isCarriedForward" class="pill-carried-forward" title="Carried forward from {{ alloc.carriedFromDate }}">
-                ⏩ Carried Forward from {{ alloc.carriedFromDate }}
+                <span class="material-symbols-outlined">fast_forward</span> Carried Forward from {{ alloc.carriedFromDate }}
               </span>
               <span class="pill-status" [ngClass]="'pill-' + alloc.status">
                 {{ alloc.status.toUpperCase() }}
@@ -510,7 +529,7 @@
               <em>Note: {{ alloc.notes }}</em>
             </div>
             <div *ngIf="alloc.incompleteReason" class="alloc-incomplete-reason">
-              ⚠️ Reason: {{ alloc.incompleteReason }}
+              <span class="material-symbols-outlined">info</span> Reason: {{ alloc.incompleteReason }}
             </div>
           </div>
 
@@ -650,12 +669,12 @@
               (click)="toggleEmployeeStatus(emp.id)" 
               class="status-toggle-pill" 
               [ngClass]="emp.status === 'active' ? 'status-active' : 'status-leave'">
-              {{ emp.status === 'active' ? '✓ Active' : 'On Leave' }}
+              {{ emp.status === 'active' ? 'Active' : 'On Leave' }}
             </button>
           </div>
 
           <div *ngIf="emp.specialty" class="emp-specialty-line">
-            ⚡ <strong>Specialty:</strong> {{ emp.specialty }}
+            <strong>Specialty:</strong> {{ emp.specialty }}
           </div>
 
           <!-- Wage Metrics Ledger Box -->
@@ -812,7 +831,7 @@
                 
                 <!-- CONTRACT TYPE BADGE (Audio Feature) -->
                 <span class="badge-pill" [ngClass]="s.contractType === 'labor_only' ? 'badge-labor' : 'badge-material'">
-                  {{ s.contractType === 'labor_only' ? '🛠️ Labour Only (லேபர் மட்டும்)' : '📦 With Material + Labour' }}
+                  {{ s.contractType === 'labor_only' ? 'Labour Only (லேபர் மட்டும்)' : 'With Material + Labour' }}
                 </span>
 
                 <span class="site-start-date">Started: {{ s.startDate }}</span>
@@ -860,7 +879,7 @@
             </span>
             <div class="workers-chips-list">
               <span *ngFor="let w of s.assignedElectricians" class="worker-pill">
-                👷 {{ w }}
+                <span class="material-symbols-outlined">person</span> {{ w }}
               </span>
               <button (click)="openAssignWorkerModal(s)" class="btn-add-worker-chip" title="Manage Workers">
                 + Assign Worker
@@ -893,12 +912,12 @@
           <div class="site-actions-bar">
             <button (click)="autoGenerateSiteTimeline(s)" class="btn-site-action btn-auto-plan" title="Generate 10-day Day-by-Day schedule">
               <span class="material-symbols-outlined">auto_fix_high</span>
-              ⚡ Auto-Plan 10-Day Timeline
+              <span class="material-symbols-outlined">auto_fix_high</span> Auto-Plan 10-Day Timeline
             </button>
 
             <button (click)="openProfitReportModal(s)" class="btn-site-action btn-profit-report" title="View & share P&L report">
               <span class="material-symbols-outlined">analytics</span>
-              📊 Profit & Loss Report
+              <span class="material-symbols-outlined">analytics</span> Profit & Loss Report
             </button>
 
             <button (click)="openAddExpenseModal(s)" class="btn-site-action btn-expense">
@@ -1161,7 +1180,7 @@
                 class="badge-pill" 
                 [ngClass]="srv.popular ? 'badge-warning' : 'badge-neutral'"
                 title="Toggle Popular Highlight Badge">
-                {{ srv.popular ? '⭐ Popular' : 'Standard' }}
+                {{ srv.popular ? 'Popular' : 'Standard' }}
               </button>
             </div>
             <div class="srv-tamil-title">{{ srv.tamilTitle }}</div>
@@ -1223,7 +1242,7 @@
             <textarea 
               [(ngModel)]="config.bannerOfferText" 
               rows="2" 
-              placeholder="e.g. ⚡ Special Offer: Flat 15% OFF on Havells Wire Coils + Free Delivery across Chennai!"
+              placeholder="e.g. Special Offer: Flat 15% OFF on Havells Wire Coils + Free Delivery across Chennai!"
             ></textarea>
           </div>
 
@@ -1273,7 +1292,7 @@
           <div class="form-row-2">
             <div class="form-group">
               <label>Spotlight Title</label>
-              <input type="text" [(ngModel)]="config.dealOfTheDayTitle" placeholder="e.g. Deal of the Day ⚡ Limited-Time Flash Tool" />
+              <input type="text" [(ngModel)]="config.dealOfTheDayTitle" placeholder="e.g. Deal of the Day - Limited-Time Flash Tool" />
             </div>
             <div class="form-group">
               <label>Tamil Subtitle / Catchphrase</label>
@@ -1370,7 +1389,7 @@
                   (click)="removeAdminEmail(email)" 
                   class="btn-remove-email" 
                   title="Revoke Admin Access">
-                  ✕
+                  <span class="material-symbols-outlined">close</span>
                 </button>
               </div>
             </div>
@@ -1795,7 +1814,7 @@
                 {{ bk.status.toUpperCase() }}
               </span>
               <span *ngIf="bk.isCustomService || bk.serviceCategory === 'custom'" class="badge-pill badge-warning" style="background: #f5f3ff; color: #7c3aed; border: 1px solid #d8b4fe;">
-                ✨ Custom Request
+                Custom Request
               </span>
             </div>
             <span class="bk-id">Ref: {{ bk.id }}</span>
@@ -1882,7 +1901,7 @@
             <span class="sub-lead">Choose a Google Account to continue to Electrical Vibers</span>
           </div>
         </div>
-        <button (click)="showGoogleAccountModal = false" class="modal-close">✕</button>
+        <button (click)="showGoogleAccountModal = false" class="modal-close"><span class="material-symbols-outlined">close</span></button>
       </div>
 
       <div class="modal-body google-chooser-body">
@@ -1952,7 +1971,7 @@
     <div class="modal-card glass-card modal-lg">
       <div class="modal-header">
         <h3>Add New Ongoing Electrical Site</h3>
-        <button (click)="showNewSiteModal = false" class="modal-close">✕</button>
+        <button (click)="showNewSiteModal = false" class="modal-close"><span class="material-symbols-outlined">close</span></button>
       </div>
 
       <div class="modal-body">
@@ -1969,7 +1988,7 @@
               <input type="radio" [(ngModel)]="newSiteContractType" value="with_material" name="cType" />
               <div class="c-card-content">
                 <span class="material-symbols-outlined">inventory_2</span>
-                <strong>📦 With Material + Labour (மெட்டீரியலுடன்)</strong>
+                <strong>With Material + Labour (மெட்டீரியலுடன்)</strong>
                 <p>Contractor supplies wires, pipes, DB, MCBs, lighting + electricians</p>
               </div>
             </label>
@@ -1978,7 +1997,7 @@
               <input type="radio" [(ngModel)]="newSiteContractType" value="labor_only" name="cType" />
               <div class="c-card-content">
                 <span class="material-symbols-outlined">handyman</span>
-                <strong>🛠️ Labour Only (லேபர் மட்டும்)</strong>
+                <strong>Labour Only (லேபர் மட்டும்)</strong>
                 <p>Client buys materials, contractor supplies skilled electricians only</p>
               </div>
             </label>
@@ -2046,18 +2065,18 @@
     <div class="modal-card glass-card">
       <div class="modal-header">
         <h3>Log Expense / Material: {{ activeSiteForAction.siteName }}</h3>
-        <button (click)="showAddExpenseModal = false" class="modal-close">✕</button>
+        <button (click)="showAddExpenseModal = false" class="modal-close"><span class="material-symbols-outlined">close</span></button>
       </div>
 
       <div class="modal-body">
         <div class="form-group">
           <label>Expense Category *</label>
           <select [(ngModel)]="expenseCategory">
-            <option value="material">📦 Material Purchase (Wires, Pipes, Switches, MCBs, DBs)</option>
-            <option value="labor">👷 Labor Wages / Helper Daily Wages</option>
-            <option value="travel_food">🚗 Travel, Van Dispatch & Food Allowance</option>
-            <option value="tools">🔧 Tools, Drill Bits & Consumables</option>
-            <option value="other">📝 Miscellaneous</option>
+            <option value="material">Material Purchase (Wires, Pipes, Switches, MCBs, DBs)</option>
+            <option value="labor">Labor Wages / Helper Daily Wages</option>
+            <option value="travel_food">Travel, Van Dispatch & Food Allowance</option>
+            <option value="tools">Tools, Drill Bits & Consumables</option>
+            <option value="other">Miscellaneous</option>
           </select>
         </div>
 
@@ -2119,7 +2138,7 @@
     <div class="modal-card glass-card">
       <div class="modal-header">
         <h3>Record Client Payment: {{ activeSiteForAction.siteName }}</h3>
-        <button (click)="showAddPaymentModal = false" class="modal-close">✕</button>
+        <button (click)="showAddPaymentModal = false" class="modal-close"><span class="material-symbols-outlined">close</span></button>
       </div>
 
       <div class="modal-body">
@@ -2160,7 +2179,7 @@
     <div class="modal-card glass-card">
       <div class="modal-header">
         <h3>Daily Work Log: {{ activeSiteForAction.siteName }}</h3>
-        <button (click)="showWorkLogModal = false" class="modal-close">✕</button>
+        <button (click)="showWorkLogModal = false" class="modal-close"><span class="material-symbols-outlined">close</span></button>
       </div>
 
       <div class="modal-body">
@@ -2192,7 +2211,7 @@
     <div class="modal-card glass-card">
       <div class="modal-header">
         <h3>Add New Electrical Product to Store</h3>
-        <button (click)="showNewProductModal = false" class="modal-close">✕</button>
+        <button (click)="showNewProductModal = false" class="modal-close"><span class="material-symbols-outlined">close</span></button>
       </div>
 
       <div class="modal-body">
@@ -2264,7 +2283,7 @@
     <div class="modal-card glass-card">
       <div class="modal-header">
         <h3>Edit Product: {{ editingProduct.name }}</h3>
-        <button (click)="showEditProductModal = false" class="modal-close">✕</button>
+        <button (click)="showEditProductModal = false" class="modal-close"><span class="material-symbols-outlined">close</span></button>
       </div>
 
       <div class="modal-body">
@@ -2336,7 +2355,7 @@
     <div class="modal-card glass-card">
       <div class="modal-header">
         <h3>Add New Electrician Service</h3>
-        <button (click)="showNewServiceModal = false" class="modal-close">✕</button>
+        <button (click)="showNewServiceModal = false" class="modal-close"><span class="material-symbols-outlined">close</span></button>
       </div>
 
       <div class="modal-body">
@@ -2409,7 +2428,7 @@
     <div class="modal-card glass-card">
       <div class="modal-header">
         <h3>Edit Service: {{ editingService.title }}</h3>
-        <button (click)="showEditServiceModal = false" class="modal-close">✕</button>
+        <button (click)="showEditServiceModal = false" class="modal-close"><span class="material-symbols-outlined">close</span></button>
       </div>
 
       <div class="modal-body">
@@ -2482,7 +2501,7 @@
     <div class="modal-card glass-card">
       <div class="modal-header">
         <h3>Create New Promotional Offer / Coupon</h3>
-        <button (click)="showNewOfferModal = false" class="modal-close">✕</button>
+        <button (click)="showNewOfferModal = false" class="modal-close"><span class="material-symbols-outlined">close</span></button>
       </div>
 
       <div class="modal-body">
@@ -2526,8 +2545,8 @@
   <div *ngIf="showScheduleWorkModal" class="modal-backdrop">
     <div class="modal-card glass-card modal-lg">
       <div class="modal-header">
-        <h3>📅 Schedule Site Work / புதிய பணி ஒதுக்கீடு</h3>
-        <button (click)="showScheduleWorkModal = false" class="modal-close">✕</button>
+        <h3>Schedule Site Work / புதிய பணி ஒதுக்கீடு</h3>
+        <button (click)="showScheduleWorkModal = false" class="modal-close"><span class="material-symbols-outlined">close</span></button>
       </div>
 
       <div class="modal-body">
@@ -2594,8 +2613,8 @@
   <div *ngIf="showReassignModal && activeAllocationForAction" class="modal-backdrop">
     <div class="modal-card glass-card">
       <div class="modal-header">
-        <h3>🔄 Reassign Worker / மாற்று ஆள் நியமனம்</h3>
-        <button (click)="showReassignModal = false" class="modal-close">✕</button>
+        <h3><span class="material-symbols-outlined">swap_horiz</span> Reassign Worker / மாற்று ஆள் நியமனம்</h3>
+        <button (click)="showReassignModal = false" class="modal-close"><span class="material-symbols-outlined">close</span></button>
       </div>
 
       <div class="modal-body">
@@ -2638,8 +2657,8 @@
   <div *ngIf="showRescheduleModal && activeAllocationForAction" class="modal-backdrop">
     <div class="modal-card glass-card">
       <div class="modal-header">
-        <h3>📅 Reschedule Task Date / தேதி மாற்றம்</h3>
-        <button (click)="showRescheduleModal = false" class="modal-close">✕</button>
+        <h3>Reschedule Task Date / தேதி மாற்றம்</h3>
+        <button (click)="showRescheduleModal = false" class="modal-close"><span class="material-symbols-outlined">close</span></button>
       </div>
 
       <div class="modal-body">
@@ -2675,8 +2694,8 @@
   <div *ngIf="showCarryForwardModal && activeAllocationForAction" class="modal-backdrop">
     <div class="modal-card glass-card">
       <div class="modal-header">
-        <h3>⏩ Carry Forward Task / அடுத்த நாளுக்கு மாற்றம்</h3>
-        <button (click)="showCarryForwardModal = false" class="modal-close">✕</button>
+        <h3><span class="material-symbols-outlined">fast_forward</span> Carry Forward Task / அடுத்த நாளுக்கு மாற்றம்</h3>
+        <button (click)="showCarryForwardModal = false" class="modal-close"><span class="material-symbols-outlined">close</span></button>
       </div>
 
       <div class="modal-body">
@@ -2719,8 +2738,8 @@
   <div *ngIf="showCompleteOvertimeModal && activeAllocationForAction" class="modal-backdrop">
     <div class="modal-card glass-card">
       <div class="modal-header">
-        <h3>✅ Mark Task Completed / வேலை முடித்த விவரம்</h3>
-        <button (click)="showCompleteOvertimeModal = false" class="modal-close">✕</button>
+        <h3>Mark Task Completed / வேலை முடித்த விவரம்</h3>
+        <button (click)="showCompleteOvertimeModal = false" class="modal-close"><span class="material-symbols-outlined">close</span></button>
       </div>
 
       <div class="modal-body">
@@ -2766,8 +2785,8 @@
   <div *ngIf="showNewEmployeeModal" class="modal-backdrop">
     <div class="modal-card glass-card">
       <div class="modal-header">
-        <h3>👷 Add New Electrician / Technician</h3>
-        <button (click)="showNewEmployeeModal = false" class="modal-close">✕</button>
+        <h3>Add New Electrician / Technician</h3>
+        <button (click)="showNewEmployeeModal = false" class="modal-close"><span class="material-symbols-outlined">close</span></button>
       </div>
 
       <div class="modal-body">
@@ -2821,8 +2840,8 @@
   <div *ngIf="showRecordPayoutModal && activeEmployeeForPayout" class="modal-backdrop">
     <div class="modal-card glass-card">
       <div class="modal-header">
-        <h3>💵 Wage Disbursement: {{ activeEmployeeForPayout.name }}</h3>
-        <button (click)="showRecordPayoutModal = false" class="modal-close">✕</button>
+        <h3>Wage Disbursement: {{ activeEmployeeForPayout.name }}</h3>
+        <button (click)="showRecordPayoutModal = false" class="modal-close"><span class="material-symbols-outlined">close</span></button>
       </div>
 
       <div class="modal-body">
@@ -2861,8 +2880,8 @@
   <div *ngIf="showProfitReportModal && activeSiteProfitReport" class="modal-backdrop">
     <div class="modal-card glass-card modal-lg">
       <div class="modal-header">
-        <h3>📊 Site Profit & Financial Analytics Report</h3>
-        <button (click)="showProfitReportModal = false" class="modal-close">✕</button>
+        <h3>Site Profit & Financial Analytics Report</h3>
+        <button (click)="showProfitReportModal = false" class="modal-close"><span class="material-symbols-outlined">close</span></button>
       </div>
 
       <div class="modal-body">
@@ -2872,7 +2891,7 @@
             <div class="profit-sub">Client: {{ activeSiteProfitReport.clientName }}</div>
           </div>
           <span class="badge-pill" [ngClass]="activeSiteProfitReport.contractType === 'labor_only' ? 'badge-labor' : 'badge-material'">
-            {{ activeSiteProfitReport.contractType === 'labor_only' ? '🛠️ Labour Only' : '📦 With Material + Labour' }}
+            {{ activeSiteProfitReport.contractType === 'labor_only' ? 'Labour Only' : 'With Material + Labour' }}
           </span>
         </div>
 
@@ -2930,7 +2949,7 @@
         <button (click)="showProfitReportModal = false" class="btn-cancel">Close</button>
         <button (click)="shareProfitReportWhatsApp(activeSiteProfitReport)" class="btn-whatsapp-share">
           <span class="material-symbols-outlined">share</span>
-          📲 Share P&L Summary via WhatsApp
+          <span class="material-symbols-outlined">send</span> Share P&L Summary via WhatsApp
         </button>
       </div>
     </div>

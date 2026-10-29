@@ -130,12 +130,8 @@ export class HeaderComponent implements OnInit {
 
   // --- Admin Account Button Click Handler ---
   onAdminAccountClick(): void {
-    if (this.authService.isAdmin()) {
-      this.showAdminMenu = !this.showAdminMenu;
-    } else {
-      this.showAdminLoginModal = true;
-      this.adminLoginError = '';
-    }
+    this.showAdminLoginModal = false;
+    this.router.navigate(['/admin']);
   }
 
   goToAdminPortal(): void {

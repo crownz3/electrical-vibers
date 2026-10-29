@@ -27,11 +27,11 @@ export class FloatingWhatsappComponent {
     let text = '';
     if (topic === 'tools') {
       text = encodeURIComponent(
-        `Hello Electrical Vibers! ⚡\nI want to inquire about tool prices, bulk contractor discounts, and stock availability.`
+        `Hello Electrical Vibers!\nI want to inquire about tool prices, bulk contractor discounts, and stock availability.`
       );
     } else if (topic === 'emergency') {
       text = encodeURIComponent(
-        `🚨 *EMERGENCY ELECTRICAL ASSISTANCE NEEDED*\nPlease dispatch an on-call licensed electrician to my location.`
+        `*EMERGENCY ELECTRICAL ASSISTANCE NEEDED*\nPlease dispatch an on-call licensed electrician to my location.`
       );
     } else {
       text = encodeURIComponent(

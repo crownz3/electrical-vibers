@@ -17,7 +17,7 @@
    THEME DESIGN TOKENS (DARK & LIGHT THEMES WITH SYSTEM DEFAULT)
    ========================================================================== */
 
-/* 🌙 Dark Theme Design Tokens (Default) */
+/* Dark Theme Design Tokens (Default) */
 :root, [data-theme="dark"], body.theme-dark {
   --app-bg: #090d16;
   --app-bg-gradient: radial-gradient(circle at 15% 10%, rgba(245, 158, 11, 0.06) 0%, transparent 45%),
@@ -48,7 +48,7 @@
   --pill-active-color: #fbbf24;
 }
 
-/* ☀️ Light Theme Design Tokens */
+/* Light Theme Design Tokens */
 [data-theme="light"], body.theme-light {
   --app-bg: #f8fafc;
   --app-bg-gradient: radial-gradient(circle at 15% 10%, rgba(245, 158, 11, 0.08) 0%, transparent 45%),

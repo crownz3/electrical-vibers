@@ -77,7 +77,7 @@ export class ProductDetailPage implements OnInit {
     if (!this.product) return;
     const url = window.location.href;
     const text = encodeURIComponent(
-      `⚡ *${this.product.name}*\n` +
+      `*${this.product.name}*\n` +
       `Special Price: ₹${this.product.price} (${this.product.discountPercentage || 0}% OFF)\n` +
       `Order genuine electrical materials from Electrical Vibers:\n${url}`
     );

@@ -201,7 +201,7 @@ export class BookServicePage implements OnInit {
 
   getWhatsAppBookingLink(booking: Booking): string {
     const isCustom = booking.isCustomService || booking.serviceCategory === 'custom';
-    const tag = isCustom ? '✨ *Custom Service Booking*' : '⚡ *Service Booking*';
+    const tag = isCustom ? '*Custom Service Booking*' : '*Service Booking*';
     const text = encodeURIComponent(
       `${tag} [${booking.id}]\n\n` +
       `*Service:* ${booking.serviceTitle}${isCustom ? ' (Custom Request)' : ''}\n` +

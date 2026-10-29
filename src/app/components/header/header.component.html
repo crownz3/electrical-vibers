@@ -3,7 +3,7 @@
   <div class="top-offer-shimmer"></div>
   <div class="top-offer-content">
     <div class="offer-badge-pill">
-      <span class="flash-icon">⚡</span>
+      <span class="material-symbols-outlined flash-icon">bolt</span>
       <span>EXCLUSIVE OFFER</span>
     </div>
     <span class="offer-text">{{ config.bannerOfferText }}</span>
@@ -176,7 +176,7 @@
 
         <mat-divider></mat-divider>
         <div class="menu-section-header">CONTRACTOR & ADMIN</div>
-        <button mat-menu-item (click)="onAdminAccountClick()">
+        <button mat-menu-item routerLink="/admin" (click)="onAdminAccountClick()">
           <mat-icon class="gold-icon">admin_panel_settings</mat-icon>
           <span>Site Ops / Admin Portal</span>
           <span *ngIf="authService.isAdmin()" class="menu-admin-badge">Admin Active</span>
@@ -283,8 +283,8 @@
     <span>Cart</span>
     <span *ngIf="cartCount > 0" class="mob-badge">{{ cartCount }}</span>
   </button>
-  <button type="button" (click)="onAdminAccountClick()" class="mob-item btn-mob-admin" [class.active]="authService.isAdmin()">
+  <a routerLink="/admin" routerLinkActive="active" (click)="onAdminAccountClick()" class="mob-item btn-mob-admin" [class.active]="authService.isAdmin()">
     <span class="material-symbols-outlined">account_circle</span>
     <span>Admin</span>
-  </button>
+  </a>
 </nav>

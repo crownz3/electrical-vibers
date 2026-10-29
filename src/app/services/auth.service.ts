@@ -4,6 +4,7 @@ import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { environment } from '../../environments/environment';
 import { Capacitor } from '@capacitor/core';
+import { FirebaseService } from './firebase.service';
 
 export interface UserProfile {
   uid: string;
@@ -36,9 +37,24 @@ export class AuthService {
 
   public isAuthenticating = false;
 
-  constructor() {
+  constructor(private firebaseService: FirebaseService) {
     this.loadWhitelist();
     this.loadUser();
+    this.initCloudSync();
+  }
+
+  private initCloudSync(): void {
+    // Real-time Firestore sync for admin whitelist
+    this.firebaseService.listenToDocument<{ list: string[] }>('app_metadata', 'admin_whitelist', (data) => {
+      if (data && Array.isArray(data.list) && data.list.length > 0) {
+        const merged = Array.from(new Set([...this.DEFAULT_WHITELIST, ...data.list]));
+        this.saveWhitelist(merged, false);
+      } else {
+        this.firebaseService.setDocument('app_metadata', 'admin_whitelist', { list: this.whitelistSubject.getValue() }).catch(err => {
+          console.warn('Could not seed admin whitelist to Firestore:', err);
+        });
+      }
+    });
   }
 
   // --- Whitelist Management ---
@@ -60,9 +76,15 @@ export class AuthService {
     this.saveWhitelist(this.DEFAULT_WHITELIST);
   }
 
-  private saveWhitelist(list: string[]): void {
+  private saveWhitelist(list: string[], syncCloud = true): void {
     localStorage.setItem(this.WHITELIST_KEY, JSON.stringify(list));
     this.whitelistSubject.next(list);
+
+    if (syncCloud) {
+      this.firebaseService.setDocument('app_metadata', 'admin_whitelist', { list }).catch(err => {
+        console.warn('Could not update admin whitelist in Firestore:', err);
+      });
+    }
   }
 
   getAuthorizedEmails(): string[] {
@@ -87,7 +109,7 @@ export class AuthService {
     }
 
     const updated = [...current, trimmed];
-    this.saveWhitelist(updated);
+    this.saveWhitelist(updated, true);
     return { success: true, message: `Successfully added ${trimmed} as an authorized administrator.` };
   }
 
@@ -99,7 +121,7 @@ export class AuthService {
 
     const current = this.getAuthorizedEmails();
     const updated = current.filter(e => e.toLowerCase() !== trimmed);
-    this.saveWhitelist(updated);
+    this.saveWhitelist(updated, true);
     return { success: true, message: `Removed ${trimmed} from authorized administrators.` };
   }
 
@@ -145,7 +167,7 @@ export class AuthService {
             photoURL = result.user.photoURL || photoURL;
           }
         } catch (fbErr: any) {
-          console.warn('Firebase popup unavailable or using mock credentials:', fbErr);
+          console.warn('Firebase popup unavailable or using fallback credentials:', fbErr);
           // If popup closed intentionally by user
           if (fbErr.code === 'auth/popup-closed-by-user') {
             this.isAuthenticating = false;
@@ -153,8 +175,6 @@ export class AuthService {
             this.authErrorSubject.next(msg);
             return { success: false, error: msg };
           }
-          // For invalid api key / local environment / webview restriction,
-          // throw so the caller can present the Google Account Selector modal
           throw fbErr;
         }
       }
@@ -167,7 +187,6 @@ export class AuthService {
       return this.validateAndAuthorize(email, displayName, photoURL);
     } catch (err: any) {
       this.isAuthenticating = false;
-      // Propagate so component can show the Google Account Selector dialog
       return { success: false, error: err?.message || 'GOOGLE_SIGNIN_PROMPT' };
     }
   }
@@ -176,7 +195,7 @@ export class AuthService {
     this.isAuthenticating = false;
     const cleanEmail = email.trim().toLowerCase();
 
-    // STRICT SECURITY BARRIER: Whitelist Verification
+    // Whitelist Verification
     if (!this.isEmailAuthorized(cleanEmail)) {
       const errorMsg = `Access Denied: "${email}" is not registered as an authorized administrator. Only authorized Google accounts (mohamedibrahim010425@gmail.com) can access this contractor portal.`;
       this.authErrorSubject.next(errorMsg);
@@ -197,6 +216,12 @@ export class AuthService {
     localStorage.setItem(this.USER_KEY, JSON.stringify(adminUser));
     this.currentUserSubject.next(adminUser);
     this.authErrorSubject.next(null);
+
+    // Sync admin user profile to Firestore
+    this.firebaseService.setDocument('admins', adminUser.uid, adminUser).catch(err => {
+      console.warn('Could not record admin session in Firestore:', err);
+    });
+
     return { success: true, user: adminUser };
   }
 

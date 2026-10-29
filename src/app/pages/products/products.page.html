@@ -85,8 +85,8 @@
         Showing <strong>{{ filteredProducts.length }}</strong> products
         <span *ngIf="selectedCategory !== 'ALL'"> in <em>{{ selectedCategory }}</em></span>
         <span *ngIf="selectedBrand !== 'ALL'"> • Brand: <strong>{{ selectedBrand }}</strong></span>
-        <span *ngIf="onlyDeals" class="filter-active-tag">🔥 20%+ OFF</span>
-        <span *ngIf="onlyInStock" class="filter-active-tag">✓ Ready Stock</span>
+        <span *ngIf="onlyDeals" class="filter-active-tag"><span class="material-symbols-outlined">local_fire_department</span> 20%+ OFF</span>
+        <span *ngIf="onlyInStock" class="filter-active-tag"><span class="material-symbols-outlined">check</span> Ready Stock</span>
       </div>
 
       <div class="sort-selector">

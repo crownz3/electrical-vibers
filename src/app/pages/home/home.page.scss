@@ -33,7 +33,7 @@
     animation: heroAuraPulse 8s ease-in-out infinite alternate;
   }
 
-  /* ☀️ Light Theme Overrides for Hero */
+  /* Light Theme Overrides for Hero */
   &.is-light {
     background: radial-gradient(circle at 10% 20%, rgba(245, 158, 11, 0.1) 0%, transparent 40%),
                 radial-gradient(circle at 90% 60%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),

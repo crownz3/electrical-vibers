@@ -24,7 +24,7 @@
       <div class="demo-chip-row">
         <span>Quick Demo:</span>
         <button type="button" (click)="fillDemo()" class="demo-btn">
-          ⚡ Auto-fill Recent ID
+          <span class="material-symbols-outlined">history</span> Auto-fill Recent ID
         </button>
       </div>
     </div>
@@ -112,9 +112,9 @@
           <h3>Customer & Delivery Address</h3>
           <div class="address-box">
             <p class="name"><strong>{{ matchedOrder.customerName }}</strong></p>
-            <p class="phone">📞 {{ matchedOrder.customerPhone }}</p>
+            <p class="phone"><span class="material-symbols-outlined">call</span> {{ matchedOrder.customerPhone }}</p>
             <p class="address">
-              📍 {{ matchedOrder.deliveryAddress.street }},<br />
+              <span class="material-symbols-outlined">location_on</span> {{ matchedOrder.deliveryAddress.street }},<br />
               {{ matchedOrder.deliveryAddress.city }} - {{ matchedOrder.deliveryAddress.pincode }}
             </p>
           </div>
@@ -203,7 +203,7 @@
             <div class="scope-row" *ngIf="matchedBooking.assignedTechnician">
               <span class="label">Assigned Electrician:</span>
               <strong>{{ matchedBooking.assignedTechnician }}</strong>
-              <span *ngIf="matchedBooking.technicianPhone"> (📞 {{ matchedBooking.technicianPhone }})</span>
+              <span *ngIf="matchedBooking.technicianPhone"> ({{ matchedBooking.technicianPhone }})</span>
             </div>
           </div>
         </div>
@@ -212,9 +212,9 @@
           <h3>Customer & Location</h3>
           <div class="address-box">
             <p class="name"><strong>{{ matchedBooking.customerName }}</strong></p>
-            <p class="phone">📞 {{ matchedBooking.customerPhone }}</p>
+            <p class="phone"><span class="material-symbols-outlined">call</span> {{ matchedBooking.customerPhone }}</p>
             <p class="address">
-              📍 {{ matchedBooking.customerAddress }}, {{ matchedBooking.city }}
+              <span class="material-symbols-outlined">location_on</span> {{ matchedBooking.customerAddress }}, {{ matchedBooking.city }}
               <span *ngIf="matchedBooking.landmark"> (Near {{ matchedBooking.landmark }})</span>
             </p>
           </div>
