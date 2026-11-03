@@ -1711,3 +1711,83 @@
     background: #ffffff !important;
   }
 }
+
+
+/* Google Customer Cloud Sync Banner Styles */
+.user-auth-action-box {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  .btn-g-sync {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    padding: 8px 16px;
+    border-radius: 9999px;
+    color: var(--text-primary, #ffffff);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(8px);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.16);
+      border-color: rgba(66, 133, 244, 0.6);
+      transform: translateY(-1px);
+    }
+
+    .g-icon {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+  }
+
+  .g-synced-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: #10b981;
+    padding: 6px 14px;
+    border-radius: 9999px;
+    font-size: 0.82rem;
+
+    .g-check {
+      font-size: 18px;
+    }
+
+    strong {
+      color: var(--text-primary, #ffffff);
+      font-weight: 600;
+    }
+
+    .btn-signout-small {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 4px;
+      margin-left: 6px;
+      border-radius: 4px;
+      transition: color 0.15s ease;
+
+      &:hover {
+        color: #ef4444;
+      }
+
+      .material-symbols-outlined {
+        font-size: 16px;
+      }
+    }
+  }
+}

@@ -15,9 +15,9 @@
           (keydown.enter)="track()"
           placeholder="e.g. EV-ORD-101 or 9876543210" 
         />
-        <button (click)="track()" class="btn-track-submit">
-          <span>Track Status</span>
-          <span class="material-symbols-outlined">arrow_forward</span>
+        <button (click)="track()" class="btn-track-submit" [disabled]="isSearchingCloud">
+          <span>{{ isSearchingCloud ? 'Searching Cloud...' : 'Track Status' }}</span>
+          <span class="material-symbols-outlined" [class.rotating-spin]="isSearchingCloud">{{ isSearchingCloud ? 'sync' : 'arrow_forward' }}</span>
         </button>
       </div>
 
@@ -232,7 +232,7 @@
     </div>
 
     <!-- No Match Found State -->
-    <div *ngIf="hasSearched && !matchedOrder && !matchedBooking" class="no-result-card glass-card">
+    <div *ngIf="hasSearched && !isSearchingCloud && !matchedOrder && !matchedBooking" class="no-result-card glass-card">
       <span class="material-symbols-outlined icon-empty">search_off</span>
       <h3>No Records Found for "{{ searchQuery }}"</h3>
       <p>Please double check your Order ID (starts with EV-ORD-...), Booking ID, or 10-digit mobile number.</p>

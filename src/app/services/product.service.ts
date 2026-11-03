@@ -470,4 +470,93 @@ export class ProductService {
       console.warn('Could not delete product from Firestore:', err);
     });
   }
+  /**
+   * Validates if all requested cart items are currently available in sufficient stock.
+   */
+  checkStockAvailability(items: { product: Product; quantity: number }[]): { valid: boolean; outOfStockItem?: string } {
+    const liveProducts = this.productsSubject.getValue();
+    for (const item of items) {
+      const prod = liveProducts.find(p => p.id === item.product.id) || item.product;
+      if (!prod.inStock || (prod.stock !== undefined && prod.stock < item.quantity)) {
+        return {
+          valid: false,
+          outOfStockItem: prod.stock !== undefined && prod.stock > 0 
+            ? `${prod.name} (Only ${prod.stock} left in stock)` 
+            : `${prod.name} is Out of Stock`
+        };
+      }
+    }
+    return { valid: true };
+  }
+
+  /**
+   * Automatically deducts purchased quantities from product stock, updates inStock flags,
+   * and synchronizes changes to localStorage and Firestore.
+   */
+  deductInventory(items: { product: Product; quantity: number }[]): boolean {
+    const currentProds = this.productsSubject.getValue();
+    const updatedProds = [...currentProds];
+    const modifiedList: Product[] = [];
+
+    for (const item of items) {
+      const idx = updatedProds.findIndex(p => p.id === item.product.id);
+      if (idx > -1) {
+        const prod = { ...updatedProds[idx] };
+        const newStock = Math.max(0, (prod.stock || 0) - item.quantity);
+        prod.stock = newStock;
+        prod.inStock = newStock > 0;
+        updatedProds[idx] = prod;
+        modifiedList.push(prod);
+      }
+    }
+
+    this.saveProducts(updatedProds);
+
+    // Sync updated stock to Firestore
+    modifiedList.forEach(p => {
+      this.firebaseService.updateDocument('products', p.id, {
+        stock: p.stock,
+        inStock: p.inStock
+      }).catch(err => {
+        console.warn(`Could not sync stock for product ${p.id}:`, err);
+      });
+    });
+
+    return true;
+  }
+
+  /**
+   * Restores items back into inventory (e.g. on order cancellation).
+   */
+  restockInventory(items: { product: Product; quantity: number }[]): boolean {
+    const currentProds = this.productsSubject.getValue();
+    const updatedProds = [...currentProds];
+    const modifiedList: Product[] = [];
+
+    for (const item of items) {
+      const idx = updatedProds.findIndex(p => p.id === item.product.id);
+      if (idx > -1) {
+        const prod = { ...updatedProds[idx] };
+        const newStock = (prod.stock || 0) + item.quantity;
+        prod.stock = newStock;
+        prod.inStock = newStock > 0;
+        updatedProds[idx] = prod;
+        modifiedList.push(prod);
+      }
+    }
+
+    this.saveProducts(updatedProds);
+
+    // Sync restored stock to Firestore
+    modifiedList.forEach(p => {
+      this.firebaseService.updateDocument('products', p.id, {
+        stock: p.stock,
+        inStock: p.inStock
+      }).catch(err => {
+        console.warn(`Could not restock product ${p.id}:`, err);
+      });
+    });
+
+    return true;
+  }
 }

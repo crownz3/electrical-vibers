@@ -1,3 +1,4 @@
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
@@ -97,6 +98,28 @@ export class FirebaseService {
   /**
    * Fetch all documents from a collection once.
    */
+    /**
+   * Fetch a single document by ID once from Firestore.
+   */
+  async getDocument<T extends { id: string }>(collectionName: string, docId: string): Promise<T | null> {
+    if (!this.db) return null;
+
+    try {
+      this.syncStatusSubject.next('syncing');
+      const docRef = doc(this.db, collectionName, docId);
+      const snap = await getDoc(docRef);
+      this.syncStatusSubject.next('connected');
+      if (snap.exists()) {
+        return { ...snap.data(), id: snap.id } as T;
+      }
+      return null;
+    } catch (err: any) {
+      console.warn(`Error fetching [${collectionName}/${docId}]:`, err?.message);
+      this.syncStatusSubject.next('offline');
+      return null;
+    }
+  }
+
   async getCollectionDocs<T extends { id: string }>(collectionName: string): Promise<T[] | null> {
     if (!this.db) return null;
 
@@ -208,4 +231,26 @@ export class FirebaseService {
       return false;
     }
   }
+
+  /**
+   * Uploads a file (challan, site progress photo, bill, product image)
+   * to Firebase Storage bucket and returns the public download URL.
+   */
+  async uploadFile(folder: string, file: File): Promise<string | null> {
+    try {
+      const storage = getStorage(this.app);
+      const cleanName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const fileRef = ref(storage, `${folder}/${Date.now()}_${cleanName}`);
+      this.syncStatusSubject.next('syncing');
+      const snapshot = await uploadBytes(fileRef, file);
+      const url = await getDownloadURL(snapshot.ref);
+      this.syncStatusSubject.next('connected');
+      return url;
+    } catch (err: any) {
+      console.warn('Firebase storage upload error:', err);
+      this.syncStatusSubject.next('offline');
+      return null;
+    }
+  }
+
 }

@@ -2,11 +2,14 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
+import { Capacitor } from '@capacitor/core';
+import { App } from '@capacitor/app';
 import { HeaderComponent } from './components/header/header.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { SideCartComponent } from './components/side-cart/side-cart.component';
 import { FloatingWhatsappComponent } from './components/floating-whatsapp/floating-whatsapp.component';
 import { ThemeService } from './services/theme.service';
+import { CartService } from './services/cart.service';
 
 @Component({
   selector: 'app-root',
@@ -17,6 +20,7 @@ import { ThemeService } from './services/theme.service';
 })
 export class AppComponent {
   themeService = inject(ThemeService);
+  cartService = inject(CartService);
   router = inject(Router);
   isAdminRoute = false;
 
@@ -27,9 +31,33 @@ export class AppComponent {
     ).subscribe((event: any) => {
       this.checkAdminRoute(event.urlAfterRedirects || event.url);
     });
+
+    this.initMobileHardwareBackButton();
   }
 
   private checkAdminRoute(url: string): void {
     this.isAdminRoute = !!url && (url.startsWith('/admin') || url.includes('/admin'));
+  }
+
+  private initMobileHardwareBackButton(): void {
+    if (Capacitor.isNativePlatform()) {
+      App.addListener('backButton', ({ canGoBack }) => {
+        // 1. If shopping cart drawer is open on mobile, close it first
+        if (this.cartService.isDrawerOpen()) {
+          this.cartService.closeDrawer();
+          return;
+        }
+
+        // 2. If at home or root, exit application
+        const currentUrl = this.router.url.split('?')[0];
+        if (currentUrl === '/home' || currentUrl === '/') {
+          App.exitApp();
+        } else if (canGoBack) {
+          window.history.back();
+        } else {
+          this.router.navigate(['/home']);
+        }
+      });
+    }
   }
 }

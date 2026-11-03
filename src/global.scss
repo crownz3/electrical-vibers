@@ -565,3 +565,55 @@ body.theme-light .mat-mdc-menu-panel.custom-header-mat-menu {
   }
 }
 
+
+/* ==========================================================================
+   GLOBAL MOBILE RESPONSIVENESS SAFEGUARDS
+   ========================================================================== */
+img, video, canvas, svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Responsive Table Wrapper */
+.table-responsive, .admin-table-wrap, .payouts-table-section {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Universal Mobile Modal Adaptation */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: var(--modal-backdrop, rgba(0, 0, 0, 0.75));
+  backdrop-filter: blur(4px);
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+@media (max-width: 640px) {
+  .modal-card {
+    width: 100% !important;
+    max-width: 96vw !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+    margin: auto !important;
+    padding: 18px 14px !important;
+    border-radius: 16px !important;
+  }
+
+  .kpi-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+}
+
+@media (max-width: 400px) {
+  .kpi-grid {
+    grid-template-columns: 1fr !important;
+  }
+}

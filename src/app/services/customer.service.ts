@@ -1,3 +1,6 @@
+import { initializeApp, getApps, getApp } from 'firebase/app';
+import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { environment } from '../../environments/environment';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { FirebaseService } from './firebase.service';
@@ -172,4 +175,71 @@ export class CustomerService {
     }));
     this.updateProfile({ savedAddresses: updatedAddresses });
   }
+  /**
+   * Allows customers to sign in with Google to sync their orders, delivery addresses,
+   * and preferences across desktop and mobile devices.
+   */
+  async signInWithGoogle(): Promise<{ success: boolean; error?: string; profile?: CustomerProfile }> {
+    try {
+      const app = getApps().length > 0 ? getApp() : initializeApp(environment.firebase);
+      const auth = getAuth(app);
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+      const result = await signInWithPopup(auth, provider);
+
+      if (!result.user || !result.user.email) {
+        return { success: false, error: 'Sign-in cancelled' };
+      }
+
+      const email = result.user.email.toLowerCase().trim();
+      const name = result.user.displayName || email.split('@')[0];
+      const photoURL = result.user.photoURL || '';
+      const customerId = 'cust-' + result.user.uid;
+
+      // Check if remote customer profile exists
+      const existing = await this.firebaseService.getDocument<CustomerProfile>('customers', customerId);
+
+      let merged: CustomerProfile;
+      if (existing) {
+        merged = {
+          ...existing,
+          name: existing.name || name,
+          email: existing.email || email,
+          avatarUrl: existing.avatarUrl || photoURL
+        };
+      } else {
+        const current = this.profileSubject.getValue();
+        merged = {
+          ...current,
+          id: customerId,
+          name: current.name || name,
+          email: email,
+          avatarUrl: photoURL
+        };
+      }
+
+      this.saveProfileLocal(merged);
+      await this.firebaseService.setDocument('customers', customerId, merged);
+      this.attachRemoteListener(customerId);
+
+      return { success: true, profile: merged };
+    } catch (err: any) {
+      if (err.code === 'auth/popup-closed-by-user') {
+        return { success: false, error: 'Google sign-in was cancelled.' };
+      }
+      console.warn('Customer Google sign-in failed:', err);
+      return { success: false, error: err.message || 'Could not connect Google account.' };
+    }
+  }
+
+  logout(): void {
+    localStorage.removeItem(this.STORAGE_KEY);
+    this.profileSubject.next(this.EMPTY_PROFILE);
+  }
+
+  isLoggedIn(): boolean {
+    const p = this.profileSubject.getValue();
+    return !!p && !!p.id && (!!p.email || !!p.phone);
+  }
+
 }

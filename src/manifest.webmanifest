@@ -1,0 +1,47 @@
+{
+  "name": "Electrical Vibers - Electrical Solutions & Store",
+  "short_name": "Electrical Vibers",
+  "theme_color": "#0284c7",
+  "background_color": "#0f172a",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "start_url": "/home",
+  "description": "Licensed Electrical Contractors & Retail Store in Chennai. Professional residential wiring, repair services & genuine branded electrical supplies.",
+  "icons": [
+    {
+      "src": "assets/icon/favicon.png",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/images/logo-and-text.jpeg",
+      "sizes": "192x192 512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Electrical Store",
+      "url": "/products",
+      "description": "Shop wires, switches, tools & lighting"
+    },
+    {
+      "name": "Book Electrician",
+      "url": "/book-service",
+      "description": "Book a licensed electrician"
+    },
+    {
+      "name": "Track Order",
+      "url": "/track-order",
+      "description": "Track material dispatch or electrician booking"
+    },
+    {
+      "name": "Staff Portal",
+      "url": "/staff",
+      "description": "Workload, leave tracker and salary slips"
+    }
+  ]
+}
+

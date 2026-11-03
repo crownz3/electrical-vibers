@@ -229,6 +229,26 @@ export class ProfilePage implements OnInit {
     this.showToast(`Copied Order ID: ${id}`, 'info');
   }
 
+    isSigningIn = false;
+
+  async loginWithGoogle(): Promise<void> {
+    this.isSigningIn = true;
+    const res = await this.customerService.signInWithGoogle();
+    this.isSigningIn = false;
+    if (res.success) {
+      this.showToast('Google account connected! Your profile and orders are now synced.', 'success');
+    } else if (res.error) {
+      this.showToast(res.error, 'error');
+    }
+  }
+
+  logoutCustomer(): void {
+    if (confirm('Sign out from this device? Your local data will be reset until you sign in again.')) {
+      this.customerService.logout();
+      this.showToast('Successfully signed out.', 'info');
+    }
+  }
+
   showToast(msg: string, type: 'success' | 'info' | 'error' = 'success'): void {
     this.toastMessage = msg;
     this.toastType = type;

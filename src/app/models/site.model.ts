@@ -91,6 +91,14 @@ export interface SiteWorkAllocation {
   notes?: string;
   createdAt: string;
   completedAt?: string;
+  checkInTime?: string;
+  checkInPhoto?: string;
+  checkInLocation?: {
+    lat: number;
+    lng: number;
+    accuracy?: number;
+    timestamp?: string;
+  };
 }
 
 
@@ -154,4 +162,36 @@ export interface SiteProject {
   updatedAt: string;
 }
 
+export type LeaveType = 'casual' | 'sick' | 'emergency' | 'festival';
+export type LeaveStatus = 'pending' | 'approved' | 'rejected';
 
+export interface StaffLeaveRequest {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  startDate: string;
+  endDate: string;
+  daysCount: number;
+  leaveType: LeaveType;
+  reason: string;
+  status: LeaveStatus;
+  appliedAt: string;
+  reviewedBy?: string;
+  reviewNotes?: string;
+}
+
+export interface StaffSalarySlip {
+  id: string;
+  slipNumber: string;
+  employeeId: string;
+  employeeName: string;
+  phone: string;
+  role: string;
+  monthYear: string;
+  dailyWageRate: number;
+  daysWorked: number;
+  grossWagesEarned: number;
+  advancesPaid: number;
+  netPayableAmount: number;
+  generatedDate: string;
+}

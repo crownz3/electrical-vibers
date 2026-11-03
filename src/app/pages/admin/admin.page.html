@@ -714,7 +714,7 @@
         </div>
       </div>
 
-      <!-- Wage Payouts Ledger Table -->
+            <!-- Wage Payouts Ledger Table -->
       <div class="payouts-table-section glass-card">
         <h3>Recent Labor Wage Disbursements & Payouts Ledger</h3>
         <table class="admin-table">
@@ -740,6 +740,89 @@
                 </span>
               </td>
               <td>{{ p.notes }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Staff Leave Applications & Review Section -->
+      <div class="payouts-table-section glass-card" style="margin-top: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <h3>Staff Leave Requests & Duty Authorizations</h3>
+            <p class="section-subtitle">Review, approve, or decline leave applications submitted by technicians via the Staff Portal.</p>
+          </div>
+          <span *ngIf="pendingLeavesCount > 0" class="badge-pill badge-warning" style="font-size: 0.85rem; padding: 6px 14px;">
+            {{ pendingLeavesCount }} Pending Action
+          </span>
+        </div>
+
+        <div *ngIf="leaveRequests.length === 0" style="padding: 24px; text-align: center; color: var(--text-muted);">
+          <span class="material-symbols-outlined" style="font-size: 36px; opacity: 0.5;">event_available</span>
+          <p>No leave applications submitted yet.</p>
+        </div>
+
+        <table *ngIf="leaveRequests.length > 0" class="admin-table">
+          <thead>
+            <tr>
+              <th>Technician</th>
+              <th>Leave Dates</th>
+              <th>Duration</th>
+              <th>Type</th>
+              <th>Reason</th>
+              <th>Status</th>
+              <th>Review Notes</th>
+              <th style="text-align: right;">Contractor Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let leave of leaveRequests">
+              <td>
+                <strong>{{ leave.employeeName }}</strong>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">ID: {{ leave.employeeId }}</div>
+              </td>
+              <td>{{ leave.startDate }} to {{ leave.endDate }}</td>
+              <td><strong>{{ leave.daysCount }} Day(s)</strong></td>
+              <td>
+                <span class="badge-pill badge-info">{{ leave.leaveType | uppercase }}</span>
+              </td>
+              <td style="max-width: 200px;">{{ leave.reason }}</td>
+              <td>
+                <span class="badge-pill" [ngClass]="{
+                  'badge-warning': leave.status === 'pending',
+                  'badge-success': leave.status === 'approved',
+                  'badge-danger': leave.status === 'rejected'
+                }">
+                  {{ leave.status | uppercase }}
+                </span>
+              </td>
+              <td style="font-size: 0.82rem; color: var(--text-muted);">
+                {{ leave.reviewNotes || '-' }}
+              </td>
+              <td style="text-align: right;">
+                <div style="display: inline-flex; gap: 6px; justify-content: flex-end;">
+                  <button 
+                    *ngIf="leave.status === 'pending'" 
+                    (click)="approveLeave(leave.id)" 
+                    class="btn-table-action btn-table-approve" 
+                    title="Approve Leave Application">
+                    <span class="material-symbols-outlined">check_circle</span> Approve
+                  </button>
+                  <button 
+                    *ngIf="leave.status === 'pending'" 
+                    (click)="rejectLeave(leave.id)" 
+                    class="btn-table-action btn-table-reject" 
+                    title="Decline Leave Application">
+                    <span class="material-symbols-outlined">cancel</span> Reject
+                  </button>
+                  <button 
+                    (click)="deleteLeave(leave.id)" 
+                    class="btn-table-action btn-table-delete" 
+                    title="Delete Record">
+                    <span class="material-symbols-outlined">delete</span>
+                  </button>
+                </div>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -951,7 +1034,12 @@
                   <strong>[{{ exp.category.toUpperCase() }}]</strong> {{ exp.title }}
                   <span *ngIf="exp.invoiceNo" class="exp-inv">(Bill #{{ exp.invoiceNo }})</span>
                 </span>
-                <strong class="exp-cost">₹{{ exp.amount }}</strong>
+                <div class="exp-cost-col">
+                  <strong class="exp-cost">₹{{ exp.amount }}</strong>
+                  <a *ngIf="exp.billPhoto" [href]="exp.billPhoto" target="_blank" class="exp-bill-badge" title="View attached bill">
+                    <span class="material-symbols-outlined">receipt_long</span>
+                  </a>
+                </div>
               </div>
             </div>
           </div>
@@ -1884,85 +1972,6 @@
       </div> <!-- /.admin-content-stage -->
     </main> <!-- /.admin-main-viewport -->
   </div> <!-- /.admin-shell -->
-
-  <!-- ================= MODAL: GOOGLE ACCOUNT CHOOSER (NATIVE & WEB SECURE SIGN-IN) ================= -->
-  <div *ngIf="showGoogleAccountModal" class="modal-backdrop">
-    <div class="modal-card glass-card google-account-chooser-card">
-      <div class="modal-header">
-        <div class="g-modal-header-brand">
-          <svg class="google-logo-svg" viewBox="0 0 24 24">
-            <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
-            <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
-            <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 10.03 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
-            <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
-          </svg>
-          <div>
-            <h3>Sign in with Google</h3>
-            <span class="sub-lead">Choose a Google Account to continue to Electrical Vibers</span>
-          </div>
-        </div>
-        <button (click)="showGoogleAccountModal = false" class="modal-close"><span class="material-symbols-outlined">close</span></button>
-      </div>
-
-      <div class="modal-body google-chooser-body">
-        <!-- Authorized Primary Admin Account Option -->
-        <button 
-          (click)="selectGoogleAccount('mohamedibrahim010425@gmail.com', 'Mohamed Ibrahim')" 
-          class="google-account-item-btn highlight-authorized">
-          <div class="g-avatar-circle">M</div>
-          <div class="g-account-details">
-            <div class="g-account-name">
-              Mohamed Ibrahim
-              <span class="g-authorized-tag">Authorized Admin</span>
-            </div>
-            <div class="g-account-email">mohamedibrahim010425@gmail.com</div>
-          </div>
-          <span class="material-symbols-outlined g-chevron">arrow_forward</span>
-        </button>
-
-        <!-- Use another Google account toggle (to demonstrate security boundary rejection) -->
-        <div class="other-account-divider">
-          <span>OR</span>
-        </div>
-
-        <button 
-          (click)="showCustomEmailInput = !showCustomEmailInput" 
-          class="google-account-item-btn secondary-g-item">
-          <div class="g-avatar-circle neutral-circle">
-            <span class="material-symbols-outlined">person_add</span>
-          </div>
-          <div class="g-account-details">
-            <div class="g-account-name">Use another Google account</div>
-            <div class="g-account-email">Test security whitelist with any other email</div>
-          </div>
-          <span class="material-symbols-outlined g-chevron">{{ showCustomEmailInput ? 'expand_less' : 'expand_more' }}</span>
-        </button>
-
-        <!-- Custom Email Input Box -->
-        <div *ngIf="showCustomEmailInput" class="custom-email-box">
-          <div class="form-group">
-            <label>Google Email Address</label>
-            <input 
-              type="email" 
-              [(ngModel)]="customGoogleEmail" 
-              placeholder="e.g. unauthorized_user@gmail.com" 
-            />
-          </div>
-          <div class="form-group">
-            <label>Name (Optional)</label>
-            <input 
-              type="text" 
-              [(ngModel)]="customGoogleName" 
-              placeholder="e.g. John Doe" 
-            />
-          </div>
-          <button (click)="submitCustomGoogleEmail()" class="btn-verify-custom-g">
-            Attempt Sign-In with this Account
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- ================= OTHER MODALS ================= -->
 

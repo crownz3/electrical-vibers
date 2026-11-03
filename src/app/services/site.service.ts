@@ -570,6 +570,29 @@ export class SiteService {
     this.saveAllocations(updated);
   }
 
+  recordSiteCheckIn(
+    allocationId: string, 
+    checkIn: { 
+      checkInTime: string; 
+      checkInPhoto?: string; 
+      checkInLocation?: { lat: number; lng: number; accuracy?: number; timestamp?: string } 
+    }
+  ): void {
+    const updated = this.allocationsSubject.getValue().map(alloc => {
+      if (alloc.id === allocationId) {
+        return {
+          ...alloc,
+          status: 'in_progress' as AllocationStatus,
+          checkInTime: checkIn.checkInTime,
+          checkInPhoto: checkIn.checkInPhoto || alloc.checkInPhoto,
+          checkInLocation: checkIn.checkInLocation || alloc.checkInLocation
+        };
+      }
+      return alloc;
+    });
+    this.saveAllocations(updated);
+  }
+
   updateAllocationStatus(allocationId: string, status: AllocationStatus): void {
     const updated = this.allocationsSubject.getValue().map(alloc => {
       if (alloc.id === allocationId) {

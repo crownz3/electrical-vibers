@@ -1,0 +1,902 @@
+<div class="staff-portal-container">
+  <!-- Offline Mode Cache Banner -->
+  <div *ngIf="isOffline" class="offline-status-banner animate-fade-in">
+    <span class="material-symbols-outlined">cloud_off</span>
+    <div>
+      <strong>Offline Mode Active</strong>
+      <span>Working seamlessly from device memory. Cloud sync will resume when signal returns.</span>
+    </div>
+  </div>
+
+  <!-- Toast Feedback Notification -->
+  <div *ngIf="toastMessage" class="toast-pill animate-fade-in">
+    <span class="material-symbols-outlined">info</span>
+    <span>{{ toastMessage }}</span>
+  </div>
+
+  <!-- ================= STATE 1: STAFF PORTAL LOGIN GATE ================= -->
+  <div *ngIf="!currentStaff" class="staff-login-wrapper">
+    <div class="staff-login-card glass-card animate-scale-up">
+      <div class="brand-badge-circle">
+        <span class="material-symbols-outlined icon-bolt">engineering</span>
+      </div>
+
+      <h2>Electrician Staff Portal</h2>
+      <p class="sub-lead">பணியாளர் வேலை ஒதுக்கீடு, விடுமுறை & சம்பள ரசீதுகள்</p>
+
+      <div *ngIf="loginError" class="login-alert-box">
+        <span class="material-symbols-outlined">warning</span>
+        <span>{{ loginError }}</span>
+      </div>
+
+      <div class="form-group">
+        <label>Registered Mobile Number or Staff ID</label>
+        <div class="input-with-icon">
+          <span class="material-symbols-outlined">phone_android</span>
+          <input 
+            type="text" 
+            [(ngModel)]="loginPhoneOrId" 
+            (keyup.enter)="login()"
+            placeholder="e.g. 9840012345 or emp-1" 
+          />
+        </div>
+      </div>
+
+      <button (click)="login()" class="btn-staff-login">
+        <span>Open Staff Workspace</span>
+        <span class="material-symbols-outlined">arrow_forward</span>
+      </button>
+
+      <!-- Quick Switcher for Demo / Immediate Access -->
+      <div *ngIf="allStaffList.length > 0" class="quick-staff-select-box">
+        <span class="quick-title">Quick Select Electrician Account:</span>
+        <div class="staff-chip-grid">
+          <button 
+            *ngFor="let emp of allStaffList.slice(0, 4)" 
+            type="button" 
+            (click)="quickDemoLogin(emp)" 
+            class="staff-demo-chip">
+            <span class="chip-avatar">{{ emp.name.slice(0, 1) }}</span>
+            <div class="chip-info">
+              <strong>{{ emp.name }}</strong>
+              <span>{{ emp.role }}</span>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <div class="back-home-wrap">
+        <a routerLink="/home" class="btn-back-home">
+          <span class="material-symbols-outlined">arrow_back</span>
+          <span>Back to Main Website</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= STATE 2: LOGGED-IN STAFF WORKSPACE ================= -->
+  <div *ngIf="currentStaff" class="staff-workspace-shell">
+    <!-- Staff Header Profile Card -->
+    <header class="staff-header-card glass-card">
+      <div class="staff-profile-top">
+        <div class="avatar-wrap">
+          <div class="avatar-initials">{{ currentStaff.name.slice(0, 2).toUpperCase() }}</div>
+          <span class="status-dot-active" title="Active on Duty"></span>
+        </div>
+
+        <div class="staff-details">
+          <div class="staff-name-row">
+            <h1>{{ currentStaff.name }}</h1>
+            <span class="role-pill">{{ currentStaff.role }}</span>
+          </div>
+          <div class="staff-meta-row">
+            <span class="meta-tag"><span class="material-symbols-outlined">phone</span> {{ currentStaff.phone }}</span>
+            <span class="meta-tag rate-tag"><span class="material-symbols-outlined">payments</span> ₹{{ currentStaff.dailyWage }} / Day</span>
+            <span *ngIf="currentStaff.upiId" class="meta-tag"><span class="material-symbols-outlined">qr_code</span> {{ currentStaff.upiId }}</span>
+          </div>
+        </div>
+
+        <button (click)="logout()" class="btn-logout-staff" title="Sign Out">
+          <span class="material-symbols-outlined">logout</span>
+          <span class="logout-label">Sign Out</span>
+        </button>
+      </div>
+
+      <!-- Quick KPI Numbers Strip -->
+      <div class="staff-kpi-grid">
+        <div class="kpi-box blue">
+          <span class="kpi-val">{{ currentStaff.totalDaysWorked || 0 }}</span>
+          <span class="kpi-lbl">Days Worked</span>
+        </div>
+        <div class="kpi-box green">
+          <span class="kpi-val">₹{{ (currentStaff.totalWagesEarned || 0) | number }}</span>
+          <span class="kpi-lbl">Total Earned</span>
+        </div>
+        <div class="kpi-box orange">
+          <span class="kpi-val">₹{{ (currentStaff.totalWagesPaid || 0) | number }}</span>
+          <span class="kpi-lbl">Advances Paid</span>
+        </div>
+        <div class="kpi-box purple">
+          <span class="kpi-val highlight">₹{{ (currentStaff.pendingWageBalance || 0) | number }}</span>
+          <span class="kpi-lbl">Pending Balance</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Tab Segmented Navigation -->
+    <nav class="staff-nav-tabs glass-card">
+      <button 
+        type="button" 
+        class="tab-btn" 
+        [class.active]="activeTab === 'workload'" 
+        (click)="activeTab = 'workload'">
+        <span class="material-symbols-outlined">assignment</span>
+        <span>My Work Load ({{ workload.length }})</span>
+      </button>
+
+      <button 
+        type="button" 
+        class="tab-btn" 
+        [class.active]="activeTab === 'leaves'" 
+        (click)="activeTab = 'leaves'">
+        <span class="material-symbols-outlined">event_available</span>
+        <span>Leave Tracker ({{ leaves.length }})</span>
+      </button>
+
+      <button 
+        type="button" 
+        class="tab-btn" 
+        [class.active]="activeTab === 'salary'" 
+        (click)="activeTab = 'salary'">
+        <span class="material-symbols-outlined">receipt_long</span>
+        <span>Salary Slips & Wages</span>
+      </button>
+    </nav>
+
+    <!-- ================= TAB 1: WORKLOAD & DUTY ROSTER ================= -->
+    <section *ngIf="activeTab === 'workload'" class="tab-pane-content">
+      <div class="pane-header-row">
+        <div>
+          <h2>Assigned Site Duties & Tasks</h2>
+          <p>உங்கள் தள பணிகள் மற்றும் தினசரி வேலை ஒதுக்கீடுகள்</p>
+        </div>
+        <div class="workload-summary-pills">
+          <span class="stat-pill today" *ngIf="todayTasks.length > 0">
+            <span class="material-symbols-outlined">bolt</span>
+            {{ todayTasks.length }} Today
+          </span>
+          <span class="stat-pill overdue" *ngIf="overdueTasks.length > 0">
+            <span class="material-symbols-outlined">warning</span>
+            {{ overdueTasks.length }} Incomplete / Overdue
+          </span>
+          <span class="stat-pill upcoming" *ngIf="upcomingTasks.length > 0">
+            <span class="material-symbols-outlined">calendar_today</span>
+            {{ upcomingTasks.length }} Upcoming
+          </span>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="workload.length === 0" class="empty-state-box glass-card">
+        <span class="material-symbols-outlined icon-empty">event_busy</span>
+        <h3>No Work Scheduled Currently</h3>
+        <p>You have no active site allocations assigned for this week. Contact contractor supervisor for new project deployments.</p>
+      </div>
+
+      <!-- ================= SECTION 1: OVERDUE / UNFINISHED PREVIOUS TASKS ================= -->
+      <div *ngIf="overdueTasks.length > 0" class="task-category-group overdue-group">
+        <div class="category-header-banner overdue-banner">
+          <div class="banner-icon-circle">
+            <span class="material-symbols-outlined">warning</span>
+          </div>
+          <div class="banner-text">
+            <h3>Pending / Incomplete Work from Past Dates ({{ overdueTasks.length }})</h3>
+            <p>முந்தைய நாட்களில் முடிக்கப்படாத பணிகள். இவற்றை முடிக்கவும் அல்லது அடுத்த நாளுக்கு மாற்றவும்.</p>
+          </div>
+        </div>
+
+        <div class="workload-cards-grid">
+          <div *ngFor="let item of overdueTasks" class="workload-card glass-card card-overdue">
+            <div class="card-head-row">
+              <div class="date-badge overdue-badge">
+                <span class="material-symbols-outlined">history</span>
+                <span>Scheduled: {{ item.date }}</span>
+                <span class="overdue-tag">OVERDUE</span>
+              </div>
+              <span class="shift-pill">{{ item.shift.toUpperCase() }}</span>
+            </div>
+
+            <h3 class="site-title">{{ item.siteName }}</h3>
+            <div class="site-loc-row">
+            <p class="site-loc">
+              <span class="material-symbols-outlined">pin_drop</span>
+              <span>{{ item.siteAddress }}</span>
+            </p>
+            <button (click)="openGoogleMaps(item.siteAddress, item.siteName)" class="btn-maps-nav" title="Open Turn-by-Turn Navigation in Google Maps">
+              <span class="material-symbols-outlined">near_me</span>
+              <span>Directions</span>
+            </button>
+          </div>
+
+            <div class="task-desc-box">
+              <strong>Pending Task:</strong>
+              <p>{{ item.taskDescription }}</p>
+              <div *ngIf="item.incompleteReason" class="prev-reason-note">
+                <span class="material-symbols-outlined">info</span>
+                <em>Prior note: {{ item.incompleteReason }}</em>
+              </div>
+            </div>
+
+            <!-- Client Contact -->
+            <div class="client-actions-strip">
+              <span class="client-name">Client: {{ item.clientName }}</span>
+              <div class="action-buttons-row">
+                <button (click)="callClient(item.clientPhone)" class="btn-call-client" title="Call Client">
+                  <span class="material-symbols-outlined">call</span> Call
+                </button>
+                <button (click)="openWhatsApp(item.clientPhone, item.clientName, item.siteName)" class="btn-wa-client" title="Chat on WhatsApp">
+                  <span class="material-symbols-outlined">chat</span> WhatsApp
+                </button>
+              </div>
+            </div>
+
+            <!-- Overdue Actions: What staff do when not completed -->
+            <div class="overdue-actions-box">
+              <span class="action-help-text">What do you want to do with this incomplete task?</span>
+              <div class="task-action-split">
+                <button (click)="quickCarryForwardToTomorrow(item)" class="btn-action-carry" title="Roll over task to tomorrow">
+                  <span class="material-symbols-outlined">forward</span> Carry to Tomorrow
+                </button>
+                <button (click)="openIncompleteModal(item)" class="btn-action-reschedule" title="Reschedule with custom date & reason">
+                  <span class="material-symbols-outlined">edit_calendar</span> Reschedule & Reason
+                </button>
+                <button (click)="markTaskCompleted(item)" class="btn-finish-duty" title="Mark Completed Now">
+                  <span class="material-symbols-outlined">check_circle</span> Done Now
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= SECTION 2: TODAY'S DUTIES ================= -->
+      <div class="task-category-group today-group" *ngIf="workload.length > 0">
+        <div class="category-title-row">
+          <div class="cat-title-wrap">
+            <span class="material-symbols-outlined cat-icon today-icon">today</span>
+            <div>
+              <h3>Today's Assigned Duties ({{ todayTasks.length }})</h3>
+              <span class="cat-subtitle">இன்றைய வேலை திட்டம் மற்றும் செயல்பாடுகள்</span>
+            </div>
+          </div>
+          <span class="today-date-badge">{{ todayStr }}</span>
+        </div>
+
+        <div *ngIf="todayTasks.length === 0" class="sub-empty-state glass-card">
+          <span class="material-symbols-outlined">task_alt</span>
+          <div class="sub-empty-info">
+            <strong>No active duties assigned for today</strong>
+            <p>You have finished or have no tasks for today. Check upcoming tasks below.</p>
+          </div>
+        </div>
+
+        <div *ngIf="todayTasks.length > 0" class="workload-cards-grid">
+          <div 
+            *ngFor="let item of todayTasks" 
+            class="workload-card glass-card today-card"
+            [class.completed-card]="item.status === 'completed'">
+            <div class="card-head-row">
+              <div class="date-badge highlight">
+                <span class="material-symbols-outlined">bolt</span>
+                <span class="today-tag">TODAY'S DUTY</span>
+              </div>
+              <span class="shift-pill">{{ item.shift.toUpperCase() }}</span>
+              <span class="status-pill" [ngClass]="item.status">{{ item.status | uppercase }}</span>
+            </div>
+
+            <h3 class="site-title">{{ item.siteName }}</h3>
+            <div class="site-loc-row">
+            <p class="site-loc">
+              <span class="material-symbols-outlined">pin_drop</span>
+              <span>{{ item.siteAddress }}</span>
+            </p>
+            <button (click)="openGoogleMaps(item.siteAddress, item.siteName)" class="btn-maps-nav" title="Open Turn-by-Turn Navigation in Google Maps">
+              <span class="material-symbols-outlined">near_me</span>
+              <span>Directions</span>
+            </button>
+          </div>
+
+            <div class="task-desc-box">
+              <strong>Work Scope for Today:</strong>
+              <p>{{ item.taskDescription }}</p>
+            </div>
+
+            <!-- Client Contact -->
+            <div class="client-actions-strip">
+              <span class="client-name">Client: {{ item.clientName }}</span>
+              <div class="action-buttons-row">
+                <button (click)="callClient(item.clientPhone)" class="btn-call-client" title="Call Client">
+                  <span class="material-symbols-outlined">call</span> Call
+                </button>
+                <button (click)="openWhatsApp(item.clientPhone, item.clientName, item.siteName)" class="btn-wa-client" title="Chat on WhatsApp">
+                  <span class="material-symbols-outlined">chat</span> WhatsApp
+                </button>
+              </div>
+            </div>
+
+            <!-- Check-in Status Stamp -->
+            <div *ngIf="item.checkInTime" class="checkin-stamp-row">
+              <div class="checkin-time-badge">
+                <span class="material-symbols-outlined">verified</span>
+                <span>Arrived at {{ item.checkInTime }}</span>
+              </div>
+              <span *ngIf="item.checkInLocation" class="gps-accuracy-badge" title="GPS Location Verified">
+                📍 GPS Accuracy: ±{{ item.checkInLocation.accuracy }}m
+              </span>
+              <a *ngIf="item.checkInPhoto" [href]="item.checkInPhoto" target="_blank" class="checkin-photo-link" title="View Check-in Photo">
+                <span class="material-symbols-outlined">image</span> Photo
+              </a>
+            </div>
+
+            <!-- Duty Progression & If Not Complete What They Do -->
+            <div class="task-status-actions">
+              <div *ngIf="item.status === 'scheduled'" class="action-flex-row">
+                <button (click)="openCheckInModal(item)" class="btn-start-duty btn-checkin-start">
+                  <span class="material-symbols-outlined">add_location_alt</span> Site Check-in & Start
+                </button>
+                <button (click)="openIncompleteModal(item)" class="btn-secondary-incomplete" title="Unable to do this today?">
+                  <span class="material-symbols-outlined">postpone</span> Postpone
+                </button>
+              </div>
+
+              <div *ngIf="item.status === 'in_progress'" class="action-flex-row">
+                <button (click)="markTaskCompleted(item)" class="btn-finish-duty">
+                  <span class="material-symbols-outlined">check_circle</span> Mark Duty Completed
+                </button>
+                <button (click)="openIncompleteModal(item)" class="btn-secondary-incomplete" title="If work cannot be completed today">
+                  <span class="material-symbols-outlined">pending_actions</span> Cannot Finish Today?
+                </button>
+              </div>
+
+              <div *ngIf="item.status === 'completed'" class="duty-completed-badge">
+                <span class="material-symbols-outlined">verified</span> Completed & Wage Logged
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= SECTION 3: UPCOMING TASKS ================= -->
+      <div class="task-category-group upcoming-group" *ngIf="upcomingTasks.length > 0">
+        <div class="category-title-row">
+          <div class="cat-title-wrap">
+            <span class="material-symbols-outlined cat-icon upcoming-icon">upcoming</span>
+            <div>
+              <h3>Upcoming Site Schedule ({{ upcomingTasks.length }})</h3>
+              <span class="cat-subtitle">எதிர்வரும் நாட்கள் மற்றும் தள பணிகள்</span>
+            </div>
+          </div>
+          <span class="schedule-hint">Plan tools & equipment ahead</span>
+        </div>
+
+        <div class="workload-cards-grid">
+          <div *ngFor="let item of upcomingTasks" class="workload-card glass-card card-upcoming">
+            <div class="card-head-row">
+              <div class="date-badge">
+                <span class="material-symbols-outlined">calendar_month</span>
+                <span>{{ item.date }}</span>
+              </div>
+              <span class="shift-pill">{{ item.shift.toUpperCase() }}</span>
+              <span class="status-pill status-scheduled">UPCOMING</span>
+            </div>
+
+            <h3 class="site-title">{{ item.siteName }}</h3>
+            <div class="site-loc-row">
+            <p class="site-loc">
+              <span class="material-symbols-outlined">pin_drop</span>
+              <span>{{ item.siteAddress }}</span>
+            </p>
+            <button (click)="openGoogleMaps(item.siteAddress, item.siteName)" class="btn-maps-nav" title="Open Turn-by-Turn Navigation in Google Maps">
+              <span class="material-symbols-outlined">near_me</span>
+              <span>Directions</span>
+            </button>
+          </div>
+
+            <div class="task-desc-box">
+              <strong>Planned Work:</strong>
+              <p>{{ item.taskDescription }}</p>
+            </div>
+
+            <div class="client-actions-strip">
+              <span class="client-name">Client: {{ item.clientName }}</span>
+              <div class="action-buttons-row">
+                <button (click)="callClient(item.clientPhone)" class="btn-call-client" title="Call Client">
+                  <span class="material-symbols-outlined">call</span> Call
+                </button>
+                <button (click)="openWhatsApp(item.clientPhone, item.clientName, item.siteName)" class="btn-wa-client" title="Chat on WhatsApp">
+                  <span class="material-symbols-outlined">chat</span> WhatsApp
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= SECTION 4: COMPLETED HISTORY ================= -->
+      <div class="task-category-group completed-history-group" *ngIf="completedTasks.length > 0">
+        <details class="history-accordion glass-card">
+          <summary class="history-summary">
+            <div class="summary-left">
+              <span class="material-symbols-outlined">task_alt</span>
+              <strong>Completed Site Duties Log ({{ completedTasks.length }})</strong>
+            </div>
+            <span class="material-symbols-outlined chevron">expand_more</span>
+          </summary>
+          <div class="history-list">
+            <div *ngFor="let item of completedTasks" class="history-item">
+              <div class="history-date">{{ item.date }}</div>
+              <div class="history-info">
+                <strong>{{ item.siteName }}</strong>
+                <p>{{ item.taskDescription }}</p>
+              </div>
+              <div class="history-wage green-text">
+                +₹{{ (item.calculatedWage || item.employeeDailyWage) | number }}
+              </div>
+            </div>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <!-- ================= TAB 2: LEAVE TRACKER ================= -->
+    <section *ngIf="activeTab === 'leaves'" class="tab-pane-content">
+      <div class="pane-header-row">
+        <div>
+          <h2>Leave Tracker & Applications</h2>
+          <p>விடுமுறை விண்ணப்பங்கள் மற்றும் நிலவரம்</p>
+        </div>
+        <button (click)="openApplyLeaveModal()" class="btn-apply-leave">
+          <span class="material-symbols-outlined">add</span> Apply for Leave
+        </button>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="leaves.length === 0" class="empty-state-box glass-card">
+        <span class="material-symbols-outlined icon-empty">calendar_month</span>
+        <h3>No Leave Requests Submitted</h3>
+        <p>You have not applied for any leaves yet. Click "Apply for Leave" above to request planned or emergency time off.</p>
+      </div>
+
+      <!-- Leaves History Cards -->
+      <div *ngIf="leaves.length > 0" class="leaves-history-grid">
+        <div *ngFor="let l of leaves" class="leave-card glass-card">
+          <div class="leave-card-top">
+            <span class="leave-type-pill">{{ l.leaveType | uppercase }} LEAVE</span>
+            <span class="leave-status-badge" [ngClass]="l.status">{{ l.status | uppercase }}</span>
+          </div>
+
+          <div class="leave-dates-row">
+            <div class="ld-col">
+              <span class="lbl">From</span>
+              <strong>{{ l.startDate }}</strong>
+            </div>
+            <div class="ld-arrow">→</div>
+            <div class="ld-col">
+              <span class="lbl">To</span>
+              <strong>{{ l.endDate }}</strong>
+            </div>
+            <div class="ld-days">
+              <strong>{{ l.daysCount }}</strong>
+              <span>Day(s)</span>
+            </div>
+          </div>
+
+          <div class="leave-reason-text">
+            <strong>Reason:</strong> {{ l.reason }}
+          </div>
+
+          <div class="leave-footer">
+            <span class="applied-time">Applied on {{ l.appliedAt | date:'mediumDate' }}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= TAB 3: SALARY SLIPS & WAGE PAYOUTS ================= -->
+    <section *ngIf="activeTab === 'salary'" class="tab-pane-content">
+      <div class="pane-header-row">
+        <div>
+          <h2>Salary Slips & Wage Payout History</h2>
+          <p>தினசரி கூலி வரவு, அட்வான்ஸ் மற்றும் சம்பள ரசீது</p>
+        </div>
+        <button (click)="viewSalarySlip()" class="btn-view-slip">
+          <span class="material-symbols-outlined">receipt_long</span> Generate Salary Slip
+        </button>
+      </div>
+
+      <!-- Summary Payout Highlight Card -->
+      <div class="salary-highlight-card glass-card">
+        <div class="shc-header">
+          <div>
+            <h3>Current Wage Settlement Summary</h3>
+            <span>Rate: ₹{{ currentStaff.dailyWage }} / Day • Total Worked: {{ currentStaff.totalDaysWorked || 0 }} Man-Days</span>
+          </div>
+          <button (click)="viewSalarySlip()" class="btn-print-mini">
+            <span class="material-symbols-outlined">print</span> Print Official Slip
+          </button>
+        </div>
+
+        <div class="shc-metrics">
+          <div class="shc-metric">
+            <span class="sm-lbl">Gross Wages Earned</span>
+            <span class="sm-val green">₹{{ (currentStaff.totalWagesEarned || 0) | number }}</span>
+          </div>
+          <div class="shc-metric">
+            <span class="sm-lbl">Advances / Wages Disbursed</span>
+            <span class="sm-val orange">₹{{ (currentStaff.totalWagesPaid || 0) | number }}</span>
+          </div>
+          <div class="shc-metric">
+            <span class="sm-lbl">Net Balance Due</span>
+            <span class="sm-val purple">₹{{ (currentStaff.pendingWageBalance || 0) | number }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Payout Transactions -->
+      <div class="payout-transactions-card glass-card">
+        <div class="ptc-title">Disbursement & Payout Transaction Records ({{ payouts.length }})</div>
+        <div *ngIf="payouts.length === 0" class="empty-payout-text">
+          No advance disbursements recorded yet.
+        </div>
+        <div *ngIf="payouts.length > 0" class="payout-list">
+          <div *ngFor="let p of payouts" class="payout-item-row">
+            <div class="pir-left">
+              <span class="material-symbols-outlined icon-pay">payments</span>
+              <div>
+                <strong>₹{{ p.amount | number }}</strong>
+                <span>{{ p.date }} • {{ p.paymentMode | uppercase }}</span>
+              </div>
+            </div>
+            <div class="pir-right">
+              <span *ngIf="p.receiptRef" class="ref-id">Ref: {{ p.receiptRef }}</span>
+              <span *ngIf="p.notes" class="notes">{{ p.notes }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- ================= MODAL: APPLY FOR LEAVE ================= -->
+<div *ngIf="showLeaveModal" class="modal-backdrop" (click)="showLeaveModal = false">
+  <div class="modal-card glass-card" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="mh-title">
+        <span class="material-symbols-outlined icon-leave">event_busy</span>
+        <div>
+          <h3>Apply for Leave</h3>
+          <p class="modal-sub">Submit planned or emergency absence request</p>
+        </div>
+      </div>
+      <button (click)="showLeaveModal = false" class="modal-close"><span class="material-symbols-outlined">close</span></button>
+    </div>
+
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Leave Type *</label>
+        <select [(ngModel)]="leaveType">
+          <option value="casual">Casual Leave (தனிப்பட்ட வேலை)</option>
+          <option value="sick">Sick Leave (உடல்நலக்குறைவு)</option>
+          <option value="emergency">Emergency / Family (அவசர குடும்ப வேலை)</option>
+          <option value="festival">Festival Leave (திருவிழா / விடுமுறை)</option>
+        </select>
+      </div>
+
+      <div class="form-row-2">
+        <div class="form-group">
+          <label>Start Date *</label>
+          <input type="date" [(ngModel)]="leaveStartDate" />
+        </div>
+        <div class="form-group">
+          <label>End Date *</label>
+          <input type="date" [(ngModel)]="leaveEndDate" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Reason for Leave *</label>
+        <textarea [(ngModel)]="leaveReason" rows="3" placeholder="e.g. Village temple festival / medical visit..."></textarea>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button (click)="showLeaveModal = false" class="btn-cancel">Cancel</button>
+      <button (click)="submitLeaveRequest()" class="btn-save">Submit Application</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= MODAL: OFFICIAL PRINTABLE SALARY SLIP ================= -->
+<div *ngIf="showSalaryModal && activeSalarySlip" class="modal-backdrop" (click)="showSalaryModal = false">
+  <div class="modal-card glass-card salary-slip-modal animate-scale-up" (click)="$event.stopPropagation()">
+    <!-- Printable Slip Document Body -->
+    <div id="printableSlip" class="printable-salary-slip">
+      <!-- Organization Header -->
+      <div class="slip-org-header">
+        <div class="org-brand-row">
+          <span class="material-symbols-outlined org-icon">bolt</span>
+          <div>
+            <h2>ELECTRICAL VIBERS</h2>
+            <p>Licensed Electrical Contractors & Engineering Services</p>
+            <span>124, Power Station Road, Anna Nagar, Chennai - 600040 • Ph: +91 98765 43210</span>
+          </div>
+        </div>
+        <div class="slip-meta-box">
+          <span class="slip-no">{{ activeSalarySlip.slipNumber }}</span>
+          <span class="slip-date">Date: {{ activeSalarySlip.generatedDate }}</span>
+        </div>
+      </div>
+
+      <div class="slip-title-banner">
+        <span>WAGE / SALARY PAYSLIP - {{ activeSalarySlip.monthYear | uppercase }}</span>
+      </div>
+
+      <!-- Employee Details Table -->
+      <table class="slip-emp-table">
+        <tr>
+          <td><strong>Employee Name:</strong> {{ activeSalarySlip.employeeName }}</td>
+          <td><strong>Staff ID:</strong> {{ activeSalarySlip.employeeId }}</td>
+        </tr>
+        <tr>
+          <td><strong>Designation / Role:</strong> {{ activeSalarySlip.role }}</td>
+          <td><strong>Contact Phone:</strong> {{ activeSalarySlip.phone }}</td>
+        </tr>
+        <tr>
+          <td><strong>Daily Wage Rate:</strong> ₹{{ activeSalarySlip.dailyWageRate }} / Day</td>
+          <td><strong>Days / Shifts Worked:</strong> {{ activeSalarySlip.daysWorked }} Days</td>
+        </tr>
+      </table>
+
+      <!-- Earnings & Deductions Breakdown -->
+      <table class="slip-breakdown-table">
+        <thead>
+          <tr>
+            <th>Earnings Description</th>
+            <th class="amt-col">Amount (INR)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Basic Daily Wages ({{ activeSalarySlip.daysWorked }} days @ ₹{{ activeSalarySlip.dailyWageRate }})</td>
+            <td class="amt-col">₹{{ activeSalarySlip.grossWagesEarned | number }}</td>
+          </tr>
+          <tr>
+            <td>Overtime / Site Completion Bonus</td>
+            <td class="amt-col">₹0</td>
+          </tr>
+          <tr class="subtotal-row">
+            <td><strong>GROSS EARNINGS (A)</strong></td>
+            <td class="amt-col"><strong>₹{{ activeSalarySlip.grossWagesEarned | number }}</strong></td>
+          </tr>
+          <tr>
+            <td>Advances / Prior Wage Payouts Disbursed (B)</td>
+            <td class="amt-col orange-text">- ₹{{ activeSalarySlip.advancesPaid | number }}</td>
+          </tr>
+          <tr class="net-row">
+            <td><strong>NET PAYABLE WAGE BALANCE (A - B)</strong></td>
+            <td class="amt-col net-amt"><strong>₹{{ activeSalarySlip.netPayableAmount | number }}</strong></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Footer Seal & Signature -->
+      <div class="slip-footer-signatures">
+        <div class="sig-col">
+          <div class="sig-line"></div>
+          <span>Employee Signature</span>
+        </div>
+        <div class="seal-col">
+          <div class="seal-badge">
+            <span class="material-symbols-outlined">verified</span>
+            <span>ELECTRICAL VIBERS<br>AUTHORIZED</span>
+          </div>
+        </div>
+        <div class="sig-col">
+          <div class="sig-line"></div>
+          <span>Authorized Contractor Signatory</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Action Buttons (Hidden on Print) -->
+    <div class="modal-footer no-print">
+      <button (click)="showSalaryModal = false" class="btn-cancel">Close</button>
+      <button (click)="printSalarySlip()" class="btn-print-slip">
+        <span class="material-symbols-outlined">print</span> Print Salary Slip / Save as PDF
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: INCOMPLETE TASK RESOLUTION & ROLLOVER ================= -->
+  <div *ngIf="showIncompleteModal && activeIncompleteTask" class="modal-backdrop animate-fade-in">
+    <div class="modal-card glass-card modal-incomplete animate-scale-up">
+      <div class="modal-header">
+        <div class="incomplete-header-icon">
+          <span class="material-symbols-outlined">pending_actions</span>
+        </div>
+        <div>
+          <h3>Incomplete Work Resolution</h3>
+          <p class="modal-subtitle">வேலையை முடிக்க இயலவில்லையா? காரணத்தைக் குறிப்பிட்டு அடுத்த நாளுக்கு மாற்றுக</p>
+        </div>
+        <button (click)="showIncompleteModal = false" class="modal-close" title="Close">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Target Task Summary Card -->
+        <div class="task-summary-preview">
+          <div class="summary-line">
+            <span class="summary-label">Site Project:</span>
+            <strong>{{ activeIncompleteTask.siteName }}</strong>
+          </div>
+          <div class="summary-line">
+            <span class="summary-label">Scheduled Date:</span>
+            <span>{{ activeIncompleteTask.date }}</span>
+          </div>
+          <div class="summary-line">
+            <span class="summary-label">Pending Scope:</span>
+            <span class="scope-text">{{ activeIncompleteTask.taskDescription }}</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Target Rollover Date (வேலையை மாற்ற வேண்டிய தேதி)</label>
+          <input 
+            type="date" 
+            [(ngModel)]="incompleteNextDate" 
+            [min]="todayStr"
+            class="input-date"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Reason for Incompletion (வேலை முடியாததற்கான காரணம்)</label>
+          <div class="reason-chips-grid">
+            <button 
+              *ngFor="let r of commonIncompleteReasons" 
+              type="button" 
+              class="reason-chip" 
+              [class.active]="incompleteReason === r.value"
+              (click)="selectIncompleteReason(r.value)">
+              {{ r.label }}
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Additional Notes / Specific Details (விருப்ப குறிப்புகள்)</label>
+          <textarea 
+            [(ngModel)]="incompleteNotes" 
+            rows="2" 
+            placeholder="e.g. 70% conduits laid, waiting for 2.5mm wire roll delivery tomorrow morning..."
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="showIncompleteModal = false" class="btn-cancel">Cancel</button>
+        <button (click)="confirmCarryForward()" class="btn-confirm-rollover">
+          <span class="material-symbols-outlined">forward</span>
+          <span>Carry Forward to {{ incompleteNextDate }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ================= MODAL: SITE CHECK-IN (GPS & PHOTO PROOF) ================= -->
+  <div *ngIf="showCheckInModal && activeCheckInTask" class="modal-backdrop animate-fade-in">
+    <div class="modal-card glass-card modal-checkin animate-scale-up">
+      <div class="modal-header">
+        <div class="checkin-header-icon">
+          <span class="material-symbols-outlined">add_location_alt</span>
+        </div>
+        <div>
+          <h3>Site Arrival Check-in</h3>
+          <p class="modal-subtitle">தள வருகை பதிவு மற்றும் புகைப்பட சரிபார்ப்பு</p>
+        </div>
+        <button (click)="showCheckInModal = false" class="modal-close" title="Close">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Site Info Header -->
+        <div class="checkin-site-card">
+          <span class="site-badge">Active Assignment</span>
+          <h4>{{ activeCheckInTask.siteName }}</h4>
+          <p class="site-addr"><span class="material-symbols-outlined">pin_drop</span> {{ activeCheckInTask.siteAddress }}</p>
+          <div class="client-mini-row">
+            <span>Client: <strong>{{ activeCheckInTask.clientName }}</strong></span>
+            <button (click)="callClient(activeCheckInTask.clientPhone)" class="btn-mini-call">
+              <span class="material-symbols-outlined">call</span> {{ activeCheckInTask.clientPhone }}
+            </button>
+          </div>
+        </div>
+
+        <!-- 1. GPS Geolocation Status Box -->
+        <div class="gps-status-box">
+          <div class="gps-status-header">
+            <span class="material-symbols-outlined gps-icon" [class.spinning]="gpsDetecting">
+              {{ gpsDetecting ? 'sync' : (checkInGpsLocation ? 'location_on' : 'location_off') }}
+            </span>
+            <div class="gps-info">
+              <strong *ngIf="gpsDetecting">Detecting Site GPS Location...</strong>
+              <strong *ngIf="!gpsDetecting && checkInGpsLocation" class="green-text">
+                GPS Verified (±{{ checkInGpsLocation.accuracy }}m Accuracy)
+              </strong>
+              <strong *ngIf="!gpsDetecting && !checkInGpsLocation" class="amber-text">
+                GPS Unavailable
+              </strong>
+              <span *ngIf="checkInGpsLocation" class="gps-coords">
+                Lat: {{ checkInGpsLocation.lat }}, Lng: {{ checkInGpsLocation.lng }}
+              </span>
+              <span *ngIf="gpsError" class="gps-err-msg">{{ gpsError }}</span>
+            </div>
+            <button type="button" (click)="detectGpsLocation()" class="btn-refresh-gps" title="Refresh GPS coordinates">
+              <span class="material-symbols-outlined">refresh</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 2. Site Arrival Photo / Selfie -->
+        <div class="checkin-photo-section">
+          <label class="photo-section-label">
+            <span class="material-symbols-outlined">photo_camera</span>
+            <span>Capture Site Arrival Photo / Selfie (தள புகைப்படம்)</span>
+          </label>
+
+          <div class="photo-upload-dropzone" [class.has-photo]="checkInPhotoUrl">
+            <input 
+              type="file" 
+              accept="image/*" 
+              capture="environment" 
+              (change)="onCheckInPhotoSelected($event)" 
+              class="photo-file-input"
+            />
+            
+            <div *ngIf="!checkInPhotoUrl && !isUploadingCheckInPhoto" class="dropzone-empty">
+              <span class="material-symbols-outlined icon-camera">camera_alt</span>
+              <strong>Tap to open camera or upload photo</strong>
+              <span>Take a selfie at the gate or photo of electrical panel</span>
+            </div>
+
+            <div *ngIf="isUploadingCheckInPhoto" class="dropzone-uploading">
+              <span class="material-symbols-outlined spinning">sync</span>
+              <span>Uploading arrival proof to cloud...</span>
+            </div>
+
+            <div *ngIf="checkInPhotoUrl" class="dropzone-preview">
+              <img [src]="checkInPhotoUrl" alt="Check-in Photo Preview" class="photo-img-tag" />
+              <div class="photo-overlay-tag">
+                <span class="material-symbols-outlined">check_circle</span>
+                <span>Photo Attached</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="showCheckInModal = false" class="btn-cancel">Cancel</button>
+        <button (click)="confirmCheckIn()" class="btn-confirm-checkin">
+          <span class="material-symbols-outlined">verified</span>
+          <span>Confirm Check-in & Start Duty</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

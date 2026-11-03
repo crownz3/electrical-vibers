@@ -1,3 +1,6 @@
+import { Capacitor } from '@capacitor/core';
+import { Haptics, NotificationType } from '@capacitor/haptics';
+import { ProductService } from '../../services/product.service';
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
@@ -22,6 +25,7 @@ export class CartPage implements OnInit {
   cartService = inject(CartService);
   orderService = inject(OrderService);
   customerService = inject(CustomerService);
+  productService = inject(ProductService);
   router = inject(Router);
 
   customerName = '';
@@ -68,6 +72,13 @@ export class CartPage implements OnInit {
   processCheckout(): void {
     if (!this.customerName.trim() || !this.customerPhone.trim() || !this.streetAddress.trim()) {
       alert('Please fill in your Name, Phone Number, and Delivery Street Address.');
+      return;
+    }
+
+    // Automatic Real-time Stock Availability Verification
+    const stockVerification = this.productService.checkStockAvailability(this.cartItems);
+    if (!stockVerification.valid) {
+      alert(`Cannot complete order: ${stockVerification.outOfStockItem}. Please adjust your cart.`);
       return;
     }
 
@@ -147,6 +158,16 @@ export class CartPage implements OnInit {
   }
 
   private createFinalOrder(paymentId?: string, paymentStatus: 'paid' | 'pending' = 'paid'): void {
+    // 1. Automatically Deduct Inventory
+    this.productService.deductInventory(this.cartItems);
+
+    // 2. Trigger native mobile success haptic feedback
+    if (Capacitor.isPluginAvailable('Haptics')) {
+      try {
+        Haptics.notification({ type: NotificationType.Success }).catch(() => {});
+      } catch (_) {}
+    }
+
     const order = this.orderService.createOrder({
       customerName: this.customerName,
       customerPhone: this.customerPhone,

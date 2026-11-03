@@ -1,3 +1,5 @@
+import { Capacitor } from '@capacitor/core';
+import { StatusBar, Style } from '@capacitor/status-bar';
 import { Injectable, signal } from '@angular/core';
 
 export type ThemePreference = 'system' | 'light' | 'dark';

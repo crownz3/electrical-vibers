@@ -9,8 +9,10 @@ import { BookingService } from '../../services/booking.service';
 import { AuthService, UserProfile } from '../../services/auth.service';
 import { ConfigService, AppConfig, StoreOffer } from '../../services/config.service';
 import { FirebaseService } from '../../services/firebase.service';
+import { StaffService } from '../../services/staff.service';
 import { 
-  SiteProject, 
+  SiteProject,
+  SiteExpense,
   ExpenseCategory, 
   ElectricianEmployee, 
   SiteWorkAllocation, 
@@ -19,7 +21,8 @@ import {
   ShiftType, 
   AllocationStatus, 
   EmployeeRole,
-  ContractType
+  ContractType,
+  StaffLeaveRequest
 } from '../../models/site.model';
 
 import { Product } from '../../models/product.model';
@@ -34,6 +37,142 @@ import { Booking, ServiceCategory } from '../../models/booking.model';
   styleUrls: ['./admin.page.scss']
 })
 export class AdminPage implements OnInit {
+
+  // --- Staff Leave Review ---
+  approveLeave(leaveId: string): void {
+    const note = prompt('Optional approval note for technician:');
+    this.staffService.updateLeaveStatus(leaveId, 'approved', note || undefined);
+    alert('Leave request approved!');
+  }
+
+  rejectLeave(leaveId: string): void {
+    const reason = prompt('Reason for declining leave (optional):');
+    if (reason !== null) {
+      this.staffService.updateLeaveStatus(leaveId, 'rejected', reason || undefined);
+      alert('Leave request declined.');
+    }
+  }
+
+  deleteLeave(leaveId: string): void {
+    if (confirm('Delete this leave application record?')) {
+      this.staffService.deleteLeaveRequest(leaveId);
+    }
+  }
+
+  // --- File & Challan Upload ---
+  async onExpenseBillFileSelected(event: any): Promise<void> {
+    const file = event.target?.files?.[0];
+    if (!file) return;
+
+    this.isUploadingFile = true;
+    try {
+      const url = await this.firebaseService.uploadFile('site_expenses_challans', file);
+      if (url) {
+        this.expenseBillPhotoUrl = url;
+      } else {
+        alert('Could not upload photo to storage. Please verify connection.');
+      }
+    } catch (err: any) {
+      alert('Upload failed: ' + (err?.message || 'Error uploading file'));
+    } finally {
+      this.isUploadingFile = false;
+    }
+  }
+
+  // --- Accounting & Data Export ---
+  private downloadCsvFile(filename: string, csvContent: string): void {
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
+  exportExpensesCsv(specificSite?: SiteProject): void {
+    const expensesToExport: { siteName: string; exp: SiteExpense }[] = [];
+    if (specificSite) {
+      specificSite.expenses.forEach(exp => expensesToExport.push({ siteName: specificSite.siteName, exp }));
+    } else {
+      this.sites.forEach(s => {
+        s.expenses.forEach(exp => expensesToExport.push({ siteName: s.siteName, exp }));
+      });
+    }
+
+    if (expensesToExport.length === 0) {
+      alert('No expenses recorded to export.');
+      return;
+    }
+
+    const headers = ['Site Name', 'Date', 'Category', 'Item / Title', 'Quantity', 'Unit Rate (INR)', 'Total Amount (INR)', 'Invoice / Bill No', 'Recorded By', 'Notes'];
+    const rows = expensesToExport.map(({ siteName, exp }) => [
+      `"${siteName.replace(/"/g, '""')}"`,
+      `"${exp.date}"`,
+      `"${exp.category}"`,
+      `"${(exp.title || exp.materialItemName || '').replace(/"/g, '""')}"`,
+      exp.quantity || '',
+      exp.unitRate || '',
+      exp.amount || 0,
+      `"${(exp.invoiceNo || '').replace(/"/g, '""')}"`,
+      `"${(exp.recordedBy || '').replace(/"/g, '""')}"`,
+      `"${(exp.notes || '').replace(/"/g, '""')}"`
+    ]);
+
+    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\r\n');
+    const dateStr = new Date().toISOString().split('T')[0];
+    this.downloadCsvFile(`Electrical_Vibers_Site_Expenses_${dateStr}.csv`, csvContent);
+  }
+
+  exportWagePayoutsCsv(): void {
+    if (this.payouts.length === 0) {
+      alert('No wage disbursements recorded to export.');
+      return;
+    }
+
+    const headers = ['Receipt Ref', 'Date', 'Technician Name', 'Role', 'Amount (INR)', 'Payment Mode', 'Notes'];
+    const rows = this.payouts.map(p => [
+      `"${p.receiptRef || ''}"`,
+      `"${p.date}"`,
+      `"${(p.employeeName || '').replace(/"/g, '""')}"`,
+      `"${((this.employees.find(e => e.id === p.employeeId)?.role) || '').replace(/"/g, '""')}"`,
+      p.amount || 0,
+      `"${p.paymentMode}"`,
+      `"${(p.notes || '').replace(/"/g, '""')}"`
+    ]);
+
+    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\r\n');
+    const dateStr = new Date().toISOString().split('T')[0];
+    this.downloadCsvFile(`Electrical_Vibers_Wage_Disbursements_${dateStr}.csv`, csvContent);
+  }
+
+  exportOrdersCsv(): void {
+    if (this.orders.length === 0) {
+      alert('No customer orders found to export.');
+      return;
+    }
+
+    const headers = ['Order ID', 'Date', 'Customer Name', 'Phone', 'Address', 'Item Count', 'Total Amount (INR)', 'Payment Method', 'Payment Status', 'Order Status'];
+    const rows = this.orders.map(o => [
+      `"${o.id}"`,
+      `"${o.orderDate || ''}"`,
+      `"${(o.customerName || '').replace(/"/g, '""')}"`,
+      `"${(o.customerPhone || '').replace(/"/g, '""')}"`,
+      `"${((o.deliveryAddress?.street || '') + ' ' + (o.deliveryAddress?.city || '') + ' ' + (o.deliveryAddress?.pincode || '')).replace(/"/g, '""')}"`,
+      o.items?.reduce((sum, item) => sum + item.quantity, 0) || 0,
+      o.totalAmount || 0,
+      `"${o.paymentMethod}"`,
+      `"${o.paymentStatus}"`,
+      `"${o.orderStatus}"`
+    ]);
+
+    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\r\n');
+    const dateStr = new Date().toISOString().split('T')[0];
+    this.downloadCsvFile(`Electrical_Vibers_Customer_Orders_${dateStr}.csv`, csvContent);
+  }
+
   siteService = inject(SiteService);
   productService = inject(ProductService);
   orderService = inject(OrderService);
@@ -41,6 +180,7 @@ export class AdminPage implements OnInit {
   authService = inject(AuthService);
   configService = inject(ConfigService);
   firebaseService = inject(FirebaseService);
+  staffService = inject(StaffService);
 
   activeTab: 'roster' | 'workforce' | 'sites' | 'products' | 'categories' | 'services' | 'offers' | 'settings' | 'orders' | 'bookings' = 'roster';
   Math = Math;
@@ -84,10 +224,9 @@ export class AdminPage implements OnInit {
   }
 
   // Google Authentication State
-  showGoogleAccountModal = false;
-  showCustomEmailInput = false;
-  customGoogleEmail = '';
-  customGoogleName = '';
+  leaveRequests: StaffLeaveRequest[] = [];
+  expenseBillPhotoUrl = '';
+  isUploadingFile = false;
   whitelist: string[] = [];
   newAdminEmail = '';
 
@@ -285,6 +424,10 @@ export class AdminPage implements OnInit {
     return this.employees.reduce((sum, e) => sum + (e.pendingWageBalance || 0), 0);
   }
 
+  get pendingLeavesCount(): number {
+    return this.leaveRequests.filter(l => l.status === 'pending').length;
+  }
+
   ngOnInit(): void {
     this.siteService.sites$.subscribe(s => this.sites = s);
     this.siteService.employees$.subscribe(e => this.employees = e);
@@ -298,6 +441,7 @@ export class AdminPage implements OnInit {
     this.orderService.orders$.subscribe(o => this.orders = o);
     this.bookingService.bookings$.subscribe(b => this.bookings = b);
     this.authService.whitelist$.subscribe(wl => this.whitelist = wl);
+    this.staffService.leaves$.subscribe(l => this.leaveRequests = l);
   }
 
 
@@ -305,27 +449,12 @@ export class AdminPage implements OnInit {
   async handleGoogleSignIn(): Promise<void> {
     try {
       const res = await this.authService.signInWithGoogle();
-      if (!res.success && res.error !== 'Google Sign-In was cancelled.') {
-        this.showGoogleAccountModal = true;
+      if (!res.success && res.error) {
+        console.warn('Google sign-in:', res.error);
       }
-    } catch {
-      this.showGoogleAccountModal = true;
+    } catch (err: any) {
+      console.error('Sign-in error:', err);
     }
-  }
-
-  selectGoogleAccount(email: string, name: string): void {
-    const res = this.authService.validateAndAuthorize(email, name);
-    if (res.success) {
-      this.showGoogleAccountModal = false;
-      this.showCustomEmailInput = false;
-    }
-  }
-
-  submitCustomGoogleEmail(): void {
-    if (!this.customGoogleEmail.trim()) return;
-    this.selectGoogleAccount(this.customGoogleEmail.trim(), this.customGoogleName.trim() || 'Google User');
-    this.customGoogleEmail = '';
-    this.customGoogleName = '';
   }
 
   addAdminEmail(): void {
@@ -647,6 +776,8 @@ export class AdminPage implements OnInit {
     this.expenseMaterialUnitRate = 0;
     this.expenseInvoiceNo = '';
     this.expenseNotes = '';
+    this.expenseBillPhotoUrl = '';
+    this.isUploadingFile = false;
     this.showAddExpenseModal = true;
   }
 
@@ -675,6 +806,7 @@ export class AdminPage implements OnInit {
       quantity: Number(this.expenseMaterialQty),
       unitRate: Number(this.expenseMaterialUnitRate),
       invoiceNo: this.expenseInvoiceNo,
+      billPhoto: this.expenseBillPhotoUrl || undefined,
       recordedBy: this.expenseRecordedBy,
       notes: this.expenseNotes
     });
@@ -991,6 +1123,55 @@ export class AdminPage implements OnInit {
       `*UPI ID:* ${emp.upiId || 'N/A'}\n\n` +
       `Electrical Vibers Operations Office, Chennai.`;
     window.open(`https://api.whatsapp.com/send?phone=${emp.phone.replace(/[^0-9]/g, '')}&text=${encodeURIComponent(text)}`, '_blank');
+  }
+
+  // Option 3: 1-Click WhatsApp Staff Dispatch
+  dispatchStaffWhatsApp(alloc: SiteWorkAllocation): void {
+    const emp = this.employees.find(e => e.id === alloc.assignedEmployeeId);
+    const rawPhone = (emp?.phone || '').replace(/\D/g, '');
+    const phone = rawPhone.slice(-10);
+    if (!phone) {
+      alert('Technician phone number not found.');
+      return;
+    }
+
+    const encodedAddr = encodeURIComponent((alloc.siteAddress || alloc.siteName).trim() + ', Tamil Nadu');
+    const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodedAddr}`;
+    const message = 
+      `⚡ *ELECTRICAL VIBERS - பணி ஒதுக்கீடு விவரம்*\n\n` +
+      `வணக்கம் ${alloc.assignedEmployeeName},\n` +
+      `உங்களுக்கு கீழ்க்கண்ட வேலை ஒதுக்கப்பட்டுள்ளது:\n\n` +
+      `📍 *தளம்*: ${alloc.siteName}\n` +
+      `📌 *முகவரி*: ${alloc.siteAddress}\n` +
+      `👤 *வாடிக்கையாளர்*: ${alloc.clientName} (${alloc.clientPhone})\n` +
+      `🛠️ *பணி*: ${alloc.taskDescription}\n` +
+      `📅 *தேதி*: ${alloc.date} (${alloc.shift})\n` +
+      `🗺️ *Google Maps வழித்தடம்*:\n${mapsLink}\n\n` +
+      `பணியிடத்திற்கு சென்றதும் Staff App-ல் Site Check-in செய்யவும். வாழ்த்துகள்!`;
+
+    window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(message)}`, '_blank');
+  }
+
+  // Option 3: 1-Click WhatsApp Customer Order Update
+  sendOrderWhatsAppUpdate(order: Order): void {
+    const rawPhone = (order.customerPhone || '').replace(/\D/g, '');
+    const phone = rawPhone.slice(-10);
+    if (!phone) {
+      alert('Customer phone number not available.');
+      return;
+    }
+
+    const trackingLink = `${window.location.origin}/track-order?id=${order.id}`;
+    const message = 
+      `⚡ *ELECTRICAL VIBERS - Order Update*\n\n` +
+      `Hello ${order.customerName},\n` +
+      `Your electrical order *#${order.id}* status is now: *${order.orderStatus.toUpperCase()}*.\n\n` +
+      `📦 Items: ${order.items?.length || 0} product(s)\n` +
+      `💰 Total Amount: ₹${order.totalAmount}\n` +
+      `🚚 Track Live Status:\n${trackingLink}\n\n` +
+      `Thank you for choosing Electrical Vibers! Reach us at +91 98765 43210 for support.`;
+
+    window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(message)}`, '_blank');
   }
 
   // --- Site Profit & Financial Analytics Report ---

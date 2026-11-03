@@ -51,8 +51,6 @@ export class HeaderComponent implements OnInit {
   showAdminLoginModal = false;
   showAdminMenu = false;
   adminLoginError = '';
-  customEmailInput = '';
-  customNameInput = '';
 
   toggleThemeMenu(): void {
     this.showThemeMenu = !this.showThemeMenu;
@@ -155,21 +153,7 @@ export class HeaderComponent implements OnInit {
     }
   }
 
-  loginWithAuthorizedEmail(email: string, name: string): void {
-    this.adminLoginError = '';
-    const res = this.authService.validateAndAuthorize(email, name);
-    if (res.success) {
-      this.showAdminLoginModal = false;
-      this.router.navigate(['/admin']);
-    } else {
-      this.adminLoginError = res.error || 'Access denied. Account not authorized.';
-    }
-  }
-
-  submitCustomEmailLogin(): void {
-    if (!this.customEmailInput.trim()) return;
-    this.loginWithAuthorizedEmail(this.customEmailInput.trim(), this.customNameInput.trim() || 'Admin User');
-  }
+  
 
   logoutAdmin(): void {
     this.authService.logout();
