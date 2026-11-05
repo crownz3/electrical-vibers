@@ -205,10 +205,16 @@
           <h2 class="section-title">{{ langService.pick(config.servicesSectionTitle, config.tamilServicesSectionTitle) }}</h2>
           <p class="section-desc">{{ langService.pick(config.servicesSectionSubtitle, config.tamilServicesSectionSubtitle) }}</p>
         </div>
-        <button *ngIf="authService.isAdmin() && quickEditService.showEditMarkers()" type="button" class="btn-live-edit-pill" (click)="quickEditService.open('service')">
-          <span class="material-symbols-outlined">add</span>
-          <span>+ Add Service (சேவை சேர்)</span>
-        </button>
+        <div *ngIf="authService.isAdmin() && quickEditService.showEditMarkers()" style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button type="button" class="btn-live-edit-pill" (click)="quickEditService.open('services_header')">
+            <span class="material-symbols-outlined">edit</span>
+            <span>Edit Services Headline (தலைப்பு திருத்து)</span>
+          </button>
+          <button type="button" class="btn-live-edit-pill" (click)="quickEditService.open('service')">
+            <span class="material-symbols-outlined">add</span>
+            <span>+ Add Service (சேவை சேர்)</span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -258,6 +264,10 @@
           <span class="material-symbols-outlined pulse-icon">local_fire_department</span>
           DEAL OF THE DAY
         </span>
+        <button *ngIf="authService.isAdmin() && quickEditService.showEditMarkers()" type="button" class="btn-live-edit-pill" (click)="quickEditService.open('product', dealProduct)" style="margin-left: auto;">
+          <span class="material-symbols-outlined">edit</span>
+          <span>Edit Deal Item (சலுகை பொருள் திருத்து)</span>
+        </button>
         <div class="countdown-timer">
           <span class="timer-label">Ends in:</span>
           <div class="timer-boxes">
@@ -336,6 +346,10 @@
           <p class="section-desc">{{ langService.pick(config.storeSectionSubtitle, config.tamilStoreSectionSubtitle) }}</p>
         </div>
         <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+          <button *ngIf="authService.isAdmin() && quickEditService.showEditMarkers()" type="button" class="btn-live-edit-pill" (click)="quickEditService.open('store_header')">
+            <span class="material-symbols-outlined">edit</span>
+            <span>Edit Store Headline (தலைப்பு திருத்து)</span>
+          </button>
           <button *ngIf="authService.isAdmin() && quickEditService.showEditMarkers()" type="button" class="btn-live-edit-pill" (click)="quickEditService.open('product')">
             <span class="material-symbols-outlined">add</span>
             <span>+ Add Product (தயாரிப்பு சேர்)</span>

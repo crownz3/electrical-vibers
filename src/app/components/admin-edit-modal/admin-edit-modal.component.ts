@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { QuickEditService } from '../../services/quick-edit.service';
@@ -43,7 +43,13 @@ export class AdminEditModalComponent {
   productSpecsInput = '';
 
   constructor() {
-    // When modal opens, initialize appropriate form
+    // When modal opens or data changes, reinitialize the appropriate form
+    effect(() => {
+      if (this.quickEditService.isOpen()) {
+        this.onModalInit();
+      }
+    });
+
     this.configService.config$.subscribe(c => {
       this.configForm = { ...c };
     });
@@ -53,6 +59,10 @@ export class AdminEditModalComponent {
     switch (this.activeType) {
       case 'hero': return 'Edit Homepage Hero & Call to Actions (இருமொழி முகப்பு தலைப்புகள்)';
       case 'banner': return 'Edit Top Announcement Banner (இருமொழி அறிவிப்பு பேனர்)';
+      case 'services_header': return 'Edit Services Section Title & Subtitle (சேவைகள் பிரிவு தலைப்பு)';
+      case 'store_header': return 'Edit Store Section Title & Subtitle (அங்காடி பிரிவு தலைப்பு)';
+      case 'contact': return 'Edit Contact & Emergency Dispatch Details (தொடர்பு & அவசர விவரங்கள்)';
+      case 'deal': return 'Edit Deal of the Day Settings (இன்றைய சிறப்பு சலுகை)';
       case 'product': return this.editData?.id ? 'Edit Product (தயாரிப்பு திருத்து)' : 'Add New Product (புதிய தயாரிப்பு சேர்)';
       case 'service': return this.editData?.id ? 'Edit Electrician Service (மின்சார சேவை திருத்து)' : 'Add New Service (புதிய சேவை சேர்)';
       case 'offer': return this.editData?.id ? 'Edit Special Offer (சிறப்பு சலுகை திருத்து)' : 'Add New Offer (புதிய சலுகை சேர்)';
@@ -137,6 +147,10 @@ export class AdminEditModalComponent {
       case 'stats':
       case 'values':
       case 'footer':
+      case 'services_header':
+      case 'store_header':
+      case 'contact':
+      case 'deal':
         this.configService.saveConfig(this.configForm);
         break;
 

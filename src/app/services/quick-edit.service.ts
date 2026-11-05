@@ -9,7 +9,10 @@ export type QuickEditType =
   | 'stats' 
   | 'values' 
   | 'deal' 
-  | 'footer';
+  | 'footer'
+  | 'contact'
+  | 'services_header'
+  | 'store_header';
 
 @Injectable({
   providedIn: 'root'

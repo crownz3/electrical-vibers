@@ -89,6 +89,82 @@
         </div>
       </div>
 
+      <!-- 2B. SERVICES SECTION HEADER -->
+      <div *ngIf="activeType === 'services_header'" class="form-fields-container">
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Services Section Title (English) *</label>
+            <input type="text" [(ngModel)]="configForm.servicesSectionTitle" />
+          </div>
+          <div class="form-group">
+            <label>Services Section Title (Tamil / தமிழ்) *</label>
+            <input type="text" [(ngModel)]="configForm.tamilServicesSectionTitle" placeholder="எங்கள் மின்சார சேவைகள்" />
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Services Subtitle (English)</label>
+            <input type="text" [(ngModel)]="configForm.servicesSectionSubtitle" />
+          </div>
+          <div class="form-group">
+            <label>Services Subtitle (Tamil / தமிழ்)</label>
+            <input type="text" [(ngModel)]="configForm.tamilServicesSectionSubtitle" placeholder="அங்கீகரிக்கப்பட்ட எலக்ட்ரீஷியன்கள் மூலம்..." />
+          </div>
+        </div>
+      </div>
+
+      <!-- 2C. STORE SECTION HEADER -->
+      <div *ngIf="activeType === 'store_header'" class="form-fields-container">
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Store Section Title (English) *</label>
+            <input type="text" [(ngModel)]="configForm.storeSectionTitle" />
+          </div>
+          <div class="form-group">
+            <label>Store Section Title (Tamil / தமிழ்) *</label>
+            <input type="text" [(ngModel)]="configForm.tamilStoreSectionTitle" placeholder="அசல் மின் சாதனங்கள் அங்காடி" />
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Store Subtitle (English)</label>
+            <input type="text" [(ngModel)]="configForm.storeSectionSubtitle" />
+          </div>
+          <div class="form-group">
+            <label>Store Subtitle (Tamil / தமிழ்)</label>
+            <input type="text" [(ngModel)]="configForm.tamilStoreSectionSubtitle" placeholder="ஐஎஸ்ஐ தரச்சான்று பெற்ற பொருட்கள்..." />
+          </div>
+        </div>
+      </div>
+
+      <!-- 2D. CONTACT & EMERGENCY DISPATCH -->
+      <div *ngIf="activeType === 'contact'" class="form-fields-container">
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Contact Phone (Calling) *</label>
+            <input type="tel" [(ngModel)]="configForm.contactPhone" />
+          </div>
+          <div class="form-group">
+            <label>WhatsApp Helpline (with Country Code) *</label>
+            <input type="text" [(ngModel)]="configForm.whatsappNumber" placeholder="919876543210" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Store / Contractor Physical Address</label>
+          <input type="text" [(ngModel)]="configForm.address" />
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Base Inspection Visit Fee (₹)</label>
+            <input type="number" [(ngModel)]="configForm.baseInspectionFee" />
+          </div>
+          <div class="form-group">
+            <label>Emergency Response Promise</label>
+            <input type="text" [(ngModel)]="configForm.emergencyResponseTime" placeholder="e.g. 30 Min" />
+          </div>
+        </div>
+      </div>
+
       <!-- 3. PRODUCT FORM -->
       <div *ngIf="activeType === 'product'" class="form-fields-container">
         <div class="form-row-2">

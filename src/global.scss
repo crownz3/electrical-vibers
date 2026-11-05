@@ -639,3 +639,86 @@ img, video, canvas, svg {
   }
 }
 
+/* ==========================================================================
+   GLOBAL ADMIN IN-PLACE LIVE EDITING CONTROLS (VMHSS Style)
+   ========================================================================== */
+.btn-live-edit-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  background: rgba(245, 158, 11, 0.16) !important;
+  border: 1px solid rgba(245, 158, 11, 0.45) !important;
+  color: #f59e0b !important;
+  padding: 5px 12px !important;
+  border-radius: 999px !important;
+  font-size: 0.78rem !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  backdrop-filter: blur(6px) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+  text-decoration: none !important;
+
+  .material-symbols-outlined {
+    font-size: 15px !important;
+    color: inherit !important;
+  }
+
+  &:hover {
+    background: #f59e0b !important;
+    color: #0f172a !important;
+    transform: translateY(-1.5px) !important;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35) !important;
+  }
+}
+
+.btn-mini-admin-edit {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 50% !important;
+  background: #f59e0b !important;
+  color: #0f172a !important;
+  border: none !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+
+  .material-symbols-outlined {
+    font-size: 15px !important;
+    color: #0f172a !important;
+  }
+
+  &:hover {
+    background: #d97706 !important;
+    transform: scale(1.1) !important;
+  }
+}
+
+.btn-mini-admin-del {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 50% !important;
+  background: #ef4444 !important;
+  color: #ffffff !important;
+  border: none !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+
+  .material-symbols-outlined {
+    font-size: 15px !important;
+    color: #ffffff !important;
+  }
+
+  &:hover {
+    background: #dc2626 !important;
+    transform: scale(1.1) !important;
+  }
+}
+
