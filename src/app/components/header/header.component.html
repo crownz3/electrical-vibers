@@ -6,7 +6,7 @@
       <span class="material-symbols-outlined flash-icon">bolt</span>
       <span>{{ langService.isTamil() ? 'சிறப்பு சலுகை' : 'EXCLUSIVE OFFER' }}</span>
     </div>
-    <span class="offer-text">{{ langService.pick(config.bannerOfferText, config.tamilBannerOfferText) }}</span>
+    <span class="offer-text" [appInlineEdit]="'bannerOfferText'">{{ langService.pick(config.bannerOfferText, config.tamilBannerOfferText) }}</span>
     <a routerLink="/products" class="top-offer-link">
       <span>{{ langService.isTamil() ? 'பொருட்கள்' : 'Shop Deals' }}</span>
       <span class="material-symbols-outlined link-arrow">arrow_forward</span>

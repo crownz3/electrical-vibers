@@ -26,6 +26,20 @@ export class QuickEditService {
   // Toggle visual markers (pencils, badges) across the site
   public showEditMarkers = signal<boolean>(true);
 
+  // Live auto-save notification
+  public lastSavedNotification = signal<string | null>(null);
+  private toastTimer?: any;
+
+  notifySaved(message: string = 'Changes saved live! (நேரடியாக சேமிக்கப்பட்டது)'): void {
+    if (this.toastTimer) {
+      clearTimeout(this.toastTimer);
+    }
+    this.lastSavedNotification.set(message);
+    this.toastTimer = setTimeout(() => {
+      this.lastSavedNotification.set(null);
+    }, 2500);
+  }
+
   open(type: QuickEditType, data: any = null): void {
     this.activeType.set(type);
     this.editData.set(data ? JSON.parse(JSON.stringify(data)) : null);

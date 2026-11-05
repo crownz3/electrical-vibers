@@ -8,12 +8,13 @@ import { ConfigService, AppConfig } from '../../services/config.service';
 import { LanguageService } from '../../services/language.service';
 import { AuthService } from '../../services/auth.service';
 import { QuickEditService } from '../../services/quick-edit.service';
+import { InlineEditDirective } from '../../directives/inline-edit.directive';
 import { Product } from '../../models/product.model';
 
 @Component({
   selector: 'app-product-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, InlineEditDirective],
   templateUrl: './product-detail.page.html',
   styleUrls: ['./product-detail.page.scss']
 })

@@ -13,11 +13,12 @@ import { DialogService } from '../../services/dialog.service';
 import { Product } from '../../models/product.model';
 import { ServiceCategory } from '../../models/booking.model';
 import { ScrollAnimateDirective } from '../../directives/scroll-animate.directive';
+import { InlineEditDirective } from '../../directives/inline-edit.directive';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterModule, ScrollAnimateDirective],
+  imports: [CommonModule, RouterModule, ScrollAnimateDirective, InlineEditDirective],
   templateUrl: './home.page.html',
   styleUrls: ['./home.page.scss']
 })

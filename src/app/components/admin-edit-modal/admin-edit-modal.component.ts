@@ -1,4 +1,4 @@
-import { Component, inject, effect } from '@angular/core';
+import { Component, inject, effect, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { QuickEditService } from '../../services/quick-edit.service';
@@ -16,7 +16,7 @@ import { ServiceCategory } from '../../models/booking.model';
   templateUrl: './admin-edit-modal.component.html',
   styleUrls: ['./admin-edit-modal.component.scss']
 })
-export class AdminEditModalComponent {
+export class AdminEditModalComponent implements OnDestroy {
   quickEditService = inject(QuickEditService);
   configService = inject(ConfigService);
   productService = inject(ProductService);
@@ -45,16 +45,23 @@ export class AdminEditModalComponent {
   productSpecsInput = '';
 
   constructor() {
-    // When modal opens or data changes, reinitialize the appropriate form
+    // When modal opens or data changes, lock background scroll & reinitialize the appropriate form
     effect(() => {
       if (this.quickEditService.isOpen()) {
+        document.body.style.overflow = 'hidden';
         this.onModalInit();
+      } else {
+        document.body.style.overflow = '';
       }
     });
 
     this.configService.config$.subscribe(c => {
       this.configForm = { ...c };
     });
+  }
+
+  ngOnDestroy(): void {
+    document.body.style.overflow = '';
   }
 
   getModalTitle(): string {

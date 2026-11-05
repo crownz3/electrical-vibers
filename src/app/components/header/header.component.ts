@@ -16,6 +16,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
+import { InlineEditDirective } from '../../directives/inline-edit.directive';
 
 @Component({
   selector: 'app-header',
@@ -27,7 +28,8 @@ import { MatDividerModule } from '@angular/material/divider';
     MatMenuModule,
     MatButtonModule,
     MatIconModule,
-    MatDividerModule
+    MatDividerModule,
+    InlineEditDirective
   ],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']

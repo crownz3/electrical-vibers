@@ -12,36 +12,36 @@
             <div class="hero-badge animate-fade-down">
               <span class="live-beacon"></span>
               <span class="material-symbols-outlined badge-icon">verified</span>
-              <span>{{ langService.pick(config.heroBadgeText, config.tamilHeroBadgeText) }}</span>
+              <span [appInlineEdit]="'heroBadgeText'">{{ langService.pick(config.heroBadgeText, config.tamilHeroBadgeText) }}</span>
             </div>
             <button 
               *ngIf="authService.isAdmin() && quickEditService.showEditMarkers()"
               type="button" 
               class="btn-live-edit-pill"
               (click)="quickEditService.open('hero')"
-              title="Admin: Edit Hero Copy & CTAs">
+              title="Admin: Edit Hero in Dialog (Or click text directly on screen to edit live)">
               <span class="material-symbols-outlined">edit</span>
-              <span>Edit Hero (முகப்பு திருத்து)</span>
+              <span>Edit Hero Dialog</span>
             </button>
           </div>
 
-          <h1 class="hero-title animate-fade-in">
+          <h1 class="hero-title animate-fade-in" [appInlineEdit]="'heroHeadline'">
             {{ langService.pick(config.heroHeadline, config.tamilHeroHeadline) || 'Smart Electrical Solutions & Premium Supplies in One Place' }}
           </h1>
 
-          <p class="hero-subtitle animate-fade-in-delayed">
+          <p class="hero-subtitle animate-fade-in-delayed" [appInlineEdit]="'heroSubheadline'" [multiline]="true">
             {{ langService.pick(config.heroSubheadline, config.tamilHeroSubheadline) }}
           </p>
 
           <div class="hero-cta-group animate-fade-up">
             <a routerLink="/book-service" class="btn btn-primary">
               <span class="material-symbols-outlined btn-icon">handyman</span>
-              <span>{{ langService.pick(config.heroBookCtaText, config.tamilHeroBookCtaText) }}</span>
+              <span [appInlineEdit]="'heroBookCtaText'">{{ langService.pick(config.heroBookCtaText, config.tamilHeroBookCtaText) }}</span>
               <span class="material-symbols-outlined btn-arrow">arrow_forward</span>
             </a>
             <a routerLink="/products" class="btn btn-secondary">
               <span class="material-symbols-outlined btn-icon">storefront</span>
-              <span>{{ langService.pick(config.heroStoreCtaText, config.tamilHeroStoreCtaText) }}</span>
+              <span [appInlineEdit]="'heroStoreCtaText'">{{ langService.pick(config.heroStoreCtaText, config.tamilHeroStoreCtaText) }}</span>
             </a>
           </div>
 
@@ -113,40 +113,40 @@
       <div *ngIf="authService.isAdmin() && quickEditService.showEditMarkers()" style="display: flex; justify-content: flex-end; margin-bottom: 8px;">
         <button type="button" class="btn-live-edit-pill" (click)="quickEditService.open('stats')">
           <span class="material-symbols-outlined">edit</span>
-          <span>Edit Trust Badges (புள்ளிவிவரங்கள் திருத்து)</span>
+          <span>Edit Trust Badges Dialog</span>
         </button>
       </div>
       <div class="trust-stats-grid">
         <div class="stat-card glass-card" appScrollAnimate="fade-up" [animDelay]="100">
           <div class="stat-num-row">
             <span class="material-symbols-outlined stat-icon">engineering</span>
-            <div class="stat-num">{{ config.stat1Num }}</div>
+            <div class="stat-num" [appInlineEdit]="'stat1Num'">{{ config.stat1Num }}</div>
           </div>
-          <div class="stat-lbl">{{ config.stat1Label }}</div>
+          <div class="stat-lbl" [appInlineEdit]="'stat1Label'">{{ config.stat1Label }}</div>
         </div>
 
         <div class="stat-card glass-card" appScrollAnimate="fade-up" [animDelay]="200">
           <div class="stat-num-row">
             <span class="material-symbols-outlined stat-icon">domain</span>
-            <div class="stat-num">{{ config.stat2Num }}</div>
+            <div class="stat-num" [appInlineEdit]="'stat2Num'">{{ config.stat2Num }}</div>
           </div>
-          <div class="stat-lbl">{{ config.stat2Label }}</div>
+          <div class="stat-lbl" [appInlineEdit]="'stat2Label'">{{ config.stat2Label }}</div>
         </div>
 
         <div class="stat-card glass-card" appScrollAnimate="fade-up" [animDelay]="300">
           <div class="stat-num-row">
             <span class="material-symbols-outlined stat-icon">workspace_premium</span>
-            <div class="stat-num">{{ config.stat3Num }}</div>
+            <div class="stat-num" [appInlineEdit]="'stat3Num'">{{ config.stat3Num }}</div>
           </div>
-          <div class="stat-lbl">{{ config.stat3Label }}</div>
+          <div class="stat-lbl" [appInlineEdit]="'stat3Label'">{{ config.stat3Label }}</div>
         </div>
 
         <div class="stat-card glass-card" appScrollAnimate="fade-up" [animDelay]="400">
           <div class="stat-num-row">
             <span class="material-symbols-outlined stat-icon">timer</span>
-            <div class="stat-num">{{ config.stat4Num }}</div>
+            <div class="stat-num" [appInlineEdit]="'stat4Num'">{{ config.stat4Num }}</div>
           </div>
-          <div class="stat-lbl">{{ config.stat4Label }}</div>
+          <div class="stat-lbl" [appInlineEdit]="'stat4Label'">{{ config.stat4Label }}</div>
         </div>
       </div>
     </div>
@@ -158,7 +158,7 @@
       <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
         <div>
           <span class="section-tag">{{ langService.t('specialOffers') }}</span>
-          <h2 class="section-title">{{ langService.pick(config.offersSectionTitle, config.tamilOffersSectionTitle) }}</h2>
+          <h2 class="section-title" [appInlineEdit]="'offersSectionTitle'">{{ langService.pick(config.offersSectionTitle, config.tamilOffersSectionTitle) }}</h2>
         </div>
         <button *ngIf="authService.isAdmin() && quickEditService.showEditMarkers()" type="button" class="btn-live-edit-pill" (click)="quickEditService.open('offer')">
           <span class="material-symbols-outlined">add</span>
@@ -202,17 +202,17 @@
       <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
         <div>
           <span class="section-tag">{{ langService.t('services') }}</span>
-          <h2 class="section-title">{{ langService.pick(config.servicesSectionTitle, config.tamilServicesSectionTitle) }}</h2>
-          <p class="section-desc">{{ langService.pick(config.servicesSectionSubtitle, config.tamilServicesSectionSubtitle) }}</p>
+          <h2 class="section-title" [appInlineEdit]="'servicesSectionTitle'">{{ langService.pick(config.servicesSectionTitle, config.tamilServicesSectionTitle) }}</h2>
+          <p class="section-desc" [appInlineEdit]="'servicesSectionSubtitle'" [multiline]="true">{{ langService.pick(config.servicesSectionSubtitle, config.tamilServicesSectionSubtitle) }}</p>
         </div>
         <div *ngIf="authService.isAdmin() && quickEditService.showEditMarkers()" style="display: flex; gap: 8px; flex-wrap: wrap;">
           <button type="button" class="btn-live-edit-pill" (click)="quickEditService.open('services_header')">
             <span class="material-symbols-outlined">edit</span>
-            <span>Edit Services Headline (தலைப்பு திருத்து)</span>
+            <span>Edit Services Dialog</span>
           </button>
           <button type="button" class="btn-live-edit-pill" (click)="quickEditService.open('service')">
             <span class="material-symbols-outlined">add</span>
-            <span>+ Add Service (சேவை சேர்)</span>
+            <span>+ Add Service</span>
           </button>
         </div>
       </div>
@@ -228,10 +228,10 @@
         </div>
         <div class="service-body">
           <div class="service-title-row">
-            <h3 class="service-title">{{ langService.pick(s.title, s.tamilTitle) }}</h3>
+            <h3 class="service-title" [appInlineEdit]="'service.title'" [editTarget]="s">{{ langService.pick(s.title, s.tamilTitle) }}</h3>
             <span *ngIf="s.popular" class="badge-pill badge-warning">Popular</span>
             <div *ngIf="authService.isAdmin() && quickEditService.showEditMarkers()" style="margin-left: auto; display: flex; gap: 4px;">
-              <button type="button" class="btn-mini-admin-edit" (click)="quickEditService.open('service', s)" title="Edit Service">
+              <button type="button" class="btn-mini-admin-edit" (click)="quickEditService.open('service', s)" title="Edit Service in Dialog">
                 <span class="material-symbols-outlined">edit</span>
               </button>
               <button type="button" class="btn-mini-admin-del" (click)="deleteService(s.id, s.title)" title="Delete Service">
@@ -240,11 +240,11 @@
             </div>
           </div>
           <p class="service-tamil" *ngIf="langService.currentLang() === 'en' && s.tamilTitle">{{ s.tamilTitle }}</p>
-          <p class="service-desc">{{ langService.pick(s.description, s.tamilDescription) }}</p>
+          <p class="service-desc" [appInlineEdit]="'service.description'" [editTarget]="s" [multiline]="true">{{ langService.pick(s.description, s.tamilDescription) }}</p>
           <div class="service-footer">
             <div class="service-price">
               <span class="price-label">{{ langService.t('startingFrom') }}</span>
-              <span class="price-val">₹{{ s.startingPrice }}</span>
+              <span class="price-val" [appInlineEdit]="'service.startingPrice'" [editTarget]="s">₹{{ s.startingPrice }}</span>
             </div>
             <a [routerLink]="['/book-service']" [queryParams]="{serviceId: s.id}" class="btn-book-sm">
               {{ langService.t('bookNow') }}
@@ -290,15 +290,15 @@
 
         <div class="deal-info">
           <div class="deal-category-brand">
-            <span class="brand-chip">{{ dealProduct.brand }}</span>
+            <span class="brand-chip" [appInlineEdit]="'product.brand'" [editTarget]="dealProduct">{{ dealProduct.brand }}</span>
             <span class="cat-chip">{{ dealProduct.category }}</span>
           </div>
 
-          <h3 class="deal-title" [routerLink]="['/product', dealProduct.id]">
+          <h3 class="deal-title" [routerLink]="['/product', dealProduct.id]" [appInlineEdit]="'product.name'" [editTarget]="dealProduct">
             {{ langService.pick(dealProduct.name, dealProduct.tamilName) }}
           </h3>
           <p class="deal-tamil" *ngIf="langService.currentLang() === 'en' && dealProduct.tamilName">{{ dealProduct.tamilName }}</p>
-          <p class="deal-desc">{{ langService.pick(dealProduct.description, dealProduct.tamilDescription) }}</p>
+          <p class="deal-desc" [appInlineEdit]="'product.description'" [editTarget]="dealProduct" [multiline]="true">{{ langService.pick(dealProduct.description, dealProduct.tamilDescription) }}</p>
 
           <div class="deal-specs-pills" *ngIf="dealProduct.specs">
             <span class="spec-tag" *ngFor="let item of (dealProduct.specs | keyvalue | slice:0:3)">
@@ -308,7 +308,7 @@
 
           <div class="deal-pricing-row">
             <div class="price-stack">
-              <span class="current-deal-price">₹{{ dealProduct.price }}</span>
+              <span class="current-deal-price" [appInlineEdit]="'product.price'" [editTarget]="dealProduct">₹{{ dealProduct.price }}</span>
               <span *ngIf="dealProduct.mrp" class="mrp-striked">₹{{ dealProduct.mrp }}</span>
               <span class="gst-text">(incl. GST)</span>
             </div>
@@ -342,17 +342,17 @@
       <div class="flex-between">
         <div>
           <span class="section-tag">{{ langService.t('store') }}</span>
-          <h2 class="section-title">{{ langService.pick(config.storeSectionTitle, config.tamilStoreSectionTitle) }}</h2>
-          <p class="section-desc">{{ langService.pick(config.storeSectionSubtitle, config.tamilStoreSectionSubtitle) }}</p>
+          <h2 class="section-title" [appInlineEdit]="'storeSectionTitle'">{{ langService.pick(config.storeSectionTitle, config.tamilStoreSectionTitle) }}</h2>
+          <p class="section-desc" [appInlineEdit]="'storeSectionSubtitle'" [multiline]="true">{{ langService.pick(config.storeSectionSubtitle, config.tamilStoreSectionSubtitle) }}</p>
         </div>
         <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
           <button *ngIf="authService.isAdmin() && quickEditService.showEditMarkers()" type="button" class="btn-live-edit-pill" (click)="quickEditService.open('store_header')">
             <span class="material-symbols-outlined">edit</span>
-            <span>Edit Store Headline (தலைப்பு திருத்து)</span>
+            <span>Edit Store Dialog</span>
           </button>
           <button *ngIf="authService.isAdmin() && quickEditService.showEditMarkers()" type="button" class="btn-live-edit-pill" (click)="quickEditService.open('product')">
             <span class="material-symbols-outlined">add</span>
-            <span>+ Add Product (தயாரிப்பு சேர்)</span>
+            <span>+ Add Product</span>
           </button>
           <a routerLink="/products" class="view-all-link">
             {{ langService.t('viewAll') }}
@@ -373,7 +373,7 @@
             {{ prod.discountPercentage }}% OFF
           </span>
           <div *ngIf="authService.isAdmin() && quickEditService.showEditMarkers()" class="card-corner-admin-actions" (click)="$event.stopPropagation()">
-            <button type="button" class="btn-mini-admin-edit" (click)="quickEditService.open('product', prod)" title="Edit product">
+            <button type="button" class="btn-mini-admin-edit" (click)="quickEditService.open('product', prod)" title="Edit product in dialog">
               <span class="material-symbols-outlined">edit</span>
             </button>
             <button type="button" class="btn-mini-admin-del" (click)="deleteProduct(prod.id, prod.name)" title="Delete product">
@@ -382,14 +382,14 @@
           </div>
         </div>
         <div class="product-content">
-          <div class="brand-name">{{ prod.brand }}</div>
-          <h4 class="product-name" [routerLink]="['/product', prod.id]">
+          <div class="brand-name" [appInlineEdit]="'product.brand'" [editTarget]="prod">{{ prod.brand }}</div>
+          <h4 class="product-name" [routerLink]="['/product', prod.id]" [appInlineEdit]="'product.name'" [editTarget]="prod">
             {{ langService.pick(prod.name, prod.tamilName) }}
           </h4>
           <p *ngIf="langService.currentLang() === 'en' && prod.tamilName" class="tamil-prod-name">{{ prod.tamilName }}</p>
 
           <div class="price-row">
-            <div class="current-price">₹{{ prod.price }}</div>
+            <div class="current-price" [appInlineEdit]="'product.price'" [editTarget]="prod">₹{{ prod.price }}</div>
             <div *ngIf="prod.mrp" class="mrp-price">₹{{ prod.mrp }}</div>
             <div class="unit-tag">/ {{ langService.pick(prod.unit, prod.tamilUnit) }}</div>
           </div>
@@ -437,29 +437,29 @@
         <div class="value-icon">
           <span class="material-symbols-outlined">shield</span>
         </div>
-        <h4>{{ config.value1Title }}</h4>
-        <p>{{ config.value1Desc }}</p>
+        <h4 [appInlineEdit]="'value1Title'">{{ config.value1Title }}</h4>
+        <p [appInlineEdit]="'value1Desc'" [multiline]="true">{{ config.value1Desc }}</p>
       </div>
       <div class="value-item" appScrollAnimate="fade-up" [animDelay]="200">
         <div class="value-icon">
           <span class="material-symbols-outlined">price_check</span>
         </div>
-        <h4>{{ config.value2Title }}</h4>
-        <p>{{ config.value2Desc }}</p>
+        <h4 [appInlineEdit]="'value2Title'">{{ config.value2Title }}</h4>
+        <p [appInlineEdit]="'value2Desc'" [multiline]="true">{{ config.value2Desc }}</p>
       </div>
       <div class="value-item" appScrollAnimate="fade-up" [animDelay]="300">
         <div class="value-icon">
           <span class="material-symbols-outlined">speed</span>
         </div>
-        <h4>{{ config.value3Title }}</h4>
-        <p>{{ config.value3Desc }}</p>
+        <h4 [appInlineEdit]="'value3Title'">{{ config.value3Title }}</h4>
+        <p [appInlineEdit]="'value3Desc'" [multiline]="true">{{ config.value3Desc }}</p>
       </div>
       <div class="value-item" appScrollAnimate="fade-up" [animDelay]="400">
         <div class="value-icon">
           <span class="material-symbols-outlined">support_agent</span>
         </div>
-        <h4>{{ config.value4Title }}</h4>
-        <p>{{ config.value4Desc }}</p>
+        <h4 [appInlineEdit]="'value4Title'">{{ config.value4Title }}</h4>
+        <p [appInlineEdit]="'value4Desc'" [multiline]="true">{{ config.value4Desc }}</p>
       </div>
     </div>
   </section>

@@ -141,14 +141,14 @@
         <!-- Content Details -->
         <div class="card-details">
           <div class="brand-row">
-            <span class="brand-badge">{{ prod.brand }}</span>
+            <span class="brand-badge" [appInlineEdit]="'product.brand'" [editTarget]="prod">{{ prod.brand }}</span>
             <span class="rating-badge" *ngIf="prod.rating">
               <span class="material-symbols-outlined star-icon">star</span>
               {{ prod.rating }} ({{ prod.ratingCount }})
             </span>
           </div>
 
-          <h3 class="prod-title" [routerLink]="['/product', prod.id]">
+          <h3 class="prod-title" [routerLink]="['/product', prod.id]" [appInlineEdit]="'product.name'" [editTarget]="prod">
             {{ langService.pick(prod.name, prod.tamilName) }}
           </h3>
           <p *ngIf="langService.currentLang() === 'en' && prod.tamilName" class="tamil-title">{{ prod.tamilName }}</p>
@@ -163,7 +163,7 @@
           <!-- Price & CTA -->
           <div class="card-footer">
             <div class="price-box">
-              <span class="curr-price">₹{{ prod.price }}</span>
+              <span class="curr-price" [appInlineEdit]="'product.price'" [editTarget]="prod">₹{{ prod.price }}</span>
               <span *ngIf="prod.mrp" class="mrp-striked">₹{{ prod.mrp }}</span>
               <span class="unit-text">/ {{ langService.pick(prod.unit, prod.tamilUnit) }}</span>
             </div>

@@ -19,3 +19,9 @@
 
 <!-- Live Quick Edit Modal for Admin -->
 <app-admin-edit-modal></app-admin-edit-modal>
+
+<!-- Floating Live Auto-Save Confirmation Toast -->
+<div *ngIf="quickEditService.lastSavedNotification()" class="live-saved-toast">
+  <span class="material-symbols-outlined">check_circle</span>
+  <span>{{ quickEditService.lastSavedNotification() }}</span>
+</div>

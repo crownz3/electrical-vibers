@@ -75,7 +75,7 @@
         <!-- Brand & Stock status -->
         <div class="brand-line" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
           <div style="display: flex; align-items: center; gap: 8px;">
-            <span class="brand-tag">{{ product.brand }}</span>
+            <span class="brand-tag" [appInlineEdit]="'product.brand'" [editTarget]="product">{{ product.brand }}</span>
             <span class="stock-pill in-stock" *ngIf="product.inStock">
               <span class="dot"></span>
               <span>In Stock ({{ product.stock }} units ready)</span>
@@ -88,12 +88,12 @@
             style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #0f172a; font-weight: 800; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;"
             (click)="quickEditService.open('product', product)">
             <span class="material-symbols-outlined" style="font-size: 16px;">edit</span>
-            <span>Edit This Product (தயாரிப்பு திருத்து)</span>
+            <span>Edit Product Dialog</span>
           </button>
         </div>
 
         <!-- Title & Tamil Translation -->
-        <h1 class="prod-headline">{{ langService.pick(product.name, product.tamilName) }}</h1>
+        <h1 class="prod-headline" [appInlineEdit]="'product.name'" [editTarget]="product">{{ langService.pick(product.name, product.tamilName) }}</h1>
         <p *ngIf="langService.currentLang() === 'en' && product.tamilName" class="prod-tamil-headline">{{ product.tamilName }}</p>
 
         <!-- Rating & Warranty -->
@@ -112,7 +112,7 @@
         <!-- Pricing & Express Order Card -->
         <div class="pricing-card glass-card">
           <div class="price-header">
-            <span class="huge-price">₹{{ product.price }}</span>
+            <span class="huge-price" [appInlineEdit]="'product.price'" [editTarget]="product">₹{{ product.price }}</span>
             <span *ngIf="product.mrp && product.mrp > product.price" class="mrp-strike">
               ₹{{ product.mrp }}
             </span>

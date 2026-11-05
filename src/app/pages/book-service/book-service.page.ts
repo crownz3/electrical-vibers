@@ -9,12 +9,13 @@ import { DialogService } from '../../services/dialog.service';
 import { LanguageService } from '../../services/language.service';
 import { AuthService } from '../../services/auth.service';
 import { QuickEditService } from '../../services/quick-edit.service';
+import { InlineEditDirective } from '../../directives/inline-edit.directive';
 import { Booking, ServiceCategory } from '../../models/booking.model';
 
 @Component({
   selector: 'app-book-service',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, InlineEditDirective],
   templateUrl: './book-service.page.html',
   styleUrls: ['./book-service.page.scss']
 })

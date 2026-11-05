@@ -7,8 +7,8 @@
           <div style="display: flex; align-items: center; gap: 8px;">
             <span class="material-symbols-outlined bolt-icon">bolt</span>
             <h3>
-              {{ langService.pick(config.businessName, config.tamilBusinessName) }}
-              <span *ngIf="config.businessSubtitle" style="font-size: 0.9em; font-weight: 500; opacity: 0.9;">
+              <span [appInlineEdit]="'businessName'">{{ langService.pick(config.businessName, config.tamilBusinessName) }}</span>
+              <span *ngIf="config.businessSubtitle" style="font-size: 0.9em; font-weight: 500; opacity: 0.9;" [appInlineEdit]="'businessSubtitle'">
                 {{ langService.pick(config.businessSubtitle, config.tamilBusinessSubtitle) }}
               </span>
             </h3>
@@ -20,13 +20,13 @@
             style="background: #f59e0b; color: #0f172a; border: none; padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 0.72rem; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;"
             (click)="quickEditService.open('footer')">
             <span class="material-symbols-outlined" style="font-size: 14px;">edit</span>
-            <span>Edit Footer & Brand (அடையாளம் திருத்து)</span>
+            <span>Edit Footer Dialog</span>
           </button>
         </div>
-        <p class="brand-desc">
+        <p class="brand-desc" [appInlineEdit]="'footerAboutText'" [multiline]="true">
           {{ langService.pick(config.footerAboutText, config.tamilFooterAboutText) }}
         </p>
-        <p class="tamil-quote">
+        <p class="tamil-quote" [appInlineEdit]="'tamilQuote'">
           {{ config.tamilQuote }}
         </p>
 

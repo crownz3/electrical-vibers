@@ -8,12 +8,13 @@ import { LanguageService } from '../../services/language.service';
 import { AuthService } from '../../services/auth.service';
 import { QuickEditService } from '../../services/quick-edit.service';
 import { DialogService } from '../../services/dialog.service';
+import { InlineEditDirective } from '../../directives/inline-edit.directive';
 import { Product } from '../../models/product.model';
 
 @Component({
   selector: 'app-products',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, InlineEditDirective],
   templateUrl: './products.page.html',
   styleUrls: ['./products.page.scss']
 })

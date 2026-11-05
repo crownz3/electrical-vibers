@@ -14,6 +14,7 @@ import { ThemeService } from './services/theme.service';
 import { CartService } from './services/cart.service';
 import { LoadingService } from './services/loading.service';
 import { AuthService } from './services/auth.service';
+import { QuickEditService } from './services/quick-edit.service';
 
 @Component({
   selector: 'app-root',
@@ -36,6 +37,7 @@ export class AppComponent {
   cartService = inject(CartService);
   loadingService = inject(LoadingService);
   authService = inject(AuthService);
+  quickEditService = inject(QuickEditService);
   router = inject(Router);
   isAdminRoute = false;
 

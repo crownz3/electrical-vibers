@@ -1,6 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { InlineEditDirective } from '../../directives/inline-edit.directive';
 import { ConfigService, AppConfig } from '../../services/config.service';
 import { LanguageService } from '../../services/language.service';
 import { AuthService } from '../../services/auth.service';
@@ -9,7 +10,7 @@ import { QuickEditService } from '../../services/quick-edit.service';
 @Component({
   selector: 'app-footer',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, InlineEditDirective],
   templateUrl: './footer.component.html',
   styleUrls: ['./footer.component.scss']
 })
