@@ -5,6 +5,7 @@ import { QuickEditService } from '../../services/quick-edit.service';
 import { ConfigService, AppConfig, StoreOffer } from '../../services/config.service';
 import { ProductService } from '../../services/product.service';
 import { BookingService } from '../../services/booking.service';
+import { ThemeService } from '../../services/theme.service';
 import { Product } from '../../models/product.model';
 import { ServiceCategory } from '../../models/booking.model';
 
@@ -20,6 +21,7 @@ export class AdminEditModalComponent {
   configService = inject(ConfigService);
   productService = inject(ProductService);
   bookingService = inject(BookingService);
+  themeService = inject(ThemeService);
 
   get isOpen(): boolean {
     return this.quickEditService.isOpen();

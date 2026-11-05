@@ -1,5 +1,5 @@
 <div *ngIf="isOpen" class="modal-backdrop" (click)="close()">
-  <div class="edit-modal-box glass-card" (click)="$event.stopPropagation()">
+  <div class="edit-modal-box" [class.is-light]="themeService.activeTheme() === 'light'" (click)="$event.stopPropagation()">
     <!-- Header -->
     <div class="modal-header">
       <div class="header-title-wrap">

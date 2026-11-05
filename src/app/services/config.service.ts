@@ -135,7 +135,7 @@ export class ConfigService {
     tamilHeroBadgeText: "அரசு அங்கீகாரம் பெற்ற 'A' கிரேடு எலக்ட்ரிக்கல் ஒப்பந்ததாரர்",
     heroHeadline: 'Smart Electrical Solutions & Premium Supplies in One Place',
     tamilHeroHeadline: 'பாதுகாப்பான மின்சார தீர்வுகள் & பிரீமியம் பொருட்கள் ஒரே இடத்தில்',
-    heroSubheadline: 'வீடு மற்றும் வணிக வளாகங்களுக்கான முழுமையான வயரிங் பணிகள், அவசர பழுதுநீக்கம் & தரமான பிராண்டட் மின்சாதனங்கள் உங்கள் விரல் நுனியில்.',
+    heroSubheadline: 'End-to-end residential & commercial electrical wiring, rapid emergency breakdown dispatch, and genuine ISI-certified materials delivered across Chennai.',
     tamilHeroSubheadline: 'வீடு மற்றும் வணிக வளாகங்களுக்கான முழுமையான வயரிங் பணிகள், அவசர பழுதுநீக்கம் & தரமான பிராண்டட் மின்சாதனங்கள் உங்கள் விரல் நுனியில்.',
     heroBookCtaText: 'Book Electrician Service',
     tamilHeroBookCtaText: 'எலக்ட்ரீஷியன் முன்பதிவு',
@@ -155,11 +155,11 @@ export class ConfigService {
     // Section Titles
     servicesSectionTitle: 'Professional Electrician Services',
     tamilServicesSectionTitle: 'தொழில்முறை எலக்ட்ரீஷியன் சேவைகள்',
-    servicesSectionSubtitle: 'அனுபவம் வாய்ந்த எலக்ட்ரீஷியன்கள் மூலம் பாதுகாப்பான தரமான பணிகள்',
+    servicesSectionSubtitle: 'Certified licensed technicians for residential installations, maintenance, and emergency electrical troubleshooting.',
     tamilServicesSectionSubtitle: 'அனுபவம் வாய்ந்த எலக்ட்ரீஷியன்கள் மூலம் பாதுகாப்பான தரமான பணிகள்',
     storeSectionTitle: 'Best-Selling Electrical Supplies',
     tamilStoreSectionTitle: 'முன்னணி எலக்ட்ரிக்கல் தயாரிப்புகள்',
-    storeSectionSubtitle: 'பிராண்டட் ஒயர்கள், சுவிட்சுகள் & தரமான எலக்ட்ரிக்கல் பொருட்கள்',
+    storeSectionSubtitle: 'ISI-certified genuine copper cables, modular switches, MCBs, and lighting delivered to your doorstep.',
     tamilStoreSectionSubtitle: 'பிராண்டட் ஒயர்கள், சுவிட்சுகள் & தரமான எலக்ட்ரிக்கல் பொருட்கள்',
     offersSectionTitle: 'Active Special Offers & Packages',
     tamilOffersSectionTitle: 'நடப்பு சிறப்பு சலுகைகள்',
@@ -270,6 +270,16 @@ export class ConfigService {
         const parsed = JSON.parse(saved);
         if (parsed.businessName === 'VoltMaster') {
           parsed.businessName = 'Electrical Vibers';
+        }
+        // Correct legacy corrupted English fields containing Tamil text
+        if (parsed.heroSubheadline && parsed.heroSubheadline.startsWith('வீடு')) {
+          parsed.heroSubheadline = this.defaultConfig.heroSubheadline;
+        }
+        if (parsed.servicesSectionSubtitle && parsed.servicesSectionSubtitle.startsWith('அனுபவம்')) {
+          parsed.servicesSectionSubtitle = this.defaultConfig.servicesSectionSubtitle;
+        }
+        if (parsed.storeSectionSubtitle && parsed.storeSectionSubtitle.startsWith('பிராண்டட்')) {
+          parsed.storeSectionSubtitle = this.defaultConfig.storeSectionSubtitle;
         }
         this.configSubject.next({ ...this.defaultConfig, ...parsed });
         return;
