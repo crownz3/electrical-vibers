@@ -785,3 +785,35 @@ img, video, canvas, svg {
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+/* ==========================================================================
+   GLOBAL FIXED FLOATING WHATSAPP BUTTON (LOCKED TO BOTTOM-RIGHT VIEWPORT)
+   ========================================================================== */
+app-floating-whatsapp {
+  position: fixed !important;
+  bottom: 0 !important;
+  right: 0 !important;
+  z-index: 99999999 !important;
+  pointer-events: none !important;
+  display: block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.whatsapp-fab-container {
+  position: fixed !important;
+  bottom: 24px !important;
+  right: 24px !important;
+  z-index: 99999999 !important;
+  pointer-events: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-end !important;
+  margin: 0 !important;
+  padding: 0 !important;
+
+  @media (max-width: 860px) {
+    bottom: 84px !important;
+    right: 18px !important;
+  }
+}
+

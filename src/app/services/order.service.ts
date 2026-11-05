@@ -115,6 +115,15 @@ export class OrderService {
       `*Payment:* ${order.paymentMethod.toUpperCase()} (${order.paymentStatus.toUpperCase()})\n\n` +
       `Thank you for choosing Electrical Vibers!`
     );
-    return `https://wa.me/${environment.whatsappNumber}?text=${message}`;
+    let phone = environment.whatsappNumber;
+    try {
+      const cfg = localStorage.getItem('electrical_vibers_config_v3');
+      if (cfg) {
+        const parsed = JSON.parse(cfg);
+        if (parsed.whatsappNumber) phone = parsed.whatsappNumber;
+      }
+    } catch (_) {}
+    const cleanPhone = (phone || '919876543210').replace(/\D/g, '');
+    return `https://wa.me/${cleanPhone}?text=${message}`;
   }
 }

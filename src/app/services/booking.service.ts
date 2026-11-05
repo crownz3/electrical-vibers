@@ -268,6 +268,15 @@ export class BookingService {
       `*Status:* ${booking.status.toUpperCase()}\n` +
       `*Estimated Cost:* Rs. ${booking.estimatedCost || 149}`
     );
-    return `https://wa.me/${environment.whatsappNumber}?text=${text}`;
+    let phone = environment.whatsappNumber;
+    try {
+      const cfg = localStorage.getItem('electrical_vibers_config_v3');
+      if (cfg) {
+        const parsed = JSON.parse(cfg);
+        if (parsed.whatsappNumber) phone = parsed.whatsappNumber;
+      }
+    } catch (_) {}
+    const cleanPhone = (phone || '919876543210').replace(/\D/g, '');
+    return `https://wa.me/${cleanPhone}?text=${text}`;
   }
 }

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ConfigService, AppConfig } from '../../services/config.service';
 
@@ -9,11 +9,17 @@ import { ConfigService, AppConfig } from '../../services/config.service';
   templateUrl: './floating-whatsapp.component.html',
   styleUrls: ['./floating-whatsapp.component.scss']
 })
-export class FloatingWhatsappComponent {
+export class FloatingWhatsappComponent implements OnInit {
   configService = inject(ConfigService);
   config: AppConfig = this.configService.getConfig();
 
   isOpen = false;
+
+  ngOnInit(): void {
+    this.configService.config$.subscribe(cfg => {
+      this.config = cfg;
+    });
+  }
 
   toggleMenu(): void {
     this.isOpen = !this.isOpen;
@@ -27,7 +33,7 @@ export class FloatingWhatsappComponent {
     let text = '';
     if (topic === 'tools') {
       text = encodeURIComponent(
-        `Hello Electrical Vibers!\nI want to inquire about tool prices, bulk contractor discounts, and stock availability.`
+        `Hello ${this.config.businessName || 'Electrical Vibers'}!\nI want to inquire about tool prices, bulk contractor discounts, and stock availability.`
       );
     } else if (topic === 'emergency') {
       text = encodeURIComponent(
@@ -35,11 +41,14 @@ export class FloatingWhatsappComponent {
       );
     } else {
       text = encodeURIComponent(
-        `Hello Electrical Vibers! I have a question regarding electrical materials and services.`
+        `Hello ${this.config.businessName || 'Electrical Vibers'}! I have a question regarding electrical materials and services.`
       );
     }
 
     this.closeMenu();
-    window.open(`https://wa.me/${this.config.whatsappNumber}?text=${text}`, '_blank');
+    // Normalize phone number (digits only, e.g. 919876543210)
+    const rawPhone = this.config.whatsappNumber || '919876543210';
+    const cleanPhone = rawPhone.replace(/\D/g, '');
+    window.open(`https://wa.me/${cleanPhone}?text=${text}`, '_blank');
   }
 }
