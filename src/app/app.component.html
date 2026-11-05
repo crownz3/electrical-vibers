@@ -9,6 +9,7 @@
     <router-outlet></router-outlet>
   </main>
   <app-footer *ngIf="!isAdminRoute"></app-footer>
-  <app-side-cart *ngIf="!isAdminRoute"></app-side-cart>
-  <app-floating-whatsapp *ngIf="!isAdminRoute"></app-floating-whatsapp>
 </div>
+
+<app-side-cart *ngIf="!isAdminRoute"></app-side-cart>
+<app-floating-whatsapp *ngIf="!isAdminRoute"></app-floating-whatsapp>

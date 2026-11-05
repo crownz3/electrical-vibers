@@ -291,13 +291,13 @@
       </div>
     </div>
 
-    <div class="products-grid">
+    <div *ngIf="featuredProducts.length > 0; else noHomeProds" class="products-grid">
       <div *ngFor="let prod of featuredProducts; let i = index" 
            class="product-card glass-card interactive-card" 
            appScrollAnimate="fade-up" 
            [animDelay]="(i % 4) * 80">
         <div class="product-img-wrapper" [routerLink]="['/product', prod.id]">
-          <img [src]="prod.images[0]" [alt]="prod.name" loading="lazy" />
+          <img [src]="prod.images[0] || 'assets/icon/favicon.png'" [alt]="prod.name" loading="lazy" />
           <span *ngIf="prod.discountPercentage" class="discount-badge">
             {{ prod.discountPercentage }}% OFF
           </span>
@@ -331,6 +331,18 @@
         </div>
       </div>
     </div>
+
+    <ng-template #noHomeProds>
+      <div class="empty-home-store glass-card" style="text-align: center; padding: 36px 20px; border-radius: 14px; background: rgba(255, 255, 255, 0.05); margin-top: 16px;">
+        <span class="material-symbols-outlined" style="font-size: 3rem; color: #f59e0b; opacity: 0.85;">storefront</span>
+        <h4 style="margin: 12px 0 6px; font-size: 1.1rem;">{{ langService.isTamil() ? 'மின்பொருட்கள் பட்டியல்' : 'Official Electrical Supplies' }}</h4>
+        <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 16px;">{{ langService.isTamil() ? 'புதிய தயாரிப்புகள் மற்றும் சலுகைகளை அங்காடியில் பார்வையிடவும்.' : 'Browse our verified branded cables, switchgears, and installation tools.' }}</p>
+        <a routerLink="/products" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 6px; padding: 10px 20px; font-size: 0.9rem;">
+          <span class="material-symbols-outlined" style="font-size: 1.1rem;">shopping_bag</span>
+          {{ langService.isTamil() ? 'அங்காடிக்குச் செல்க' : 'Visit Electrical Store' }}
+        </a>
+      </div>
+    </ng-template>
   </section>
 
   <!-- Why Choose Us -->

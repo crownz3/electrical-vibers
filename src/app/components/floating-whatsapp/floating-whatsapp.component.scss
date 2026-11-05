@@ -1,20 +1,27 @@
 :host {
-  display: contents;
+  position: fixed !important;
+  bottom: 24px !important;
+  right: 24px !important;
+  z-index: 999999 !important;
+  display: block !important;
+  pointer-events: none !important;
+  transform: translateZ(0) !important;
+  will-change: transform;
+
+  @media (max-width: 860px) {
+    bottom: 74px !important; // positioned safely above the 56px mobile bottom bar
+    right: 16px !important;
+  }
 }
 
 .whatsapp-fab-container {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  z-index: 9990;
+  position: relative !important;
+  bottom: auto !important;
+  right: auto !important;
+  pointer-events: auto !important;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-
-  @media (max-width: 860px) {
-    bottom: 74px; // positioned safely above the 56px mobile bottom bar
-    right: 16px;
-  }
 }
 
 // Main FAB Button

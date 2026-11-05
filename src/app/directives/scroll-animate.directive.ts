@@ -39,6 +39,15 @@ export class ScrollAnimateDirective implements OnInit, OnDestroy {
       this.renderer.setStyle(element, 'transition-duration', `${this.animDuration}ms`);
     }
 
+    // Check if element is already within viewport on load
+    try {
+      const rect = element.getBoundingClientRect();
+      const vh = window.innerHeight || document.documentElement.clientHeight;
+      if (rect.top <= vh + 50 && rect.bottom >= -50) {
+        this.renderer.addClass(element, 'is-revealed');
+      }
+    } catch (e) {}
+
     // Check if IntersectionObserver is supported
     if (typeof window !== 'undefined' && 'IntersectionObserver' in window) {
       this.observer = new IntersectionObserver(
@@ -56,7 +65,7 @@ export class ScrollAnimateDirective implements OnInit, OnDestroy {
         },
         {
           root: null, // viewport
-          rootMargin: '0px 0px -40px 0px', // trigger slightly before bottom of screen
+          rootMargin: '100px 0px 100px 0px', // trigger smoothly before entering viewport
           threshold: this.animThreshold
         }
       );

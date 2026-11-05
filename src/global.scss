@@ -394,16 +394,25 @@ body.theme-light {
 /* ==========================================================
    SCROLL REVEAL ANIMATIONS (GPU-Accelerated, 60-120fps)
    ========================================================== */
+@keyframes fallbackReveal {
+  to {
+    opacity: 1;
+    transform: translate(0, 0) scale(1) rotate(0);
+  }
+}
+
 .scroll-reveal {
   opacity: 0;
   transition-property: opacity, transform;
   transition-duration: 700ms;
   transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform, opacity;
+  animation: fallbackReveal 0.1s ease 1s forwards; /* Safety fallback ensures content is never stuck invisible */
 
   &.is-revealed {
     opacity: 1 !important;
     transform: translate(0, 0) scale(1) rotate(0) !important;
+    animation: none !important;
   }
 }
 
