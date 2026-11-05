@@ -272,7 +272,7 @@
 
       <div class="deal-content-grid">
         <div class="deal-media-wrap" [routerLink]="['/product', dealProduct.id]">
-          <img [src]="dealProduct.images[0]" [alt]="dealProduct.name" />
+          <img [src]="dealProduct.images[0] || 'assets/images/placeholder.jpg'" [alt]="dealProduct.name" />
           <span *ngIf="dealProduct.discountPercentage" class="mega-discount-tag">
             {{ dealProduct.discountPercentage }}% OFF
           </span>
@@ -311,7 +311,7 @@
           <div class="deal-actions">
             <button class="btn-deal-buy-now" (click)="buyNow(dealProduct)">
               <span class="material-symbols-outlined">bolt</span>
-              <span class="material-symbols-outlined">bolt</span> Buy Now
+              Buy Now
             </button>
             <button class="btn-deal-cart" (click)="addToCart(dealProduct)">
               <span class="material-symbols-outlined">shopping_bag</span>

@@ -40,6 +40,16 @@ import { Booking, ServiceCategory } from '../../models/booking.model';
   styleUrls: ['./admin.page.scss']
 })
 export class AdminPage implements OnInit {
+  siteService = inject(SiteService);
+  productService = inject(ProductService);
+  orderService = inject(OrderService);
+  bookingService = inject(BookingService);
+  authService = inject(AuthService);
+  configService = inject(ConfigService);
+  firebaseService = inject(FirebaseService);
+  staffService = inject(StaffService);
+  dialogService = inject(DialogService);
+  langService = inject(LanguageService);
 
   // --- Staff Leave Review ---
   async approveLeave(leaveId: string): Promise<void> {
@@ -256,17 +266,6 @@ export class AdminPage implements OnInit {
     const dateStr = new Date().toISOString().split('T')[0];
     this.downloadCsvFile(`Electrical_Vibers_Customer_Orders_${dateStr}.csv`, csvContent);
   }
-
-  siteService = inject(SiteService);
-  productService = inject(ProductService);
-  orderService = inject(OrderService);
-  bookingService = inject(BookingService);
-  authService = inject(AuthService);
-  configService = inject(ConfigService);
-  firebaseService = inject(FirebaseService);
-  staffService = inject(StaffService);
-  dialogService = inject(DialogService);
-  langService = inject(LanguageService);
 
   activeTab: 'roster' | 'workforce' | 'sites' | 'products' | 'categories' | 'services' | 'offers' | 'settings' | 'orders' | 'bookings' = 'roster';
   Math = Math;

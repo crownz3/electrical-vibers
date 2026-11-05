@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, Injector } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { 
   ElectricianEmployee, 
@@ -20,7 +20,14 @@ export class StaffService {
   private readonly LEAVES_KEY = 'electrical_vibers_staff_leaves_v1';
   private readonly CLAIMS_KEY = 'electrical_vibers_staff_claims_v1';
 
-  private siteService = inject(SiteService);
+  private injector = inject(Injector);
+  private _siteService?: SiteService;
+  private get siteService(): SiteService {
+    if (!this._siteService) {
+      this._siteService = this.injector.get(SiteService);
+    }
+    return this._siteService;
+  }
   private firebaseService = inject(FirebaseService);
 
   private currentStaffSubject = new BehaviorSubject<ElectricianEmployee | null>(null);

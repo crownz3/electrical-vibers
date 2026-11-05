@@ -25,3 +25,4 @@ export class AdminBarComponent {
     this.router.navigate(['/home']);
   }
 }
+

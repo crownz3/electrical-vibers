@@ -5,8 +5,8 @@
   z-index: 999999 !important;
   display: block !important;
   pointer-events: none !important;
-  transform: translateZ(0) !important;
-  will-change: transform;
+  margin: 0 !important;
+  padding: 0 !important;
 
   @media (max-width: 860px) {
     bottom: 74px !important; // positioned safely above the 56px mobile bottom bar
