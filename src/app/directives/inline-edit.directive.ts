@@ -150,7 +150,7 @@ export class InlineEditDirective implements OnInit, OnDestroy {
             this.bookingService.updateService(s.id, { description: raw });
           }
         }
-        this.quickEditService.notifySaved(`Service "${s.title}" updated live!`);
+        this.quickEditService.notifySaved(`Service "${s.title}" updated & saved to Cloud!`);
       }
       return;
     }
@@ -179,7 +179,7 @@ export class InlineEditDirective implements OnInit, OnDestroy {
             this.productService.updateProduct(p.id, { description: raw });
           }
         }
-        this.quickEditService.notifySaved(`Product "${p.name}" updated live!`);
+        this.quickEditService.notifySaved(`Product "${p.name}" updated & saved to Cloud!`);
       }
       return;
     }
@@ -191,6 +191,6 @@ export class InlineEditDirective implements OnInit, OnDestroy {
     }
 
     this.configService.updateConfig({ [targetKey]: raw });
-    this.quickEditService.notifySaved(`Live updated: "${raw.slice(0, 30)}${raw.length > 30 ? '...' : ''}"`);
+    this.quickEditService.notifySaved(`Live saved to Cloud: "${raw.slice(0, 25)}${raw.length > 25 ? '...' : ''}"`);
   }
 }
