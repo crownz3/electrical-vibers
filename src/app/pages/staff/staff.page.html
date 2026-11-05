@@ -96,10 +96,16 @@
           </div>
         </div>
 
-        <button (click)="logout()" class="btn-logout-staff" title="Sign Out">
-          <span class="material-symbols-outlined">logout</span>
-          <span class="logout-label">Sign Out</span>
-        </button>
+        <div class="staff-header-actions" style="display: flex; align-items: center; gap: 8px;">
+          <button (click)="callContractorEmergency()" class="btn-contractor-hotline" title="Call Contractor Mohamed Ibrahim for urgent on-site support">
+            <span class="material-symbols-outlined">support_agent</span>
+            <span class="hotline-text">Emergency Hotline</span>
+          </button>
+          <button (click)="logout()" class="btn-logout-staff" title="Sign Out">
+            <span class="material-symbols-outlined">logout</span>
+            <span class="logout-label">Sign Out</span>
+          </button>
+        </div>
       </div>
 
       <!-- Quick KPI Numbers Strip -->
@@ -150,6 +156,15 @@
         (click)="activeTab = 'salary'">
         <span class="material-symbols-outlined">receipt_long</span>
         <span>Salary Slips & Wages</span>
+      </button>
+
+      <button 
+        type="button" 
+        class="tab-btn" 
+        [class.active]="activeTab === 'claims'" 
+        (click)="activeTab = 'claims'">
+        <span class="material-symbols-outlined">payments</span>
+        <span>Expenses & Advance ({{ claims.length }})</span>
       </button>
     </nav>
 
@@ -565,6 +580,82 @@
         </div>
       </div>
     </section>
+
+    <!-- ================= TAB 4: EXPENSES & WAGE ADVANCE CLAIMS ================= -->
+    <section *ngIf="activeTab === 'claims'" class="tab-pane-content">
+      <div class="pane-header-row">
+        <div>
+          <h2>Emergency Materials & Wage Advance Claims</h2>
+          <p>அவசர தள பொருட்கள் கொள்முதல் & சம்பள முன்பணம் கோரிக்கைகள்</p>
+        </div>
+        <button (click)="openClaimModal()" class="btn-apply-leave" style="background: linear-gradient(135deg, #f59e0b, #d97706); border-color: #f59e0b;">
+          <span class="material-symbols-outlined">add_circle</span>
+          <span>+ Submit Expense / Advance Claim</span>
+        </button>
+      </div>
+
+      <!-- Quick Contractor Hotline Card -->
+      <div class="hotline-banner-card glass-card">
+        <div class="hbc-content">
+          <div class="hbc-icon-wrap">
+            <span class="material-symbols-outlined">support_agent</span>
+          </div>
+          <div class="hbc-text">
+            <strong>Urgent Problem On Site? Call Contractor Mohamed Ibrahim</strong>
+            <span>Direct contractor hotline for power outages, client disputes, or material emergency approval</span>
+          </div>
+        </div>
+        <button type="button" class="btn-hotline-call" (click)="callContractorEmergency()">
+          <span class="material-symbols-outlined">call</span>
+          <span>Call: +91 98400 12345</span>
+        </button>
+      </div>
+
+      <!-- Claims List -->
+      <div *ngIf="claims.length === 0" class="empty-state-box glass-card">
+        <span class="material-symbols-outlined empty-icon">payments</span>
+        <h3>No Claims Submitted</h3>
+        <p>You have not submitted any emergency expense reimbursements or wage advance requests yet.</p>
+        <button (click)="openClaimModal()" class="btn-action-accent">+ Submit First Claim</button>
+      </div>
+
+      <div *ngIf="claims.length > 0" class="claims-list-grid">
+        <div *ngFor="let c of claims" class="claim-card glass-card" [ngClass]="{
+          'status-approved': c.status === 'approved',
+          'status-rejected': c.status === 'rejected',
+          'status-pending': c.status === 'pending'
+        }">
+          <div class="claim-card-header">
+            <div class="claim-badge-wrap">
+              <span class="claim-type-pill" [ngClass]="c.claimType">
+                {{ c.claimType === 'material_reimbursement' ? 'Material Purchase' : (c.claimType === 'wage_advance' ? 'Wage Advance' : 'Travel & Food') }}
+              </span>
+              <span class="claim-status-pill" [ngClass]="c.status">
+                {{ c.status | uppercase }}
+              </span>
+            </div>
+            <strong class="claim-amt">₹{{ c.amount | number }}</strong>
+          </div>
+
+          <div class="claim-reason-box">
+            <strong>Purpose / Reason:</strong>
+            <p>{{ c.reason }}</p>
+          </div>
+
+          <div class="claim-meta-row">
+            <span class="claim-date">Applied: {{ c.appliedAt | date:'mediumDate' }}</span>
+            <a *ngIf="c.billPhoto" [href]="c.billPhoto" target="_blank" class="claim-bill-link">
+              <span class="material-symbols-outlined">receipt</span> View Bill Photo
+            </a>
+          </div>
+
+          <div *ngIf="c.reviewNotes" class="claim-review-note">
+            <span class="material-symbols-outlined">info</span>
+            <span>Admin Review: {{ c.reviewNotes }}</span>
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
 </div>
 
@@ -894,6 +985,174 @@
         <button (click)="confirmCheckIn()" class="btn-confirm-checkin">
           <span class="material-symbols-outlined">verified</span>
           <span>Confirm Check-in & Start Duty</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: WORK COMPLETION PHOTOGRAPHIC PROOF ================= -->
+  <div *ngIf="showCompletionModal && activeCompletionTask" class="modal-backdrop animate-fade-in" (click)="showCompletionModal = false">
+    <div class="modal-card glass-card modal-checkin animate-scale-up" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="checkin-header-icon" style="background: rgba(16, 185, 129, 0.2); border-color: rgba(16, 185, 129, 0.5);">
+          <span class="material-symbols-outlined" style="color: #34d399;">verified</span>
+        </div>
+        <div>
+          <h3>Work Completion Verification</h3>
+          <p class="modal-subtitle">முடிந்த வேலையின் புகைப்படம் & குறிப்புகளைப் பதிவு செய்க</p>
+        </div>
+        <button (click)="showCompletionModal = false" class="modal-close" title="Close">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Site & Task Details -->
+        <div class="task-summary-preview">
+          <div class="summary-line">
+            <span class="summary-label">Site:</span>
+            <strong>{{ activeCompletionTask.siteName }}</strong>
+          </div>
+          <div class="summary-line">
+            <span class="summary-label">Work Scope:</span>
+            <span class="scope-text">{{ activeCompletionTask.taskDescription }}</span>
+          </div>
+        </div>
+
+        <!-- Finished Work Photographic Proof -->
+        <div class="checkin-photo-section">
+          <label class="photo-section-label">
+            <span class="material-symbols-outlined">camera_alt</span>
+            <span>Upload / Snap Completed Work Photo (முடிந்த வேலை புகைப்படம்)</span>
+          </label>
+
+          <div class="photo-upload-dropzone" [class.has-photo]="completionPhotoUrl">
+            <input 
+              type="file" 
+              accept="image/*" 
+              capture="environment" 
+              (change)="onCompletionPhotoSelected($event)" 
+              class="photo-file-input"
+            />
+            
+            <div *ngIf="!completionPhotoUrl && !isUploadingCompletionPhoto" class="dropzone-empty">
+              <span class="material-symbols-outlined icon-camera">camera_alt</span>
+              <strong>Tap to open camera or upload finished work proof</strong>
+              <span>Snap DB dressing, switchboard, conduit alignment, or finished installation</span>
+            </div>
+
+            <div *ngIf="isUploadingCompletionPhoto" class="dropzone-uploading">
+              <span class="material-symbols-outlined spinning">sync</span>
+              <span>Uploading photo proof to cloud...</span>
+            </div>
+
+            <div *ngIf="completionPhotoUrl" class="dropzone-preview">
+              <img [src]="completionPhotoUrl" alt="Finished Work Photo Preview" class="photo-img-tag" />
+              <div class="photo-overlay-tag">
+                <span class="material-symbols-outlined">check_circle</span>
+                <span>Finished Work Photo Attached</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes / Remarks -->
+        <div class="form-group" style="margin-top: 14px;">
+          <label>Work Summary & Handover Notes (வேலை குறிப்புகள்):</label>
+          <textarea 
+            [(ngModel)]="completionNotes" 
+            rows="3" 
+            placeholder="e.g. All 12 circuits tested with insulation meter, DB dressed, Phase-Neutral balanced. Handed keys to client.">
+          </textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="showCompletionModal = false" class="btn-cancel">Cancel</button>
+        <button (click)="confirmTaskCompleted()" class="btn-confirm-checkin" style="background: linear-gradient(135deg, #10b981, #059669);">
+          <span class="material-symbols-outlined">task_alt</span>
+          <span>Submit Proof & Mark Completed</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: SUBMIT EXPENSE / ADVANCE CLAIM ================= -->
+  <div *ngIf="showClaimModal" class="modal-backdrop animate-fade-in" (click)="showClaimModal = false">
+    <div class="modal-card glass-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="mh-title">
+          <span class="material-symbols-outlined icon-leave" style="color: #f59e0b;">payments</span>
+          <div>
+            <h3>Submit Expense / Advance Claim</h3>
+            <p class="modal-sub">Emergency material reimbursement or salary advance</p>
+          </div>
+        </div>
+        <button (click)="showClaimModal = false" class="modal-close"><span class="material-symbols-outlined">close</span></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Claim Category *</label>
+          <select [(ngModel)]="claimType">
+            <option value="material_reimbursement">Emergency Material Purchase (தள பொருட்கள் வாங்குதல்)</option>
+            <option value="wage_advance">Wage Advance Request (சம்பள முன்பணம்)</option>
+            <option value="travel_food">On-Site Travel & Meals (பயணம் & உணவு செலவு)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Amount (₹) *</label>
+          <input type="number" [(ngModel)]="claimAmount" placeholder="e.g. 450" min="1" />
+        </div>
+
+        <div class="form-group">
+          <label>Reason / Item Details *</label>
+          <textarea [(ngModel)]="claimReason" rows="3" placeholder="e.g. Urgent 2.5mm copper wire 10m + 2 MCB 16A purchased from local electrical shop"></textarea>
+        </div>
+
+        <!-- Bill / Receipt Upload -->
+        <div class="checkin-photo-section">
+          <label class="photo-section-label">
+            <span class="material-symbols-outlined">receipt</span>
+            <span>Attach Receipt / Bill Photo (optional for advance)</span>
+          </label>
+
+          <div class="photo-upload-dropzone" [class.has-photo]="claimBillPhotoUrl" style="min-height: 110px;">
+            <input 
+              type="file" 
+              accept="image/*" 
+              capture="environment" 
+              (change)="onClaimBillSelected($event)" 
+              class="photo-file-input"
+            />
+            
+            <div *ngIf="!claimBillPhotoUrl && !isUploadingClaimBill" class="dropzone-empty">
+              <span class="material-symbols-outlined icon-camera">receipt_long</span>
+              <strong>Tap to upload bill or cash receipt photo</strong>
+            </div>
+
+            <div *ngIf="isUploadingClaimBill" class="dropzone-uploading">
+              <span class="material-symbols-outlined spinning">sync</span>
+              <span>Uploading receipt photo...</span>
+            </div>
+
+            <div *ngIf="claimBillPhotoUrl" class="dropzone-preview">
+              <img [src]="claimBillPhotoUrl" alt="Bill Photo Preview" class="photo-img-tag" />
+              <div class="photo-overlay-tag">
+                <span class="material-symbols-outlined">check_circle</span>
+                <span>Bill Attached</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="showClaimModal = false" class="btn-cancel">Cancel</button>
+        <button (click)="submitClaim()" class="btn-save" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+          <span class="material-symbols-outlined">send</span>
+          <span>Submit Claim to Admin</span>
         </button>
       </div>
     </div>

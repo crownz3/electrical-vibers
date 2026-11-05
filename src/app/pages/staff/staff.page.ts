@@ -11,7 +11,9 @@ import {
   StaffLeaveRequest, 
   StaffSalarySlip, 
   WorkerWagePayout, 
-  LeaveType 
+  LeaveType,
+  StaffClaimRequest,
+  ClaimType
 } from '../../models/site.model';
 
 @Component({
@@ -37,7 +39,23 @@ export class StaffPage implements OnInit {
   gpsDetecting = false;
   gpsError = '';
 
-  activeTab: 'workload' | 'leaves' | 'salary' = 'workload';
+  // Work Completion Photographic Proof Modal
+  showCompletionModal = false;
+  activeCompletionTask: SiteWorkAllocation | null = null;
+  completionNotes = '';
+  completionPhotoUrl = '';
+  isUploadingCompletionPhoto = false;
+
+  activeTab: 'workload' | 'leaves' | 'salary' | 'claims' = 'workload';
+
+  // Claims & Emergency Expense Form State
+  claims: StaffClaimRequest[] = [];
+  showClaimModal = false;
+  claimType: ClaimType = 'material_reimbursement';
+  claimAmount: number | null = null;
+  claimReason = '';
+  claimBillPhotoUrl = '';
+  isUploadingClaimBill = false;
 
   // Login form
   loginPhoneOrId = '';
@@ -128,11 +146,18 @@ export class StaffPage implements OnInit {
         this.leaves = this.staffService.getStaffLeaves(this.currentStaff.id);
       }
     });
+
+    this.staffService.claims$.subscribe(() => {
+      if (this.currentStaff) {
+        this.claims = this.staffService.getStaffClaims(this.currentStaff.id);
+      }
+    });
   }
 
   private loadStaffData(staff: ElectricianEmployee): void {
     this.workload = this.staffService.getStaffWorkload(staff.id);
     this.leaves = this.staffService.getStaffLeaves(staff.id);
+    this.claims = this.staffService.getStaffClaims(staff.id);
     this.payouts = this.staffService.getStaffPayouts(staff.id);
   }
 
@@ -173,9 +198,55 @@ export class StaffPage implements OnInit {
   }
 
   markTaskCompleted(alloc: SiteWorkAllocation): void {
-    const notes = prompt('Add any notes or completed tasks summary for today:');
-    this.staffService.updateTaskStatus(alloc.id, 'completed', notes || undefined);
-    this.showToast(`Great work! Day completed for ${alloc.siteName}.`);
+    this.openCompletionModal(alloc);
+  }
+
+  // --- Work Completion Photographic Proof Modal Actions ---
+  openCompletionModal(alloc: SiteWorkAllocation): void {
+    this.activeCompletionTask = alloc;
+    this.completionNotes = '';
+    this.completionPhotoUrl = '';
+    this.isUploadingCompletionPhoto = false;
+    this.showCompletionModal = true;
+  }
+
+  async onCompletionPhotoSelected(event: any): Promise<void> {
+    const file = event.target?.files?.[0];
+    if (!file) return;
+
+    this.isUploadingCompletionPhoto = true;
+    try {
+      const url = await this.firebaseService.uploadFile('staff_completions', file);
+      if (url) {
+        this.completionPhotoUrl = url;
+      } else {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.completionPhotoUrl = e.target?.result as string;
+        };
+        reader.readAsDataURL(file);
+      }
+    } catch {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.completionPhotoUrl = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    } finally {
+      this.isUploadingCompletionPhoto = false;
+    }
+  }
+
+  confirmTaskCompleted(): void {
+    if (!this.activeCompletionTask) return;
+    this.staffService.updateTaskStatus(
+      this.activeCompletionTask.id, 
+      'completed', 
+      this.completionNotes.trim() || undefined, 
+      this.completionPhotoUrl || undefined
+    );
+    this.showCompletionModal = false;
+    this.showToast(`Great work! Day completed for ${this.activeCompletionTask.siteName}.`);
     if (this.currentStaff) {
       this.workload = this.staffService.getStaffWorkload(this.currentStaff.id);
     }
@@ -386,6 +457,72 @@ export class StaffPage implements OnInit {
 
   printSalarySlip(): void {
     window.print();
+  }
+
+  // --- On-Site Emergency Expenses & Wage Advance Claims ---
+  openClaimModal(): void {
+    this.claimType = 'material_reimbursement';
+    this.claimAmount = null;
+    this.claimReason = '';
+    this.claimBillPhotoUrl = '';
+    this.isUploadingClaimBill = false;
+    this.showClaimModal = true;
+  }
+
+  async onClaimBillSelected(event: any): Promise<void> {
+    const file = event.target?.files?.[0];
+    if (!file) return;
+
+    this.isUploadingClaimBill = true;
+    try {
+      const url = await this.firebaseService.uploadFile('staff_claim_bills', file);
+      if (url) {
+        this.claimBillPhotoUrl = url;
+      } else {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.claimBillPhotoUrl = e.target?.result as string;
+        };
+        reader.readAsDataURL(file);
+      }
+    } catch {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.claimBillPhotoUrl = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    } finally {
+      this.isUploadingClaimBill = false;
+    }
+  }
+
+  submitClaim(): void {
+    if (!this.currentStaff) return;
+    if (!this.claimAmount || this.claimAmount <= 0) {
+      alert('Please enter a valid claim amount.');
+      return;
+    }
+    if (!this.claimReason.trim()) {
+      alert('Please enter a reason or material item description.');
+      return;
+    }
+
+    this.staffService.submitClaim({
+      employeeId: this.currentStaff.id,
+      employeeName: this.currentStaff.name,
+      claimType: this.claimType,
+      amount: this.claimAmount,
+      reason: this.claimReason.trim(),
+      billPhoto: this.claimBillPhotoUrl || undefined
+    });
+
+    this.showClaimModal = false;
+    this.claims = this.staffService.getStaffClaims(this.currentStaff.id);
+    this.showToast('Claim submitted! Contractor admin will review and approve.');
+  }
+
+  callContractorEmergency(): void {
+    window.location.href = 'tel:+919840012345';
   }
 
   showToast(msg: string): void {

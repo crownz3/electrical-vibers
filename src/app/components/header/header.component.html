@@ -45,6 +45,9 @@
       <a routerLink="/book-service" routerLinkActive="active" class="nav-item">
         <span class="nav-label">Book Service</span>
       </a>
+      <a routerLink="/staff" routerLinkActive="active" class="nav-item">
+        <span class="nav-label">Staff Portal</span>
+      </a>
     </nav>
 
     <!-- Google-Search Inspired Omnibox with Autocomplete Dropdown -->
@@ -150,6 +153,17 @@
         </div>
       </div>
 
+      <!-- 1-Click PWA Install Button (When browser detects PWA prompt) -->
+      <button 
+        *ngIf="canInstallPwa" 
+        type="button" 
+        (click)="installApp()" 
+        class="action-icon pwa-install-top-btn animate-pulse" 
+        title="Install Electrical Vibers Mobile App">
+        <span class="material-symbols-outlined install-icon">install_mobile</span>
+        <span class="install-text">Install App</span>
+      </button>
+
       <!-- Angular Material Menu (More Options) -->
       <button 
         type="button" 
@@ -175,11 +189,25 @@
         </button>
 
         <mat-divider></mat-divider>
+        <div class="menu-section-header">FIELD STAFF & ELECTRICIANS</div>
+        <button mat-menu-item routerLink="/staff">
+          <mat-icon style="color: #0284c7;">engineering</mat-icon>
+          <span>Electrician Staff Portal</span>
+        </button>
+
+        <mat-divider></mat-divider>
         <div class="menu-section-header">CONTRACTOR & ADMIN</div>
         <button mat-menu-item routerLink="/admin" (click)="onAdminAccountClick()">
           <mat-icon class="gold-icon">admin_panel_settings</mat-icon>
           <span>Site Ops / Admin Portal</span>
           <span *ngIf="authService.isAdmin()" class="menu-admin-badge">Admin Active</span>
+        </button>
+
+        <mat-divider *ngIf="canInstallPwa"></mat-divider>
+        <div *ngIf="canInstallPwa" class="menu-section-header">DOWNLOAD & INSTALL</div>
+        <button *ngIf="canInstallPwa" mat-menu-item (click)="installApp()">
+          <mat-icon style="color: #10b981;">install_mobile</mat-icon>
+          <span>Install Electrical Vibers App</span>
         </button>
 
         <mat-divider></mat-divider>
@@ -247,6 +275,28 @@
   </div>
 </div>
 
+<!-- Floating 1-Click PWA Install Banner for Mobile & Web -->
+<div *ngIf="canInstallPwa" class="pwa-install-banner animate-slide-up">
+  <div class="banner-content">
+    <div class="banner-icon-circle">
+      <span class="material-symbols-outlined">install_mobile</span>
+    </div>
+    <div class="banner-text">
+      <strong>Install Electrical Vibers App</strong>
+      <span>Instant loading, offline duty roster & home screen access</span>
+    </div>
+  </div>
+  <div class="banner-actions">
+    <button type="button" class="btn-banner-install" (click)="installApp()">
+      <span>Install App</span>
+      <span class="material-symbols-outlined">download</span>
+    </button>
+    <button type="button" class="btn-banner-dismiss" (click)="canInstallPwa = false" title="Dismiss">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+  </div>
+</div>
+
 <!-- Clean Mobile Bottom Bar for Small Screens -->
 <nav class="mobile-bar">
   <a routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="mob-item">
@@ -257,13 +307,13 @@
     <span class="material-symbols-outlined">storefront</span>
     <span>Store</span>
   </a>
+  <a routerLink="/staff" routerLinkActive="active" class="mob-item btn-mob-staff">
+    <span class="material-symbols-outlined">engineering</span>
+    <span>Staff</span>
+  </a>
   <a routerLink="/profile" routerLinkActive="active" class="mob-item">
     <span class="material-symbols-outlined">receipt_long</span>
     <span>Orders</span>
-  </a>
-  <a routerLink="/track-order" routerLinkActive="active" class="mob-item">
-    <span class="material-symbols-outlined">local_shipping</span>
-    <span>Track</span>
   </a>
   <button type="button" (click)="openCart($event)" class="mob-item btn-mob-cart">
     <span class="material-symbols-outlined">shopping_cart</span>

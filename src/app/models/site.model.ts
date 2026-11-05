@@ -99,8 +99,27 @@ export interface SiteWorkAllocation {
     accuracy?: number;
     timestamp?: string;
   };
+  completionPhoto?: string;
+  completionNotes?: string;
 }
 
+export type ClaimType = 'material_reimbursement' | 'wage_advance' | 'travel_food';
+export type ClaimStatus = 'pending' | 'approved' | 'rejected';
+
+export interface StaffClaimRequest {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  claimType: ClaimType;
+  amount: number;
+  reason: string;
+  billPhoto?: string;
+  status: ClaimStatus;
+  appliedAt: string;
+  reviewedAt?: string;
+  reviewedBy?: string;
+  reviewNotes?: string;
+}
 
 export interface WorkerWagePayout {
   id: string;

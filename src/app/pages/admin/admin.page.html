@@ -531,6 +531,38 @@
             <div *ngIf="alloc.incompleteReason" class="alloc-incomplete-reason">
               <span class="material-symbols-outlined">info</span> Reason: {{ alloc.incompleteReason }}
             </div>
+
+            <!-- Arrival Check-in Proof (GPS & Photo) -->
+            <div *ngIf="alloc.checkInTime || alloc.checkInPhoto" class="alloc-checkin-proof-box" style="margin-top: 8px; padding: 6px 10px; background: rgba(56, 189, 248, 0.08); border: 1px dashed rgba(56, 189, 248, 0.3); border-radius: 8px; display: flex; align-items: center; justify-content: space-between; font-size: 0.76rem;">
+              <div style="display: flex; align-items: center; gap: 6px; color: #38bdf8;">
+                <span class="material-symbols-outlined" style="font-size: 16px;">pin_drop</span>
+                <span>On-Site Check-in: <strong>{{ alloc.checkInTime || 'Recorded' }}</strong></span>
+                <span *ngIf="alloc.checkInLocation" style="color: #94a3b8;">(GPS Lat: {{ alloc.checkInLocation.lat }}, Lng: {{ alloc.checkInLocation.lng }})</span>
+              </div>
+              <a *ngIf="alloc.checkInPhoto" [href]="alloc.checkInPhoto" target="_blank" style="color: #38bdf8; text-decoration: underline; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+                <span class="material-symbols-outlined" style="font-size: 14px;">camera_alt</span> View Photo
+              </a>
+            </div>
+
+            <!-- Work Completion Photographic Proof -->
+            <div *ngIf="alloc.completionPhoto || alloc.completionNotes" class="alloc-completion-proof-box" style="margin-top: 8px; padding: 8px 10px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; font-size: 0.78rem;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                <span style="color: #34d399; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                  <span class="material-symbols-outlined" style="font-size: 16px;">verified</span>
+                  Finished Work Photographic Proof:
+                </span>
+                <span *ngIf="alloc.completedAt" style="color: #94a3b8; font-size: 0.72rem;">{{ alloc.completedAt | date:'shortTime' }}</span>
+              </div>
+              <div *ngIf="alloc.completionNotes" style="color: #e2e8f0; font-style: italic; margin-bottom: 6px;">
+                "{{ alloc.completionNotes }}"
+              </div>
+              <div *ngIf="alloc.completionPhoto" style="display: flex; align-items: center; gap: 10px;">
+                <a [href]="alloc.completionPhoto" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: rgba(16, 185, 129, 0.2); border-radius: 6px; color: #34d399; text-decoration: none; font-weight: 700;">
+                  <span class="material-symbols-outlined" style="font-size: 16px;">image</span>
+                  <span>View Full Finished Work Proof</span>
+                </a>
+              </div>
+            </div>
           </div>
 
           <!-- Worker & Wage Details Line -->
@@ -817,6 +849,104 @@
                   </button>
                   <button 
                     (click)="deleteLeave(leave.id)" 
+                    class="btn-table-action btn-table-delete" 
+                    title="Delete Record">
+                    <span class="material-symbols-outlined">delete</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ================= SECTION: ON-SITE CLAIMS & WAGE ADVANCES ================= -->
+      <div class="site-detail-section glass-card" style="margin-top: 32px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <h3 style="font-size: 1.15rem; font-weight: 700; color: #f8fafc; margin: 0; display: flex; align-items: center; gap: 8px;">
+              <span class="material-symbols-outlined" style="color: #f59e0b;">receipt_long</span>
+              On-Site Material Reimbursements & Wage Advance Claims (அவசர செலவு & அட்வான்ஸ்)
+            </h3>
+            <p style="font-size: 0.82rem; color: #94a3b8; margin: 4px 0 0 0;">
+              Review urgent material purchases, transport costs, and salary advances submitted by electricians on site.
+            </p>
+          </div>
+          <span class="badge-pill badge-warning" *ngIf="staffClaims.length > 0">
+            {{ staffClaims.length }} Total Requests
+          </span>
+        </div>
+
+        <div *ngIf="staffClaims.length === 0" class="empty-roster-card glass-card" style="padding: 24px; text-align: center;">
+          <span class="material-symbols-outlined" style="font-size: 36px; color: #94a3b8;">verified</span>
+          <p style="color: #94a3b8; margin-top: 8px;">No pending expense or advance claims submitted by staff.</p>
+        </div>
+
+        <table *ngIf="staffClaims.length > 0" class="admin-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Electrician</th>
+              <th>Claim Type</th>
+              <th>Amount</th>
+              <th>Reason / Purpose</th>
+              <th>Bill / Receipt</th>
+              <th>Status</th>
+              <th>Notes</th>
+              <th style="text-align: right;">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let claim of staffClaims">
+              <td>{{ claim.appliedAt | date:'mediumDate' }}</td>
+              <td><strong>{{ claim.employeeName }}</strong></td>
+              <td>
+                <span class="badge-pill" [ngClass]="{
+                  'badge-info': claim.claimType === 'material_reimbursement',
+                  'badge-warning': claim.claimType === 'wage_advance',
+                  'badge-neutral': claim.claimType === 'travel_food'
+                }">
+                  {{ claim.claimType === 'material_reimbursement' ? 'Material Purchase' : (claim.claimType === 'wage_advance' ? 'Wage Advance' : 'Travel & Food') }}
+                </span>
+              </td>
+              <td><strong style="color: #34d399; font-size: 0.95rem;">₹{{ claim.amount | number }}</strong></td>
+              <td style="max-width: 200px;">{{ claim.reason }}</td>
+              <td>
+                <a *ngIf="claim.billPhoto" [href]="claim.billPhoto" target="_blank" style="color: #38bdf8; display: inline-flex; align-items: center; gap: 4px; font-weight: 600; text-decoration: underline;">
+                  <span class="material-symbols-outlined" style="font-size: 16px;">receipt</span> View Bill
+                </a>
+                <span *ngIf="!claim.billPhoto" style="color: #94a3b8;">No bill attached</span>
+              </td>
+              <td>
+                <span class="badge-pill" [ngClass]="{
+                  'badge-warning': claim.status === 'pending',
+                  'badge-success': claim.status === 'approved',
+                  'badge-danger': claim.status === 'rejected'
+                }">
+                  {{ claim.status | uppercase }}
+                </span>
+              </td>
+              <td style="font-size: 0.82rem; color: var(--text-muted);">
+                {{ claim.reviewNotes || '-' }}
+              </td>
+              <td style="text-align: right;">
+                <div style="display: inline-flex; gap: 6px; justify-content: flex-end;">
+                  <button 
+                    *ngIf="claim.status === 'pending'" 
+                    (click)="approveClaim(claim.id)" 
+                    class="btn-table-action btn-table-approve" 
+                    title="Approve & automatically record wage deduction if advance">
+                    <span class="material-symbols-outlined">check_circle</span> Approve
+                  </button>
+                  <button 
+                    *ngIf="claim.status === 'pending'" 
+                    (click)="rejectClaim(claim.id)" 
+                    class="btn-table-action btn-table-reject" 
+                    title="Decline Claim">
+                    <span class="material-symbols-outlined">cancel</span> Reject
+                  </button>
+                  <button 
+                    (click)="deleteClaim(claim.id)" 
                     class="btn-table-action btn-table-delete" 
                     title="Delete Record">
                     <span class="material-symbols-outlined">delete</span>
@@ -1944,10 +2074,7 @@
               <label>Assign Electrician:</label>
               <select [(ngModel)]="bk.assignedTechnician" (change)="saveBookingAssignment(bk)">
                 <option value="">-- Select Electrician --</option>
-                <option value="Murugan (Senior Tech)">Murugan (Senior Tech)</option>
-                <option value="Suresh (Wiring Specialist)">Suresh (Wiring Specialist)</option>
-                <option value="Ravi (Switchboard & DB)">Ravi (Switchboard & DB)</option>
-                <option value="Vignesh (Assistant)">Vignesh (Assistant)</option>
+                <option *ngFor="let emp of employees" [value]="emp.name + ' (' + emp.role + ')'">{{ emp.name }} ({{ emp.role }})</option>
               </select>
             </div>
 
@@ -1959,6 +2086,18 @@
                 <option value="in_progress">In Progress</option>
                 <option value="completed">Completed</option>
               </select>
+            </div>
+
+            <div class="bk-roster-bridge-btn-wrap" style="grid-column: 1 / -1; margin-top: 6px;">
+              <button 
+                type="button" 
+                (click)="scheduleBookingToRoster(bk)" 
+                class="btn-action-accent" 
+                style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; padding: 10px 14px; background: linear-gradient(135deg, #0284c7, #0369a1); border: 1px solid #38bdf8;"
+                title="Automatically schedule this booking to duty roster and dispatch to electrician portal">
+                <span class="material-symbols-outlined">event_available</span>
+                <span>🛠️ Schedule to Staff Duty Roster & Dispatch WhatsApp</span>
+              </button>
             </div>
           </div>
         </div>

@@ -7,6 +7,7 @@ import { OrderService } from '../../services/order.service';
 import { CartService } from '../../services/cart.service';
 import { AuthService } from '../../services/auth.service';
 import { ConfigService } from '../../services/config.service';
+import { PwaInstallService } from '../../services/pwa-install.service';
 import { Order, OrderStatus } from '../../models/order.model';
 
 @Component({
@@ -22,6 +23,7 @@ export class ProfilePage implements OnInit {
   cartService = inject(CartService);
   authService = inject(AuthService);
   configService = inject(ConfigService);
+  pwaService = inject(PwaInstallService);
   router = inject(Router);
 
   activeTab: 'orders' | 'edit' | 'addresses' | 'preferences' = 'orders';

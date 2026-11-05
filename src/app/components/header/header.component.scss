@@ -1323,3 +1323,163 @@
     height: 64px;
   }
 }
+
+/* 1-Click PWA Installation Top Action Button & Floating Banner */
+.pwa-install-top-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.18), rgba(5, 150, 105, 0.28));
+  border: 1px solid rgba(16, 185, 129, 0.5);
+  color: #34d399 !important;
+  border-radius: 999px;
+  padding: 0 14px;
+  height: 38px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 700;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+  .install-icon {
+    font-size: 18px;
+  }
+
+  &:hover {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff !important;
+    border-color: #10b981;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+    transform: translateY(-1px);
+  }
+
+  @media (max-width: 640px) {
+    .install-text {
+      display: none;
+    }
+    padding: 0 10px;
+  }
+}
+
+.pwa-install-banner {
+  position: fixed;
+  bottom: 76px;
+  left: 16px;
+  right: 16px;
+  max-width: 520px;
+  margin: 0 auto;
+  z-index: 9998;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  border-radius: 16px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(16, 185, 129, 0.2);
+
+  .banner-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+
+    .banner-icon-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #10b981, #059669);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+
+      span {
+        font-size: 22px;
+      }
+    }
+
+    .banner-text {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+
+      strong {
+        color: #f8fafc;
+        font-size: 0.88rem;
+        font-weight: 700;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      span {
+        color: #94a3b8;
+        font-size: 0.74rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+  }
+
+  .banner-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+
+    .btn-banner-install {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #ffffff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+      transition: all 0.2s ease;
+
+      span.material-symbols-outlined {
+        font-size: 16px;
+      }
+
+      &:hover {
+        transform: scale(1.02);
+        box-shadow: 0 6px 16px rgba(16, 185, 129, 0.45);
+      }
+    }
+
+    .btn-banner-dismiss {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:hover {
+        color: #f8fafc;
+        background: rgba(255, 255, 255, 0.1);
+      }
+    }
+  }
+
+  @media (min-width: 861px) {
+    bottom: 24px;
+    right: 24px;
+    left: auto;
+    margin: 0;
+  }
+}
+

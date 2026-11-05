@@ -5,7 +5,9 @@ import {
   SiteWorkAllocation, 
   StaffLeaveRequest, 
   StaffSalarySlip, 
-  WorkerWagePayout 
+  WorkerWagePayout,
+  StaffClaimRequest,
+  ClaimStatus
 } from '../models/site.model';
 import { SiteService } from './site.service';
 import { FirebaseService } from './firebase.service';
@@ -16,6 +18,7 @@ import { FirebaseService } from './firebase.service';
 export class StaffService {
   private readonly SESSION_KEY = 'electrical_vibers_staff_session_v1';
   private readonly LEAVES_KEY = 'electrical_vibers_staff_leaves_v1';
+  private readonly CLAIMS_KEY = 'electrical_vibers_staff_claims_v1';
 
   private siteService = inject(SiteService);
   private firebaseService = inject(FirebaseService);
@@ -26,9 +29,13 @@ export class StaffService {
   private leavesSubject = new BehaviorSubject<StaffLeaveRequest[]>([]);
   public leaves$: Observable<StaffLeaveRequest[]> = this.leavesSubject.asObservable();
 
+  private claimsSubject = new BehaviorSubject<StaffClaimRequest[]>([]);
+  public claims$: Observable<StaffClaimRequest[]> = this.claimsSubject.asObservable();
+
   constructor() {
     this.loadSession();
     this.loadLeaves();
+    this.loadClaims();
     this.initCloudSync();
   }
 
@@ -71,10 +78,43 @@ export class StaffService {
     }
   }
 
+  private loadClaims(): void {
+    const saved = localStorage.getItem(this.CLAIMS_KEY);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          this.claimsSubject.next(parsed);
+          return;
+        }
+      } catch (e) {
+        console.error('Failed to load claims:', e);
+      }
+    }
+    this.claimsSubject.next([]);
+  }
+
+  private saveClaims(claims: StaffClaimRequest[], syncToCloud = true): void {
+    localStorage.setItem(this.CLAIMS_KEY, JSON.stringify(claims));
+    this.claimsSubject.next(claims);
+
+    if (syncToCloud) {
+      claims.forEach(c => {
+        this.firebaseService.setDocument('staff_claims', c.id, c).catch(() => {});
+      });
+    }
+  }
+
   private initCloudSync(): void {
     this.firebaseService.listenToCollection<StaffLeaveRequest>('leave_requests', (remoteLeaves) => {
       if (remoteLeaves && remoteLeaves.length > 0) {
         this.saveLeaves(remoteLeaves, false);
+      }
+    });
+
+    this.firebaseService.listenToCollection<StaffClaimRequest>('staff_claims', (remoteClaims) => {
+      if (remoteClaims && remoteClaims.length > 0) {
+        this.saveClaims(remoteClaims, false);
       }
     });
   }
@@ -117,8 +157,8 @@ export class StaffService {
     return all.filter(a => a.assignedEmployeeId === employeeId);
   }
 
-  updateTaskStatus(allocationId: string, status: 'in_progress' | 'completed', completionNotes?: string): void {
-    this.siteService.updateAllocationStatus(allocationId, status as any);
+  updateTaskStatus(allocationId: string, status: 'in_progress' | 'completed', completionNotes?: string, completionPhoto?: string): void {
+    this.siteService.updateAllocationStatus(allocationId, status as any, completionNotes, completionPhoto);
   }
 
   carryForwardTask(allocationId: string, nextDate: string, reason: string): SiteWorkAllocation | null {
@@ -191,6 +231,64 @@ export class StaffService {
     const updated = this.leavesSubject.getValue().filter(l => l.id !== leaveId);
     this.saveLeaves(updated, true);
     this.firebaseService.deleteDocument('leave_requests', leaveId).catch(() => {});
+  }
+
+  // --- On-Site Material & Wage Advance Claims ---
+  submitClaim(req: Omit<StaffClaimRequest, 'id' | 'status' | 'appliedAt'>): StaffClaimRequest {
+    const newClaim: StaffClaimRequest = {
+      ...req,
+      amount: Number(req.amount),
+      id: 'claim-' + Date.now(),
+      status: 'pending',
+      appliedAt: new Date().toISOString()
+    };
+
+    const updated = [newClaim, ...this.claimsSubject.getValue()];
+    this.saveClaims(updated, true);
+    return newClaim;
+  }
+
+  getStaffClaims(employeeId: string): StaffClaimRequest[] {
+    return this.claimsSubject.getValue().filter(c => c.employeeId === employeeId);
+  }
+
+  getAllClaims(): StaffClaimRequest[] {
+    return this.claimsSubject.getValue();
+  }
+
+  updateClaimStatus(claimId: string, status: ClaimStatus, reviewNotes?: string): void {
+    const target = this.claimsSubject.getValue().find(c => c.id === claimId);
+    const updated = this.claimsSubject.getValue().map(c => {
+      if (c.id === claimId) {
+        return {
+          ...c,
+          status,
+          reviewedAt: new Date().toISOString(),
+          reviewedBy: 'Master Contractor Admin',
+          reviewNotes: reviewNotes || (status === 'approved' ? 'Approved by Contractor' : 'Rejected by Contractor')
+        };
+      }
+      return c;
+    });
+
+    this.saveClaims(updated, true);
+
+    // If approved and it is a wage advance, automatically record a payout in SiteService!
+    if (status === 'approved' && target && target.claimType === 'wage_advance') {
+      this.siteService.recordWagePayout({
+        employeeId: target.employeeId,
+        date: new Date().toISOString().split('T')[0],
+        amount: target.amount,
+        paymentMode: 'cash',
+        notes: `Wage Advance: ${target.reason}`
+      });
+    }
+  }
+
+  deleteClaim(claimId: string): void {
+    const updated = this.claimsSubject.getValue().filter(c => c.id !== claimId);
+    this.saveClaims(updated, true);
+    this.firebaseService.deleteDocument('staff_claims', claimId).catch(() => {});
   }
 
   // --- Salary Slips & Wage Payouts ---

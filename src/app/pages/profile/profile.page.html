@@ -64,6 +64,11 @@
               <span class="material-symbols-outlined">logout</span>
             </button>
           </div>
+
+          <button *ngIf="pwaService.canInstall$ | async" (click)="pwaService.promptInstall()" class="btn-g-sync" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.3)); border-color: rgba(16, 185, 129, 0.5); color: #34d399;">
+            <span class="material-symbols-outlined">install_mobile</span>
+            <span>Install Electrical Vibers App</span>
+          </button>
         </div>
       </div>
     </div>

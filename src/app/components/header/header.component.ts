@@ -8,6 +8,7 @@ import { CustomerService } from '../../services/customer.service';
 import { ConfigService, AppConfig } from '../../services/config.service';
 import { ProductService } from '../../services/product.service';
 import { ThemeService, ThemePreference } from '../../services/theme.service';
+import { PwaInstallService } from '../../services/pwa-install.service';
 import { Product } from '../../models/product.model';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
@@ -36,6 +37,7 @@ export class HeaderComponent implements OnInit {
   configService = inject(ConfigService);
   productService = inject(ProductService);
   themeService = inject(ThemeService);
+  pwaService = inject(PwaInstallService);
   router = inject(Router);
 
   config: AppConfig = this.configService.getConfig();
@@ -43,6 +45,7 @@ export class HeaderComponent implements OnInit {
   searchQuery = '';
   searchResults: Product[] = [];
   isSearchOpen = false;
+  canInstallPwa = false;
 
   // Theme Switcher State
   showThemeMenu = false;
@@ -73,6 +76,14 @@ export class HeaderComponent implements OnInit {
     this.productService.products$.subscribe(prods => {
       this.allProducts = prods;
     });
+
+    this.pwaService.canInstall$.subscribe(can => {
+      this.canInstallPwa = can;
+    });
+  }
+
+  installApp(): void {
+    this.pwaService.promptInstall();
   }
 
   get cartCount(): number {

@@ -22,7 +22,8 @@ import {
   AllocationStatus, 
   EmployeeRole,
   ContractType,
-  StaffLeaveRequest
+  StaffLeaveRequest,
+  StaffClaimRequest
 } from '../../models/site.model';
 
 import { Product } from '../../models/product.model';
@@ -56,6 +57,27 @@ export class AdminPage implements OnInit {
   deleteLeave(leaveId: string): void {
     if (confirm('Delete this leave application record?')) {
       this.staffService.deleteLeaveRequest(leaveId);
+    }
+  }
+
+  // --- Staff On-Site Expense & Advance Claims Review ---
+  approveClaim(claimId: string): void {
+    const note = prompt('Optional approval note for technician:');
+    this.staffService.updateClaimStatus(claimId, 'approved', note || undefined);
+    alert('Claim approved! If this was a wage advance, deduction/payout has been logged into payroll automatically.');
+  }
+
+  rejectClaim(claimId: string): void {
+    const reason = prompt('Reason for declining claim:');
+    if (reason !== null) {
+      this.staffService.updateClaimStatus(claimId, 'rejected', reason || undefined);
+      alert('Claim request declined.');
+    }
+  }
+
+  deleteClaim(claimId: string): void {
+    if (confirm('Delete this claim record?')) {
+      this.staffService.deleteClaim(claimId);
     }
   }
 
@@ -225,6 +247,7 @@ export class AdminPage implements OnInit {
 
   // Google Authentication State
   leaveRequests: StaffLeaveRequest[] = [];
+  staffClaims: StaffClaimRequest[] = [];
   expenseBillPhotoUrl = '';
   isUploadingFile = false;
   whitelist: string[] = [];
@@ -442,6 +465,7 @@ export class AdminPage implements OnInit {
     this.bookingService.bookings$.subscribe(b => this.bookings = b);
     this.authService.whitelist$.subscribe(wl => this.whitelist = wl);
     this.staffService.leaves$.subscribe(l => this.leaveRequests = l);
+    this.staffService.claims$.subscribe(c => this.staffClaims = c);
   }
 
 
@@ -1210,6 +1234,88 @@ export class AdminPage implements OnInit {
 
   saveBookingAssignment(booking: Booking): void {
     this.bookingService.updateBookingStatus(booking.id, booking.status, booking.assignedTechnician);
+  }
+
+  scheduleBookingToRoster(booking: Booking): void {
+    if (!booking.assignedTechnician) {
+      alert('Please select an electrician from the dropdown first before scheduling to duty roster.');
+      return;
+    }
+
+    // Match employee
+    const emp = this.employees.find(e => 
+      booking.assignedTechnician?.includes(e.name) || e.name === booking.assignedTechnician
+    );
+
+    if (!emp) {
+      alert('Selected electrician was not found in active employee records.');
+      return;
+    }
+
+    // Check if site already exists or create one for this service job
+    let site = this.sites.find(s => s.clientPhone === booking.customerPhone || s.siteName.includes(booking.customerName));
+    if (!site) {
+      site = this.siteService.createSite({
+        siteName: `${booking.serviceTitle} - ${booking.customerName}`,
+        clientName: booking.customerName,
+        clientPhone: booking.customerPhone,
+        siteAddress: `${booking.customerAddress}, ${booking.city}`,
+        city: booking.city || 'Chennai',
+        contractType: 'labor_only',
+        status: 'ongoing',
+        startDate: booking.preferredDate || new Date().toISOString().split('T')[0],
+        contractAmount: booking.finalCost || booking.estimatedCost || 1200,
+        description: `Service Booking: ${booking.serviceTitle} - ${booking.problemDescription || ''}`,
+        assignedElectricians: [emp.name]
+      });
+    }
+
+    if (!site) {
+      alert('Could not initialize service site project.');
+      return;
+    }
+
+    // Check if allocation already exists
+    const dateToSchedule = booking.preferredDate || new Date().toISOString().split('T')[0];
+    const existing = this.siteService.getAllocations().find(a => 
+      a.siteId === site.id && a.assignedEmployeeId === emp!.id && a.date === dateToSchedule
+    );
+
+    if (!existing) {
+      this.siteService.createAllocation({
+        siteId: site.id,
+        date: dateToSchedule,
+        taskDescription: `${booking.serviceTitle} [Slot: ${booking.preferredTimeSlot || 'Anytime'}] - ${booking.problemDescription || 'Electrical troubleshooting & service'}`,
+        shift: 'full_day',
+        assignedEmployeeId: emp.id,
+        notes: `Customer: ${booking.customerName} (${booking.customerPhone}) | Address: ${booking.customerAddress}, ${booking.city}`
+      });
+    }
+
+    booking.status = 'assigned';
+    this.saveBookingAssignment(booking);
+
+    // Offer instant WhatsApp dispatch to wireman
+    const confirmWa = confirm(`✅ Booking successfully bridged to Staff Duty Roster!\n\n${emp.name} will now see this task in their Staff Portal under Today's / Upcoming duties.\n\nWould you like to dispatch work details to ${emp.name} via WhatsApp now?`);
+    if (confirmWa) {
+      const waText = 
+        `⚡ *ELECTRICAL VIBERS - SERVICE DISPATCH WORK ORDER*\n` +
+        `------------------------------------\n` +
+        `👨‍🔧 *Technician:* ${emp.name} (${emp.role})\n` +
+        `📅 *Date & Slot:* ${booking.preferredDate} (${booking.preferredTimeSlot})\n` +
+        `🛠️ *Service:* ${booking.serviceTitle}\n` +
+        `👤 *Customer:* ${booking.customerName}\n` +
+        `📞 *Customer Phone:* ${booking.customerPhone}\n` +
+        `📍 *Address:* ${booking.customerAddress}, ${booking.city}\n` +
+        `📝 *Problem Details:* ${booking.problemDescription || 'Standard electrical repair'}\n` +
+        `🗺️ *Google Maps:* https://maps.google.com/?q=${encodeURIComponent(booking.customerAddress + ', ' + booking.city)}\n` +
+        `------------------------------------\n` +
+        `Please open your Staff Portal to check in when you arrive on site.`;
+
+      const cleanPhone = emp.phone.replace(/\D/g, '');
+      const fullPhone = cleanPhone.startsWith('91') ? cleanPhone : '91' + cleanPhone;
+      window.open(`https://wa.me/${fullPhone}?text=${encodeURIComponent(waText)}`, '_blank');
+    }
   }
 }
 

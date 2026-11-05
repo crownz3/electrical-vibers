@@ -2218,3 +2218,248 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+/* Contractor Emergency Hotline & Claims */
+.btn-contractor-hotline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.3));
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  color: #f87171;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+
+  span.material-symbols-outlined {
+    font-size: 18px;
+  }
+
+  &:hover {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
+    transform: translateY(-1px);
+  }
+
+  @media (max-width: 600px) {
+    .hotline-text {
+      display: none;
+    }
+    padding: 8px 10px;
+  }
+}
+
+.hotline-banner-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(15, 23, 42, 0.8));
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: 16px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+
+  .hbc-content {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    .hbc-icon-wrap {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #f87171;
+      flex-shrink: 0;
+
+      span {
+        font-size: 24px;
+      }
+    }
+
+    .hbc-text {
+      display: flex;
+      flex-direction: column;
+
+      strong {
+        color: #f8fafc;
+        font-size: 0.95rem;
+      }
+
+      span {
+        color: #94a3b8;
+        font-size: 0.78rem;
+      }
+    }
+  }
+
+  .btn-hotline-call {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: #ffffff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-size: 0.86rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
+    transition: all 0.2s ease;
+
+    span.material-symbols-outlined {
+      font-size: 18px;
+    }
+
+    &:hover {
+      transform: scale(1.02);
+      box-shadow: 0 6px 18px rgba(239, 68, 68, 0.5);
+    }
+  }
+}
+
+.claims-list-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+
+  .claim-card {
+    background: var(--card-bg, rgba(15, 23, 42, 0.8));
+    border: 1px solid var(--border-color, rgba(255, 255, 255, 0.12));
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: all 0.25s ease;
+
+    &.status-approved {
+      border-color: rgba(52, 211, 153, 0.4);
+      background: linear-gradient(135deg, rgba(52, 211, 153, 0.05), var(--card-bg, rgba(15, 23, 42, 0.8)));
+    }
+
+    &.status-rejected {
+      border-color: rgba(248, 113, 113, 0.3);
+      opacity: 0.85;
+    }
+
+    &.status-pending {
+      border-color: rgba(245, 158, 11, 0.4);
+    }
+
+    .claim-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      .claim-badge-wrap {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        .claim-type-pill {
+          font-size: 0.72rem;
+          font-weight: 700;
+          padding: 3px 8px;
+          border-radius: 999px;
+
+          &.material_reimbursement {
+            background: rgba(56, 189, 248, 0.15);
+            color: #38bdf8;
+          }
+          &.wage_advance {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+          }
+          &.travel_food {
+            background: rgba(168, 85, 247, 0.15);
+            color: #c084fc;
+          }
+        }
+
+        .claim-status-pill {
+          font-size: 0.68rem;
+          font-weight: 800;
+          padding: 2px 6px;
+          border-radius: 4px;
+
+          &.approved { background: rgba(52, 211, 153, 0.2); color: #34d399; }
+          &.rejected { background: rgba(248, 113, 113, 0.2); color: #f87171; }
+          &.pending { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+        }
+      }
+
+      .claim-amt {
+        font-size: 1.15rem;
+        color: #34d399;
+      }
+    }
+
+    .claim-reason-box {
+      font-size: 0.82rem;
+      color: #cbd5e1;
+
+      strong {
+        color: #94a3b8;
+        font-size: 0.75rem;
+        display: block;
+        margin-bottom: 2px;
+      }
+
+      p {
+        margin: 0;
+      }
+    }
+
+    .claim-meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.74rem;
+      color: #94a3b8;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      padding-top: 8px;
+
+      .claim-bill-link {
+        color: #38bdf8;
+        text-decoration: underline;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+
+        span {
+          font-size: 15px;
+        }
+      }
+    }
+
+    .claim-review-note {
+      font-size: 0.76rem;
+      background: rgba(255, 255, 255, 0.04);
+      padding: 6px 10px;
+      border-radius: 6px;
+      color: #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
+      span.material-symbols-outlined {
+        font-size: 14px;
+        color: #f59e0b;
+      }
+    }
+  }
+}
+

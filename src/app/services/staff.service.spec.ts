@@ -40,7 +40,8 @@ describe('StaffService', () => {
       toggleEmployeeStatus: vi.fn(),
       updateAllocationStatus: vi.fn(),
       carryForwardTask: vi.fn().mockReturnValue({ id: 'alloc-new-1', date: '2026-11-15', status: 'scheduled' }),
-      recordSiteCheckIn: vi.fn()
+      recordSiteCheckIn: vi.fn(),
+      recordWagePayout: vi.fn()
     };
 
     TestBed.configureTestingModule({
@@ -141,5 +142,38 @@ describe('StaffService', () => {
       checkInPhoto: 'https://storage.googleapis.com/test-photo.jpg',
       checkInLocation: { lat: 9.9252, lng: 78.1198, accuracy: 5 }
     });
+  });
+
+  it('should update task status with work completion photo and notes', () => {
+    service.updateTaskStatus('alloc-1', 'completed', 'DB dressed properly', 'https://storage.googleapis.com/db.jpg');
+    expect(mockSiteService.updateAllocationStatus).toHaveBeenCalledWith(
+      'alloc-1', 
+      'completed', 
+      'DB dressed properly', 
+      'https://storage.googleapis.com/db.jpg'
+    );
+  });
+
+  it('should submit on-site expense claim and allow admin approval', () => {
+    const claim = service.submitClaim({
+      employeeId: 'emp-spec-1',
+      employeeName: 'Muthu Wireman',
+      claimType: 'material_reimbursement',
+      amount: 450,
+      reason: '10m 2.5mm copper cable',
+      billPhoto: 'https://storage.googleapis.com/bill.jpg'
+    });
+
+    expect(claim.id).toBeTruthy();
+    expect(claim.status).toBe('pending');
+    expect(claim.amount).toBe(450);
+
+    const empClaims = service.getStaffClaims('emp-spec-1');
+    expect(empClaims.length).toBe(1);
+
+    service.updateClaimStatus(claim.id, 'approved', 'Reimbursed in cash');
+    const updated = service.getAllClaims().find(c => c.id === claim.id);
+    expect(updated?.status).toBe('approved');
+    expect(updated?.reviewNotes).toBe('Reimbursed in cash');
   });
 });

@@ -593,11 +593,17 @@ export class SiteService {
     this.saveAllocations(updated);
   }
 
-  updateAllocationStatus(allocationId: string, status: AllocationStatus): void {
+  updateAllocationStatus(allocationId: string, status: AllocationStatus, completionNotes?: string, completionPhoto?: string): void {
     const updated = this.allocationsSubject.getValue().map(alloc => {
       if (alloc.id === allocationId) {
         const completedAt = status === 'completed' ? new Date().toISOString() : alloc.completedAt;
-        return { ...alloc, status, completedAt };
+        return { 
+          ...alloc, 
+          status, 
+          completedAt,
+          notes: completionNotes ? (alloc.notes ? alloc.notes + ' | ' + completionNotes : completionNotes) : alloc.notes,
+          completionPhoto: completionPhoto || alloc.completionPhoto
+        };
       }
       return alloc;
     });
