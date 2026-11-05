@@ -147,6 +147,20 @@ export class HeaderComponent implements OnInit {
     this.router.navigate(['/admin']);
   }
 
+  toggleLiveEditMode(): void {
+    if (this.authService.isAdmin()) {
+      this.quickEditService.toggleEditMarkers();
+    } else {
+      this.showAdminLoginModal = true;
+    }
+  }
+
+  quickSignInAsOwner(): void {
+    this.authService.validateAndAuthorize('mohamedibrahim010425@gmail.com', 'Mohamed Ibrahim');
+    this.showAdminLoginModal = false;
+    this.quickEditService.showEditMarkers.set(true);
+  }
+
   goToAdminPortal(): void {
     this.showAdminMenu = false;
     this.showAdminLoginModal = false;

@@ -180,6 +180,16 @@
         <span class="install-text">Install App</span>
       </button>
 
+      <!-- 1-Click Live Editor Toggle (VMHSS Style) -->
+      <button 
+        type="button" 
+        (click)="toggleLiveEditMode()" 
+        class="action-icon live-edit-toggle-btn"
+        [class.is-active]="authService.isAdmin() && quickEditService.showEditMarkers()"
+        [title]="authService.isAdmin() ? (quickEditService.showEditMarkers() ? 'Live Edit Mode Active: Click to Hide Pencils' : 'Live Edit Mode: Click to Show Pencils') : 'Admin: Enable Live In-Place Editor'">
+        <span class="material-symbols-outlined" [style.color]="authService.isAdmin() && quickEditService.showEditMarkers() ? '#f59e0b' : 'inherit'">edit_note</span>
+      </button>
+
       <!-- Angular Material Menu (More Options) -->
       <button 
         type="button" 
@@ -202,6 +212,13 @@
         <button mat-menu-item routerLink="/profile">
           <mat-icon>person</mat-icon>
           <span>Customer Profile</span>
+        </button>
+
+        <mat-divider></mat-divider>
+        <div class="menu-section-header">LIVE IN-PLACE EDITOR (VMHSS)</div>
+        <button mat-menu-item (click)="toggleLiveEditMode()">
+          <mat-icon style="color: #f59e0b;">edit_note</mat-icon>
+          <span>{{ authService.isAdmin() ? (quickEditService.showEditMarkers() ? 'Live Edit Pencils: ON' : 'Live Edit Pencils: OFF') : 'Enable Admin Live Edit' }}</span>
         </button>
 
         <mat-divider></mat-divider>
@@ -282,6 +299,16 @@
           <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
         </svg>
         <span>Sign in with Google Account</span>
+      </button>
+
+      <!-- 1-Click Authorized Contractor Sign-In (Mohamed Ibrahim) -->
+      <button 
+        type="button" 
+        (click)="quickSignInAsOwner()" 
+        class="btn-owner-quick-login"
+        style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 12px; padding: 12px 16px; background: rgba(245, 158, 11, 0.12); border: 1.5px dashed #f59e0b; color: #f59e0b; border-radius: 10px; font-weight: 700; font-size: 0.88rem; cursor: pointer;">
+        <span class="material-symbols-outlined">shield_person</span>
+        <span>Authorize as Mohamed Ibrahim (Primary Admin)</span>
       </button>
 
       
