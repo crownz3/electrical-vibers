@@ -11,6 +11,7 @@ import { ConfigService, AppConfig, StoreOffer } from '../../services/config.serv
 import { FirebaseService } from '../../services/firebase.service';
 import { StaffService } from '../../services/staff.service';
 import { DialogService } from '../../services/dialog.service';
+import { LanguageService } from '../../services/language.service';
 import { 
   SiteProject,
   SiteExpense,
@@ -265,6 +266,7 @@ export class AdminPage implements OnInit {
   firebaseService = inject(FirebaseService);
   staffService = inject(StaffService);
   dialogService = inject(DialogService);
+  langService = inject(LanguageService);
 
   activeTab: 'roster' | 'workforce' | 'sites' | 'products' | 'categories' | 'services' | 'offers' | 'settings' | 'orders' | 'bookings' = 'roster';
   Math = Math;
@@ -385,11 +387,14 @@ export class AdminPage implements OnInit {
 
   // New Employee form
   newEmpName = '';
+  newEmpTamilName = '';
   newEmpPhone = '';
   newEmpRole: EmployeeRole = 'Senior Wireman';
+  newEmpTamilRole = '';
   newEmpDailyWage = 950;
   newEmpUpi = '';
   newEmpSpecialty = '';
+  newEmpTamilSpecialty = '';
 
   // Wage Payout Form
   payoutAmount = 0;
@@ -409,9 +414,11 @@ export class AdminPage implements OnInit {
 
   // New Site form
   newSiteName = '';
+  newSiteTamilName = '';
   newSiteClient = '';
   newSitePhone = '';
   newSiteAddress = '';
+  newSiteTamilAddress = '';
   newSiteContractType: ContractType = 'with_material';
   newSiteEstimatedLaborDays = 15;
   newSitePlannedWorkers = 2;
@@ -419,6 +426,7 @@ export class AdminPage implements OnInit {
   newSiteContractAmount = 100000;
   newSiteInitialAdvance = 30000;
   newSiteWorkers = 'Murugan, Suresh';
+  newSiteTamilDesc = '';
 
   // Expense form (Enhanced for Material Procurement Tracking)
   expenseCategory: ExpenseCategory = 'material';
@@ -445,18 +453,23 @@ export class AdminPage implements OnInit {
   prodName = '';
   prodTamilName = '';
   prodCategory = 'Wires & Cables';
+  prodTamilCategory = '';
   prodBrand = '';
   prodPrice = 0;
   prodMrp = 0;
   prodStock = 10;
   prodUnit = 'Piece';
+  prodTamilUnit = 'எண்ணிக்கை';
   prodImage = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80';
   prodDesc = '';
+  prodTamilDesc = '';
 
   // Category form
   newCategoryName = '';
+  newCategoryTamilName = '';
   editingCategoryOldName = '';
   editingCategoryNewName = '';
+  editingCategoryNewTamilName = '';
 
   // Service form
   serviceTitle = '';
@@ -464,13 +477,16 @@ export class AdminPage implements OnInit {
   servicePrice = 299;
   serviceIcon = 'electric_bolt';
   serviceDesc = '';
+  serviceTamilDesc = '';
   servicePopular = false;
 
   // Offer form
   offerTitle = '';
+  offerTamilTitle = '';
   offerCode = '';
   offerDiscount = 15;
   offerDesc = '';
+  offerTamilDesc = '';
   offerValidTill = '2026-12-31';
 
   get stats() {
@@ -576,8 +592,9 @@ export class AdminPage implements OnInit {
   // --- Category Management ---
   addNewCategory(): void {
     if (!this.newCategoryName.trim()) return;
-    this.productService.addCategory(this.newCategoryName);
+    this.productService.addCategory(this.newCategoryName, this.newCategoryTamilName);
     this.newCategoryName = '';
+    this.newCategoryTamilName = '';
   }
 
   async deleteCategory(cat: string): Promise<void> {
@@ -593,14 +610,23 @@ export class AdminPage implements OnInit {
   }
 
   async startEditCategory(cat: string): Promise<void> {
+    const currentTamil = this.productService.getCategoryTamil(cat);
     const updated = await this.dialogService.prompt({
-      title: 'Edit Category Name',
+      title: 'Edit Category Name (English)',
+      message: `Current Tamil name: ${currentTamil}`,
       defaultValue: cat,
-      confirmText: 'Update'
+      confirmText: 'Continue'
     });
-    if (updated && updated.trim() && updated !== cat) {
-      this.productService.updateCategory(cat, updated.trim());
-    }
+    if (!updated || !updated.trim()) return;
+
+    const updatedTa = await this.dialogService.prompt({
+      title: 'Edit Category Name (Tamil / தமிழ்)',
+      message: `English Name: ${updated.trim()}`,
+      defaultValue: currentTamil,
+      confirmText: 'Save Changes'
+    });
+
+    this.productService.updateCategory(cat, updated.trim(), updatedTa || undefined);
   }
 
   // --- Service Management ---
@@ -610,6 +636,7 @@ export class AdminPage implements OnInit {
     this.servicePrice = 299;
     this.serviceIcon = 'electric_bolt';
     this.serviceDesc = '';
+    this.serviceTamilDesc = '';
     this.servicePopular = false;
     this.showNewServiceModal = true;
   }
@@ -663,11 +690,12 @@ export class AdminPage implements OnInit {
     }
 
     this.bookingService.addService({
-      title: this.serviceTitle,
-      tamilTitle: this.serviceTamilTitle || this.serviceTitle,
+      title: this.serviceTitle.trim(),
+      tamilTitle: this.serviceTamilTitle.trim() || this.serviceTitle.trim(),
       startingPrice: Number(this.servicePrice),
       icon: this.serviceIcon || 'electric_bolt',
-      description: this.serviceDesc || 'Expert electrical inspection and repair.',
+      description: this.serviceDesc.trim() || 'Expert electrical inspection and repair.',
+      tamilDescription: this.serviceTamilDesc.trim() || undefined,
       popular: this.servicePopular
     });
 
@@ -728,7 +756,8 @@ export class AdminPage implements OnInit {
   async saveBannerConfig(): Promise<void> {
     this.configService.updateConfig({
       showBannerOffer: this.config.showBannerOffer,
-      bannerOfferText: this.config.bannerOfferText
+      bannerOfferText: this.config.bannerOfferText,
+      tamilBannerOfferText: this.config.tamilBannerOfferText
     });
     await this.dialogService.alert({
       title: 'Banner Updated',
@@ -742,7 +771,9 @@ export class AdminPage implements OnInit {
       showDealOfTheDay: this.config.showDealOfTheDay,
       dealOfTheDayProductId: this.config.dealOfTheDayProductId,
       dealOfTheDayTitle: this.config.dealOfTheDayTitle,
+      dealOfTheDayTamilTitle: this.config.dealOfTheDayTamilTitle,
       dealOfTheDaySubtitle: this.config.dealOfTheDaySubtitle,
+      dealOfTheDayTamilSubtitle: this.config.dealOfTheDayTamilSubtitle,
       dealOfTheDayEndHours: this.config.dealOfTheDayEndHours
     });
     await this.dialogService.alert({
@@ -770,7 +801,11 @@ export class AdminPage implements OnInit {
     this.prodPrice = 0;
     this.prodMrp = 0;
     this.prodStock = 10;
+    this.prodUnit = 'Piece';
+    this.prodTamilUnit = 'எண்ணிக்கை';
     this.prodDesc = '';
+    this.prodTamilDesc = '';
+    this.prodTamilCategory = '';
     this.showNewProductModal = true;
   }
 
@@ -785,16 +820,19 @@ export class AdminPage implements OnInit {
     }
 
     this.productService.addProduct({
-      name: this.prodName,
-      tamilName: this.prodTamilName,
+      name: this.prodName.trim(),
+      tamilName: this.prodTamilName.trim() || undefined,
       category: this.prodCategory,
+      tamilCategory: this.prodTamilCategory.trim() || this.productService.getCategoryTamil(this.prodCategory),
       brand: this.prodBrand || 'Electrical Vibers Genuine',
       price: Number(this.prodPrice),
       mrp: Number(this.prodMrp || this.prodPrice),
       stock: Number(this.prodStock),
       unit: this.prodUnit || 'Piece',
+      tamilUnit: this.prodTamilUnit.trim() || 'எண்ணிக்கை',
       images: [this.prodImage || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80'],
       description: this.prodDesc || 'Genuine electrical supply with full warranty.',
+      tamilDescription: this.prodTamilDesc.trim() || undefined,
       specs: { 'Brand': this.prodBrand || 'Genuine' },
       inStock: this.prodStock > 0
     });
@@ -817,9 +855,11 @@ export class AdminPage implements OnInit {
   // --- Offers & Promotions ---
   openNewOfferModal(): void {
     this.offerTitle = '';
+    this.offerTamilTitle = '';
     this.offerCode = '';
     this.offerDiscount = 15;
     this.offerDesc = '';
+    this.offerTamilDesc = '';
     this.offerValidTill = '2026-12-31';
     this.showNewOfferModal = true;
   }
@@ -835,10 +875,12 @@ export class AdminPage implements OnInit {
     }
 
     this.configService.addOffer({
-      title: this.offerTitle,
-      code: this.offerCode.toUpperCase(),
+      title: this.offerTitle.trim(),
+      tamilTitle: this.offerTamilTitle.trim() || undefined,
+      code: this.offerCode.trim().toUpperCase(),
       discountPercentage: Number(this.offerDiscount),
-      description: this.offerDesc,
+      description: this.offerDesc.trim(),
+      tamilDescription: this.offerTamilDesc.trim() || undefined,
       validTill: this.offerValidTill,
       active: true
     });
@@ -872,12 +914,37 @@ export class AdminPage implements OnInit {
     });
   }
 
+  // --- Purge All Mock / Dummy Data ---
+  async purgeAllDummyData(): Promise<void> {
+    const ok = await this.dialogService.confirm(
+      'Are you sure you want to completely purge and reset all stored mock products, projects, duty allocations, and employee data? The application will reset to a clean state ready for live production use.',
+      'Purge All Mock Data',
+      'danger'
+    );
+    if (!ok) return;
+
+    this.productService.clearAllProducts();
+    localStorage.removeItem('electrical_vibers_products_v2');
+    localStorage.removeItem('electrical_vibers_sites_v2');
+    localStorage.removeItem('electrical_vibers_allocations_v2');
+    localStorage.removeItem('electrical_vibers_wage_payouts_v2');
+    localStorage.removeItem('electrical_vibers_orders_v1');
+    localStorage.removeItem('electrical_vibers_bookings_v1');
+    localStorage.removeItem('voltmaster_products_v1');
+    localStorage.removeItem('voltmaster_sites_v1');
+    localStorage.removeItem('voltmaster_allocations_v1');
+
+    window.location.reload();
+  }
+
   // --- Sites Management ---
   openNewSiteModal(): void {
     this.newSiteName = '';
+    this.newSiteTamilName = '';
     this.newSiteClient = '';
     this.newSitePhone = '';
     this.newSiteAddress = '';
+    this.newSiteTamilAddress = '';
     this.newSiteContractType = 'with_material';
     this.newSiteEstimatedLaborDays = 15;
     this.newSitePlannedWorkers = 2;
@@ -885,6 +952,7 @@ export class AdminPage implements OnInit {
     this.newSiteContractAmount = 100000;
     this.newSiteInitialAdvance = 30000;
     this.newSiteWorkers = 'Murugan, Suresh';
+    this.newSiteTamilDesc = '';
     this.showNewSiteModal = true;
   }
 
@@ -904,16 +972,20 @@ export class AdminPage implements OnInit {
       .filter(w => !!w);
 
     const site = this.siteService.createSite({
-      siteName: this.newSiteName,
-      clientName: this.newSiteClient,
-      clientPhone: this.newSitePhone,
-      siteAddress: this.newSiteAddress,
+      siteName: this.newSiteName.trim(),
+      tamilSiteName: this.newSiteTamilName.trim() || this.newSiteName.trim(),
+      clientName: this.newSiteClient.trim(),
+      clientPhone: this.newSitePhone.trim(),
+      siteAddress: this.newSiteAddress.trim(),
+      tamilSiteAddress: this.newSiteTamilAddress.trim() || this.newSiteAddress.trim(),
       contractType: this.newSiteContractType,
       estimatedLaborDays: Number(this.newSiteEstimatedLaborDays),
       plannedWorkersCount: Number(this.newSitePlannedWorkers),
       materialBudget: Number(this.newSiteMaterialBudget),
       contractAmount: Number(this.newSiteContractAmount),
       totalReceived: Number(this.newSiteInitialAdvance),
+      description: `Contract: ${this.newSiteContractType === 'with_material' ? 'With Material + Labor' : 'Labor Only'}. Plan: ${this.newSiteEstimatedLaborDays} days.`,
+      tamilDescription: this.newSiteTamilDesc.trim() || undefined,
       assignedElectricians: workerList
     });
 
@@ -1222,11 +1294,14 @@ export class AdminPage implements OnInit {
   // --- Workforce & Employee Directory Management ---
   openNewEmployeeModal(): void {
     this.newEmpName = '';
+    this.newEmpTamilName = '';
     this.newEmpPhone = '';
     this.newEmpRole = 'Senior Wireman';
+    this.newEmpTamilRole = '';
     this.newEmpDailyWage = 950;
     this.newEmpUpi = '';
     this.newEmpSpecialty = '';
+    this.newEmpTamilSpecialty = '';
     this.showNewEmployeeModal = true;
   }
 
@@ -1238,13 +1313,16 @@ export class AdminPage implements OnInit {
 
     this.siteService.addEmployee({
       name: this.newEmpName.trim(),
+      tamilName: this.newEmpTamilName.trim() || this.newEmpName.trim(),
       phone: this.newEmpPhone.trim(),
       role: this.newEmpRole,
+      tamilRole: this.newEmpTamilRole.trim() || undefined,
       dailyWage: Number(this.newEmpDailyWage),
       status: 'active',
       joiningDate: new Date().toISOString().split('T')[0],
       upiId: this.newEmpUpi.trim(),
-      specialty: this.newEmpSpecialty.trim()
+      specialty: this.newEmpSpecialty.trim(),
+      tamilSpecialty: this.newEmpTamilSpecialty.trim() || undefined
     });
 
     this.showNewEmployeeModal = false;

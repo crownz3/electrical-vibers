@@ -2,6 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ConfigService, AppConfig } from '../../services/config.service';
+import { LanguageService } from '../../services/language.service';
 
 @Component({
   selector: 'app-footer',
@@ -12,6 +13,7 @@ import { ConfigService, AppConfig } from '../../services/config.service';
 })
 export class FooterComponent implements OnInit {
   configService = inject(ConfigService);
+  langService = inject(LanguageService);
   config: AppConfig = this.configService.getConfig();
 
   ngOnInit(): void {

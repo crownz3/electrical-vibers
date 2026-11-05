@@ -18,6 +18,7 @@ export class BookingService {
       tamilTitle: 'முழு வீடு மற்றும் வில்லா வயரிங்',
       icon: 'electric_bolt',
       description: 'Conduit laying, point marking, copper wire pulling, DB fixing, and load testing for new buildings and renovations.',
+      tamilDescription: 'புதிய கட்டிடங்கள் மற்றும் வீடுகளுக்கான பைப் பதித்தல், ஒயர் இழுத்தல், DB விநியோக பெட்டி பொருத்துதல் மற்றும் லோட் டெஸ்டிங்.',
       startingPrice: 3500,
       popular: true
     },
@@ -27,6 +28,7 @@ export class BookingService {
       tamilTitle: 'சுவிட்ச்போர்டு & சாக்கெட் பழுதுபார்த்தல்',
       icon: 'toggle_on',
       description: 'Burned switch replacement, spark fixing, loose connection check, and modular board upgrades.',
+      tamilDescription: 'எரிந்த சுவிட்ச் மாற்றுதல், லூஸ் கனெக்ஷன் சரிசெய்தல் மற்றும் மாடுலர் சுவிட்ச்போர்டு பொருத்துதல்.',
       startingPrice: 199,
       popular: true
     },
@@ -36,6 +38,7 @@ export class BookingService {
       tamilTitle: 'MCB டிரிப்பிங் & ஷார்ட் சர்க்யூட் சரிசெய்தல்',
       icon: 'power_off',
       description: 'Precision insulation testing, earth leakage detection, neutral fault clearing, and fuse replacement.',
+      tamilDescription: 'மெக்கர் இன்சுலேஷன் டெஸ்டிங், எர்த் லீக்கேஜ் கண்டறிதல், நியூட்ரல் பால்ட் சரிசெய்தல்.',
       startingPrice: 399,
       popular: true
     },
@@ -45,6 +48,7 @@ export class BookingService {
       tamilTitle: 'ஃபேன், விளக்கு & அப்ளையன்ஸ் பொருத்துதல்',
       icon: 'mode_fan',
       description: 'Ceiling fan mounting with hook check, decorative chandelier install, exhaust fan fitting, and profile LED lights.',
+      tamilDescription: 'சீலிங் ஃபேன், அலங்கார சரவிளக்கு, எக்ஸாஸ்ட் ஃபேன் மற்றும் எல்இடி விளக்குகள் பொருத்துதல்.',
       startingPrice: 249,
       popular: false
     },
@@ -54,6 +58,7 @@ export class BookingService {
       tamilTitle: 'இன்வெர்ட்டர் & பேட்டரி வயரிங் அமைப்பு',
       icon: 'battery_charging_full',
       description: 'Safe separate neutral loop wiring, inverter bypass switch setup, battery trolley assembly, and backup load distribution.',
+      tamilDescription: 'பாதுகாப்பான தனி நியூட்ரல் வயரிங், பைபாஸ் சுவிட்ச் இணைப்பு, பேட்டரி ட்ரோலி மற்றும் பேக்கப் லோட் பிரித்தல்.',
       startingPrice: 499,
       popular: true
     },
@@ -63,6 +68,7 @@ export class BookingService {
       tamilTitle: 'எர்த்திங் & சர்ஜ் பாதுகாப்பு',
       icon: 'shield',
       description: 'Copper/GI chemical earthing pit excavation, bentonite compound filling, and lightning surge protection testing.',
+      tamilDescription: 'காப்பர்/GI கெமிக்கல் எர்த்திங் குழி தோண்டுதல், பெண்டோனைட் கலவை மற்றும் மின்னல் பாதுகாப்பு சோதனை.',
       startingPrice: 1800,
       popular: false
     }

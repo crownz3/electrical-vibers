@@ -46,13 +46,16 @@ export type EmployeeRole =
 export interface ElectricianEmployee {
   id: string;
   name: string;
+  tamilName?: string;
   phone: string;
   role: EmployeeRole;
+  tamilRole?: string;
   dailyWage: number; // e.g. 1000, 850, 600
   status: 'active' | 'on_leave' | 'inactive';
   joiningDate: string;
   upiId?: string;
   specialty?: string;
+  tamilSpecialty?: string;
   totalDaysWorked?: number;
   totalWagesEarned?: number;
   totalWagesPaid?: number;
@@ -72,6 +75,7 @@ export interface SiteWorkAllocation {
   date: string; // YYYY-MM-DD
   dayNumber?: number; // e.g. Day 1, Day 2
   taskDescription: string; // e.g. "Main DB neutral wiring & 2.5mm conduit drawing"
+  tamilTaskDescription?: string;
   shift: ShiftType;
   assignedEmployeeId: string;
   assignedEmployeeName: string;
@@ -155,9 +159,11 @@ export interface SiteProfitReport {
 export interface SiteProject {
   id: string;
   siteName: string;
+  tamilSiteName?: string;
   clientName: string;
   clientPhone: string;
   siteAddress: string;
+  tamilSiteAddress?: string;
   city: string;
   contractType: ContractType; // 'labor_only' | 'with_material'
   estimatedLaborDays?: number; // Planned total labor man-days
@@ -173,6 +179,7 @@ export interface SiteProject {
   profitOrMargin: number; // totalReceived - totalExpenses
   assignedElectricians: string[]; // List of worker names
   description: string;
+  tamilDescription?: string;
   expenses: SiteExpense[];
   payments: SitePayment[];
   dailyLogs: SiteWorkerAssignment[];

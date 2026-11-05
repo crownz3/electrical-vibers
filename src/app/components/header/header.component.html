@@ -1,14 +1,14 @@
 <!-- Admin-Configurable Top Offer Banner with Animated Shimmer Light Beam -->
-<div *ngIf="config.showBannerOffer && config.bannerOfferText" class="top-offer-bar">
+<div *ngIf="config.showBannerOffer && (config.bannerOfferText || config.tamilBannerOfferText)" class="top-offer-bar">
   <div class="top-offer-shimmer"></div>
   <div class="top-offer-content">
     <div class="offer-badge-pill">
       <span class="material-symbols-outlined flash-icon">bolt</span>
-      <span>EXCLUSIVE OFFER</span>
+      <span>{{ langService.isTamil() ? 'சிறப்பு சலுகை' : 'EXCLUSIVE OFFER' }}</span>
     </div>
-    <span class="offer-text">{{ config.bannerOfferText }}</span>
+    <span class="offer-text">{{ langService.pick(config.bannerOfferText, config.tamilBannerOfferText) }}</span>
     <a routerLink="/products" class="top-offer-link">
-      <span>Shop Deals</span>
+      <span>{{ langService.isTamil() ? 'பொருட்கள்' : 'Shop Deals' }}</span>
       <span class="material-symbols-outlined link-arrow">arrow_forward</span>
     </a>
   </div>
@@ -36,14 +36,14 @@
     <!-- Center Navigation Links (Main Items Only) -->
     <nav class="nav-menu">
       <a routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
-        <span class="nav-label">Home</span>
+        <span class="nav-label">{{ langService.t('nav.home') }}</span>
       </a>
       <a routerLink="/products" routerLinkActive="active" class="nav-item store-nav-item">
-        <span class="nav-label">Store</span>
+        <span class="nav-label">{{ langService.t('nav.store') }}</span>
         <span class="nav-deal-dot" title="Special Deals Active"></span>
       </a>
       <a routerLink="/book-service" routerLinkActive="active" class="nav-item">
-        <span class="nav-label">Book Service</span>
+        <span class="nav-label">{{ langService.t('nav.bookService') }}</span>
       </a>
     </nav>
 
@@ -57,7 +57,7 @@
           (input)="onSearchInput()" 
           (keydown.enter)="submitSearch()"
           (keydown.escape)="closeSearch()"
-          placeholder="Search materials, cables, switches, tools..."
+          [placeholder]="langService.t('store.searchPlaceholder')"
           aria-label="Search tools and electrical materials" 
         />
         <kbd *ngIf="!searchQuery" class="search-kbd-hint">/</kbd>
@@ -114,6 +114,16 @@
       <button type="button" (click)="openCart($event)" class="action-icon cart-icon" title="Shopping Cart Drawer">
         <span class="material-symbols-outlined">shopping_bag</span>
         <span *ngIf="cartCount > 0" class="cart-count-badge">{{ cartCount }}</span>
+      </button>
+
+      <!-- Language Switcher Pill (EN / தமிழ்) -->
+      <button 
+        type="button" 
+        (click)="langService.toggleLanguage()" 
+        class="action-icon lang-switch-pill" 
+        [title]="langService.isTamil() ? 'Switch to English' : 'தமிழுக்கு மாறுக'">
+        <span class="lang-code-active">{{ langService.isTamil() ? 'தமிழ்' : 'EN' }}</span>
+        <span class="lang-code-inactive">{{ langService.isTamil() ? 'EN' : 'தமிழ்' }}</span>
       </button>
 
       <!-- Theme Mode Switcher -->
@@ -183,6 +193,13 @@
         <button mat-menu-item routerLink="/profile">
           <mat-icon>person</mat-icon>
           <span>Customer Profile</span>
+        </button>
+
+        <mat-divider></mat-divider>
+        <div class="menu-section-header">LANGUAGE / மொழி</div>
+        <button mat-menu-item (click)="langService.toggleLanguage()">
+          <mat-icon style="color: #f59e0b;">translate</mat-icon>
+          <span>{{ langService.isTamil() ? 'Switch to English' : 'தமிழுக்கு மாறுக' }}</span>
         </button>
 
         <mat-divider></mat-divider>

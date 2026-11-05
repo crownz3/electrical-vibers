@@ -4,7 +4,9 @@ import { FirebaseService } from './firebase.service';
 
 export interface AppConfig {
   businessName: string;
+  tamilBusinessName?: string;
   businessSubtitle: string;
+  tamilBusinessSubtitle?: string;
   tamilQuote: string;
   contactPhone: string;
   whatsappNumber: string;
@@ -12,6 +14,7 @@ export interface AppConfig {
   address: string;
   baseInspectionFee: number;
   bannerOfferText: string;
+  tamilBannerOfferText?: string;
   showBannerOffer: boolean;
   yearsExperience: number;
   completedSitesCount: number;
@@ -26,10 +29,15 @@ export interface AppConfig {
 
   // Hero Section Copy
   heroBadgeText: string;
+  tamilHeroBadgeText?: string;
   heroHeadline: string;
+  tamilHeroHeadline?: string;
   heroSubheadline: string;
+  tamilHeroSubheadline?: string;
   heroBookCtaText: string;
+  tamilHeroBookCtaText?: string;
   heroStoreCtaText: string;
+  tamilHeroStoreCtaText?: string;
 
   // Trust Statistics
   stat1Num: string;
@@ -43,10 +51,15 @@ export interface AppConfig {
 
   // Section Headers & Tamil Descriptions
   servicesSectionTitle: string;
+  tamilServicesSectionTitle?: string;
   servicesSectionSubtitle: string;
+  tamilServicesSectionSubtitle?: string;
   storeSectionTitle: string;
+  tamilStoreSectionTitle?: string;
   storeSectionSubtitle: string;
+  tamilStoreSectionSubtitle?: string;
   offersSectionTitle: string;
+  tamilOffersSectionTitle?: string;
 
   // Why Choose Us / Values
   value1Title: string;
@@ -62,20 +75,25 @@ export interface AppConfig {
   showDealOfTheDay: boolean;
   dealOfTheDayProductId: string;
   dealOfTheDayTitle: string;
+  dealOfTheDayTamilTitle?: string;
   dealOfTheDaySubtitle: string;
+  dealOfTheDayTamilSubtitle?: string;
   dealOfTheDayEndHours: number;
 
   // Footer Copy
   footerAboutText: string;
+  tamilFooterAboutText?: string;
   footerCopyrightText: string;
 }
 
 export interface StoreOffer {
   id: string;
   title: string;
+  tamilTitle?: string;
   code: string;
   discountPercentage: number;
   description: string;
+  tamilDescription?: string;
   validTill: string;
   active: boolean;
 }
@@ -89,7 +107,9 @@ export class ConfigService {
 
   private defaultConfig: AppConfig = {
     businessName: 'Electrical Vibers',
+    tamilBusinessName: 'எலக்ட்ரிகல் வைபர்ஸ்',
     businessSubtitle: 'Electricals & Contracting',
+    tamilBusinessSubtitle: 'மின்சாதனங்கள் & ஒப்பந்த பணிகள்',
     tamilQuote: 'தரமான பொருட்கள் • நம்பகமான வயரிங் பணிகள் • நியாயமான கட்டணம்',
     contactPhone: '+91 98765 43210',
     whatsappNumber: '919876543210',
@@ -97,6 +117,7 @@ export class ConfigService {
     address: '124, Power Station Road, Anna Nagar, Chennai - 600040',
     baseInspectionFee: 149,
     bannerOfferText: 'Special Offer: Flat 15% OFF on Havells & Finolex Wire Coils + Free Delivery across Chennai!',
+    tamilBannerOfferText: 'சிறப்பு சலுகை: ஹேவல்ஸ் மற்றும் ஃபினோலெக்ஸ் ஒயர்களுக்கு 15% தள்ளுபடி + சென்னை முழுவதும் இலவச டெலிவரி!',
     showBannerOffer: true,
     yearsExperience: 14,
     completedSitesCount: 580,
@@ -111,10 +132,15 @@ export class ConfigService {
 
     // Hero Copy
     heroBadgeText: "Government Licensed 'A' Grade Electrical Contractor",
+    tamilHeroBadgeText: "அரசு அங்கீகாரம் பெற்ற 'A' கிரேடு எலக்ட்ரிக்கல் ஒப்பந்ததாரர்",
     heroHeadline: 'Smart Electrical Solutions & Premium Supplies in One Place',
+    tamilHeroHeadline: 'பாதுகாப்பான மின்சார தீர்வுகள் & பிரீமியம் பொருட்கள் ஒரே இடத்தில்',
     heroSubheadline: 'வீடு மற்றும் வணிக வளாகங்களுக்கான முழுமையான வயரிங் பணிகள், அவசர பழுதுநீக்கம் & தரமான பிராண்டட் மின்சாதனங்கள் உங்கள் விரல் நுனியில்.',
+    tamilHeroSubheadline: 'வீடு மற்றும் வணிக வளாகங்களுக்கான முழுமையான வயரிங் பணிகள், அவசர பழுதுநீக்கம் & தரமான பிராண்டட் மின்சாதனங்கள் உங்கள் விரல் நுனியில்.',
     heroBookCtaText: 'Book Electrician Service',
+    tamilHeroBookCtaText: 'எலக்ட்ரீஷியன் முன்பதிவு',
     heroStoreCtaText: 'Browse Electrical Store',
+    tamilHeroStoreCtaText: 'மின்பொருட்கள் அங்காடி',
 
     // Trust Stats
     stat1Num: '14+',
@@ -128,10 +154,15 @@ export class ConfigService {
 
     // Section Titles
     servicesSectionTitle: 'Professional Electrician Services',
+    tamilServicesSectionTitle: 'தொழில்முறை எலக்ட்ரீஷியன் சேவைகள்',
     servicesSectionSubtitle: 'அனுபவம் வாய்ந்த எலக்ட்ரீஷியன்கள் மூலம் பாதுகாப்பான தரமான பணிகள்',
+    tamilServicesSectionSubtitle: 'அனுபவம் வாய்ந்த எலக்ட்ரீஷியன்கள் மூலம் பாதுகாப்பான தரமான பணிகள்',
     storeSectionTitle: 'Best-Selling Electrical Supplies',
+    tamilStoreSectionTitle: 'முன்னணி எலக்ட்ரிக்கல் தயாரிப்புகள்',
     storeSectionSubtitle: 'பிராண்டட் ஒயர்கள், சுவிட்சுகள் & தரமான எலக்ட்ரிக்கல் பொருட்கள்',
+    tamilStoreSectionSubtitle: 'பிராண்டட் ஒயர்கள், சுவிட்சுகள் & தரமான எலக்ட்ரிக்கல் பொருட்கள்',
     offersSectionTitle: 'Active Special Offers & Packages',
+    tamilOffersSectionTitle: 'நடப்பு சிறப்பு சலுகைகள்',
 
     // Values
     value1Title: 'Safety & Compliance First',
@@ -147,11 +178,14 @@ export class ConfigService {
     showDealOfTheDay: true,
     dealOfTheDayProductId: 'prod-7',
     dealOfTheDayTitle: 'Deal of the Day - Limited-Time Flash Tool',
+    dealOfTheDayTamilTitle: 'இன்றைய சிறப்பு தள்ளுபடி சலுகை',
     dealOfTheDaySubtitle: 'சிறப்பு சலுகை: பிரீமியம் கார்ட்லெஸ் பவர் டூல்ஸ் நேரடி தள்ளுபடி விலையில்',
+    dealOfTheDayTamilSubtitle: 'சிறப்பு சலுகை: பிரீமியம் கார்ட்லெஸ் பவர் டூல்ஸ் நேரடி தள்ளுபடி விலையில்',
     dealOfTheDayEndHours: 12,
 
     // Footer
     footerAboutText: 'Professional Licensed Electrical Contractors & Retail Store in Chennai. Delivering safe wiring, smart switchgears, and dependable daily electrical work since 2012.',
+    tamilFooterAboutText: 'சென்னையில் அரசு உரிமம் பெற்ற எலக்ட்ரிக்கல் ஒப்பந்ததாரர்கள் & சில்லறை அங்காடி. 2012 முதல் பாதுகாப்பான வயரிங் மற்றும் உயர்தர சேவை.',
     footerCopyrightText: '© 2026 Electrical Vibers. All rights reserved.'
   };
 

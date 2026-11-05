@@ -6,6 +6,7 @@ export interface ServiceCategory {
   tamilTitle: string;
   icon: string;
   description: string;
+  tamilDescription?: string;
   startingPrice: number;
   popular?: boolean;
 }
@@ -20,6 +21,7 @@ export interface Booking {
   landmark?: string;
   serviceCategory: string;
   serviceTitle: string;
+  tamilServiceTitle?: string;
   problemDescription: string;
   preferredDate: string;
   preferredTimeSlot: string; // e.g. "Morning 09:00 AM - 12:00 PM"

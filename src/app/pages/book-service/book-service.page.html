@@ -136,18 +136,18 @@
                 </div>
 
                 <div class="card-content">
-                  <h4 class="service-name">{{ s.title }}</h4>
-                  <p class="service-tamil">{{ s.tamilTitle }}</p>
-                  <p class="service-snippet" *ngIf="s.description">{{ s.description }}</p>
+                  <h4 class="service-name">{{ langService.pick(s.title, s.tamilTitle) }}</h4>
+                  <p class="service-tamil" *ngIf="langService.currentLang() === 'en' && s.tamilTitle">{{ s.tamilTitle }}</p>
+                  <p class="service-snippet" *ngIf="s.description">{{ langService.pick(s.description, s.tamilDescription) }}</p>
                 </div>
 
                 <div class="card-footer-pricing">
                   <div class="price-stack">
-                    <span class="price-prefix">Starts from</span>
+                    <span class="price-prefix">{{ langService.t('startingFrom') }}</span>
                     <span class="price-figure">₹{{ s.startingPrice }}</span>
                   </div>
                   <span class="select-btn-label">
-                    {{ (!isCustomService && selectedCategory?.id === s.id) ? 'Selected' : 'Select' }}
+                    {{ (!isCustomService && selectedCategory?.id === s.id) ? (langService.isTamil() ? 'தேர்வு செய்யப்பட்டது' : 'Selected') : (langService.isTamil() ? 'தேர்ந்தெடு' : 'Select') }}
                   </span>
                 </div>
               </div>

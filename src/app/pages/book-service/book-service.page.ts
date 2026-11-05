@@ -6,6 +6,7 @@ import { BookingService } from '../../services/booking.service';
 import { ConfigService, AppConfig } from '../../services/config.service';
 import { CustomerService } from '../../services/customer.service';
 import { DialogService } from '../../services/dialog.service';
+import { LanguageService } from '../../services/language.service';
 import { Booking, ServiceCategory } from '../../models/booking.model';
 
 @Component({
@@ -20,6 +21,7 @@ export class BookServicePage implements OnInit {
   configService = inject(ConfigService);
   customerService = inject(CustomerService);
   dialogService = inject(DialogService);
+  langService = inject(LanguageService);
   route = inject(ActivatedRoute);
 
   config: AppConfig = this.configService.getConfig();

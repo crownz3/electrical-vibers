@@ -22,7 +22,7 @@
       <span class="breadcrumb-sep">/</span>
       <span class="breadcrumb-cat">{{ product.category }}</span>
       <span class="breadcrumb-sep">/</span>
-      <span>{{ product.name }}</span>
+      <span>{{ langService.pick(product.name, product.tamilName) }}</span>
     </div>
 
     <!-- Main Product Showcase Grid -->
@@ -82,8 +82,8 @@
         </div>
 
         <!-- Title & Tamil Translation -->
-        <h1 class="prod-headline">{{ product.name }}</h1>
-        <p *ngIf="product.tamilName" class="prod-tamil-headline">{{ product.tamilName }}</p>
+        <h1 class="prod-headline">{{ langService.pick(product.name, product.tamilName) }}</h1>
+        <p *ngIf="langService.currentLang() === 'en' && product.tamilName" class="prod-tamil-headline">{{ product.tamilName }}</p>
 
         <!-- Rating & Warranty -->
         <div class="rating-row">
@@ -110,7 +110,7 @@
             </span>
           </div>
           <div class="unit-caption">
-            Price per {{ product.unit }} • <strong>Inclusive of all GST taxes</strong>
+            Price per {{ langService.pick(product.unit, product.tamilUnit) }} • <strong>Inclusive of all GST taxes</strong>
           </div>
 
           <!-- Quantity Stepper & Instant Purchase -->
@@ -141,8 +141,8 @@
 
         <!-- Description Card -->
         <div class="desc-card">
-          <h3>Product Overview</h3>
-          <p>{{ product.description }}</p>
+          <h3>{{ langService.isTamil() ? 'பொருள் விவரம்' : 'Product Overview' }}</h3>
+          <p>{{ langService.pick(product.description, product.tamilDescription) }}</p>
         </div>
 
         <!-- Technical Specifications Table (like tktools) -->

@@ -5,6 +5,7 @@ import { ProductService } from '../../services/product.service';
 import { BookingService } from '../../services/booking.service';
 import { CartService } from '../../services/cart.service';
 import { ConfigService, AppConfig, StoreOffer } from '../../services/config.service';
+import { LanguageService } from '../../services/language.service';
 import { ThemeService } from '../../services/theme.service';
 import { Product } from '../../models/product.model';
 import { ServiceCategory } from '../../models/booking.model';
@@ -22,6 +23,7 @@ export class HomePage implements OnInit, OnDestroy {
   bookingService = inject(BookingService);
   cartService = inject(CartService);
   configService = inject(ConfigService);
+  langService = inject(LanguageService);
   themeService = inject(ThemeService);
   router = inject(Router);
 

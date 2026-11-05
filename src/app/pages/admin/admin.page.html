@@ -1321,13 +1321,18 @@
       <div class="add-category-card glass-card">
         <h3>
           <span class="material-symbols-outlined">library_add</span>
-          Add New Product Category
+          Add New Product Category (இருமொழி வகை சேர்க்க)
         </h3>
         <div class="category-add-row">
           <input 
             type="text" 
             [(ngModel)]="newCategoryName" 
-            placeholder="e.g. Smart Home & Automation, Solar Inverters..."
+            placeholder="Category Name in English (e.g. Solar Inverters)"
+          />
+          <input 
+            type="text" 
+            [(ngModel)]="newCategoryTamilName" 
+            placeholder="வகை பெயர் தமிழில் (e.g. சோலார் இன்வெர்ட்டர்கள்)"
             (keyup.enter)="addNewCategory()"
           />
           <button (click)="addNewCategory()" class="btn-add-cat">
@@ -1346,6 +1351,9 @@
             </div>
             <div>
               <h4 class="cat-name">{{ cat }}</h4>
+              <div *ngIf="productService.getCategoryTamil(cat)" style="color: #38bdf8; font-size: 0.82rem; font-weight: 500; margin-top: 2px;">
+                {{ productService.getCategoryTamil(cat) }}
+              </div>
               <span class="cat-count">{{ getProductCategoryCount(cat) }} products linked</span>
             </div>
           </div>
@@ -1632,34 +1640,57 @@
         <div class="settings-card glass-card">
           <div class="settings-card-header">
             <span class="material-symbols-outlined">badge</span>
-            <h3>Business Identity & Branding</h3>
+            <h3>Business Identity & Branding (இருமொழி வணிக விவரங்கள்)</h3>
           </div>
 
           <div class="settings-card-body">
             <div class="form-row-2">
               <div class="form-group">
-                <label>Business Name *</label>
+                <label>Business Name (English) *</label>
                 <input type="text" [(ngModel)]="config.businessName" />
               </div>
               <div class="form-group">
-                <label>Business Subtitle</label>
+                <label>Business Name (Tamil / தமிழ்) *</label>
+                <input type="text" [(ngModel)]="config.tamilBusinessName" placeholder="எலக்ட்ரிகல் வைபர்ஸ்" />
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>Business Subtitle (English)</label>
                 <input type="text" [(ngModel)]="config.businessSubtitle" />
+              </div>
+              <div class="form-group">
+                <label>Business Subtitle (Tamil / தமிழ்)</label>
+                <input type="text" [(ngModel)]="config.tamilBusinessSubtitle" placeholder="அங்கீகரிக்கப்பட்ட எலக்ட்ரிக்கல் ஒப்பந்ததாரர்" />
               </div>
             </div>
 
             <div class="form-group">
-              <label>Tamil Tagline / Quote (Displays in Footer)</label>
+              <label>Tamil Tagline / Quote (Displays in Footer / தமிழ் மேற்கோள்)</label>
               <input type="text" [(ngModel)]="config.tamilQuote" />
             </div>
 
-            <div class="form-group">
-              <label>Homepage Hero Headline</label>
-              <input type="text" [(ngModel)]="config.heroHeadline" />
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>Homepage Hero Headline (English)</label>
+                <input type="text" [(ngModel)]="config.heroHeadline" />
+              </div>
+              <div class="form-group">
+                <label>Homepage Hero Headline (Tamil / தமிழ்)</label>
+                <input type="text" [(ngModel)]="config.tamilHeroHeadline" placeholder="தரமான மின்சார சேவைகள் மற்றும் சாதனங்கள்" />
+              </div>
             </div>
 
-            <div class="form-group">
-              <label>Homepage Hero Sub-Headline</label>
-              <textarea [(ngModel)]="config.heroSubheadline" rows="2"></textarea>
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>Homepage Hero Sub-Headline (English)</label>
+                <textarea [(ngModel)]="config.heroSubheadline" rows="2"></textarea>
+              </div>
+              <div class="form-group">
+                <label>Homepage Hero Sub-Headline (Tamil / தமிழ்)</label>
+                <textarea [(ngModel)]="config.tamilHeroSubheadline" rows="2" placeholder="அனுபவம் வாய்ந்த எலக்ட்ரீஷியன்கள் மூலம் உடனடி சேவை"></textarea>
+              </div>
             </div>
           </div>
         </div>
@@ -1748,23 +1779,51 @@
         <div class="settings-card glass-card">
           <div class="settings-card-header">
             <span class="material-symbols-outlined">view_headline</span>
-            <h3>Homepage Hero Section & Action Buttons</h3>
+            <h3>Homepage Hero Section & Action Buttons (இருமொழி பட்டன்கள்)</h3>
           </div>
 
           <div class="settings-card-body">
-            <div class="form-group">
-              <label>Hero Top Badge Text</label>
-              <input type="text" [(ngModel)]="config.heroBadgeText" />
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>Hero Top Badge Text (English)</label>
+                <input type="text" [(ngModel)]="config.heroBadgeText" />
+              </div>
+              <div class="form-group">
+                <label>Hero Top Badge Text (Tamil / தமிழ்)</label>
+                <input type="text" [(ngModel)]="config.tamilHeroBadgeText" placeholder="நம்பகமான மின் ஒப்பந்ததாரர்" />
+              </div>
             </div>
 
             <div class="form-row-2">
               <div class="form-group">
-                <label>Primary Booking CTA Button Text</label>
+                <label>Primary Booking CTA Button Text (English)</label>
                 <input type="text" [(ngModel)]="config.heroBookCtaText" />
               </div>
               <div class="form-group">
-                <label>Secondary Store CTA Button Text</label>
+                <label>Primary Booking CTA Button Text (Tamil / தமிழ்)</label>
+                <input type="text" [(ngModel)]="config.tamilHeroBookCtaText" placeholder="சேவை முன்பதிவு செய்" />
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>Secondary Store CTA Button Text (English)</label>
                 <input type="text" [(ngModel)]="config.heroStoreCtaText" />
+              </div>
+              <div class="form-group">
+                <label>Secondary Store CTA Button Text (Tamil / தமிழ்)</label>
+                <input type="text" [(ngModel)]="config.tamilHeroStoreCtaText" placeholder="பொருட்கள் அங்காடி" />
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>Promotional Announcement Banner (English)</label>
+                <input type="text" [(ngModel)]="config.bannerOfferText" />
+              </div>
+              <div class="form-group">
+                <label>Promotional Announcement Banner (Tamil / தமிழ்)</label>
+                <input type="text" [(ngModel)]="config.tamilBannerOfferText" placeholder="இன்றைய சிறப்பு தள்ளுபடி" />
               </div>
             </div>
           </div>
@@ -1828,35 +1887,63 @@
         <div class="settings-card glass-card">
           <div class="settings-card-header">
             <span class="material-symbols-outlined">title</span>
-            <h3>Section Headings & Tamil Descriptions</h3>
+            <h3>Section Headings & Tamil Descriptions (பிரிவு தலைப்புகள்)</h3>
           </div>
 
           <div class="settings-card-body">
             <div class="form-row-2">
               <div class="form-group">
-                <label>Services Section Main Title</label>
+                <label>Services Section Main Title (English)</label>
                 <input type="text" [(ngModel)]="config.servicesSectionTitle" />
               </div>
               <div class="form-group">
-                <label>Services Tamil Subtitle</label>
-                <input type="text" [(ngModel)]="config.servicesSectionSubtitle" />
+                <label>Services Section Title (Tamil / தமிழ்)</label>
+                <input type="text" [(ngModel)]="config.tamilServicesSectionTitle" placeholder="எங்கள் சேவைகள்" />
               </div>
             </div>
 
             <div class="form-row-2">
               <div class="form-group">
-                <label>Store Section Main Title</label>
-                <input type="text" [(ngModel)]="config.storeSectionTitle" />
+                <label>Services English Subtitle</label>
+                <input type="text" [(ngModel)]="config.servicesSectionSubtitle" />
               </div>
               <div class="form-group">
-                <label>Store Tamil Subtitle</label>
-                <input type="text" [(ngModel)]="config.storeSectionSubtitle" />
+                <label>Services Tamil Subtitle</label>
+                <input type="text" [(ngModel)]="config.tamilServicesSectionSubtitle" />
               </div>
             </div>
 
-            <div class="form-group">
-              <label>Promotional Offers Section Title</label>
-              <input type="text" [(ngModel)]="config.offersSectionTitle" />
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>Store Section Main Title (English)</label>
+                <input type="text" [(ngModel)]="config.storeSectionTitle" />
+              </div>
+              <div class="form-group">
+                <label>Store Section Title (Tamil / தமிழ்)</label>
+                <input type="text" [(ngModel)]="config.tamilStoreSectionTitle" placeholder="மின் சாதனங்கள்" />
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>Store English Subtitle</label>
+                <input type="text" [(ngModel)]="config.storeSectionSubtitle" />
+              </div>
+              <div class="form-group">
+                <label>Store Tamil Subtitle</label>
+                <input type="text" [(ngModel)]="config.tamilStoreSectionSubtitle" />
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>Promotional Offers Section Title (English)</label>
+                <input type="text" [(ngModel)]="config.offersSectionTitle" />
+              </div>
+              <div class="form-group">
+                <label>Promotional Offers Section Title (Tamil / தமிழ்)</label>
+                <input type="text" [(ngModel)]="config.tamilOffersSectionTitle" placeholder="சிறப்பு சலுகைகள்" />
+              </div>
             </div>
           </div>
         </div>
@@ -1923,9 +2010,15 @@
           </div>
 
           <div class="settings-card-body">
-            <div class="form-group">
-              <label>Footer Brand About Paragraph</label>
-              <textarea [(ngModel)]="config.footerAboutText" rows="3"></textarea>
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>Footer Brand About Paragraph (English)</label>
+                <textarea [(ngModel)]="config.footerAboutText" rows="3"></textarea>
+              </div>
+              <div class="form-group">
+                <label>Footer Brand About Paragraph (Tamil / தமிழ்)</label>
+                <textarea [(ngModel)]="config.tamilFooterAboutText" rows="3" placeholder="மின்சார ஒப்பந்தம் மற்றும் விற்பனையில் முன்னணி நிறுவனம்..."></textarea>
+              </div>
             </div>
 
             <div class="form-group">
@@ -1939,6 +2032,24 @@
                 Update & Publish All Settings
               </button>
             </div>
+          </div>
+        </div>
+
+        <!-- Card 9: Danger Zone - Purge All Mock Data -->
+        <div class="settings-card glass-card" style="border: 1px solid rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.05);">
+          <div class="settings-card-header">
+            <span class="material-symbols-outlined" style="color: #ef4444;">delete_forever</span>
+            <h3 style="color: #ef4444;">Danger Zone: Purge All Mock & Dummy Data (போலி தரவுகளை அழிக்க)</h3>
+          </div>
+
+          <div class="settings-card-body">
+            <p style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.5; margin-bottom: 16px;">
+              Reset catalog products, test sites, duty allocations, and mock staff from device storage to start with a fresh, 100% clean production database. All future items added by the admin will be saved permanently.
+            </p>
+            <button type="button" (click)="purgeAllDummyData()" style="display: inline-flex; align-items: center; gap: 8px; background: #dc2626; color: #ffffff; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 700; cursor: pointer;">
+              <span class="material-symbols-outlined">delete_sweep</span>
+              Purge All Mock Data Now
+            </button>
           </div>
         </div>
       </div>
@@ -2124,8 +2235,13 @@
 
       <div class="modal-body">
         <div class="form-group">
-          <label>Site / Project Name *</label>
+          <label>Site / Project Name (English) *</label>
           <input type="text" [(ngModel)]="newSiteName" placeholder="e.g. Skyline Apartments Flat 502 Wiring" />
+        </div>
+
+        <div class="form-group">
+          <label>Site / Project Name (Tamil / தளம் பெயர்)</label>
+          <input type="text" [(ngModel)]="newSiteTamilName" placeholder="ஸ்கைலைன் அடுக்குமாடி பிளாட் 502 வயரிங்" />
         </div>
 
         <!-- CONTRACT TYPE SELECTOR (Audio Feature) -->
@@ -2164,8 +2280,13 @@
         </div>
 
         <div class="form-group">
-          <label>Site Address & Area *</label>
+          <label>Site Address & Area (English) *</label>
           <input type="text" [(ngModel)]="newSiteAddress" placeholder="e.g. No 15, 4th Main Road, Adyar, Chennai" />
+        </div>
+
+        <div class="form-group">
+          <label>Site Address & Area (Tamil / தள முகவரி)</label>
+          <input type="text" [(ngModel)]="newSiteTamilAddress" placeholder="எண் 15, 4வது மெயின் ரோடு, அடையாறு, சென்னை" />
         </div>
 
         <div class="form-row-2">
@@ -2403,9 +2524,14 @@
             <input type="number" [(ngModel)]="prodStock" placeholder="20" />
           </div>
           <div class="form-group">
-            <label>Unit</label>
+            <label>Unit (English) *</label>
             <input type="text" [(ngModel)]="prodUnit" placeholder="Coil (90m), Piece, Box" />
           </div>
+        </div>
+
+        <div class="form-group">
+          <label>Unit (Tamil / அழகு)</label>
+          <input type="text" [(ngModel)]="prodTamilUnit" placeholder="சுருள் (90மீ), எண்ணிக்கை, பெட்டி" />
         </div>
 
         <div class="form-group">
@@ -2414,8 +2540,13 @@
         </div>
 
         <div class="form-group">
-          <label>Description</label>
+          <label>Description (English)</label>
           <textarea [(ngModel)]="prodDesc" rows="2" placeholder="Product features and specifications..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Description (Tamil / பொருள் விவரம்)</label>
+          <textarea [(ngModel)]="prodTamilDesc" rows="2" placeholder="தயாரிப்பு சிறப்பம்சங்கள் மற்றும் பயன்பாடு..."></textarea>
         </div>
       </div>
 
@@ -2475,9 +2606,14 @@
             <input type="number" [(ngModel)]="editingProduct.stock" />
           </div>
           <div class="form-group">
-            <label>Unit</label>
+            <label>Unit (English)</label>
             <input type="text" [(ngModel)]="editingProduct.unit" />
           </div>
+        </div>
+
+        <div class="form-group">
+          <label>Unit (Tamil / அழகு)</label>
+          <input type="text" [(ngModel)]="editingProduct.tamilUnit" />
         </div>
 
         <div class="form-group">
@@ -2486,8 +2622,13 @@
         </div>
 
         <div class="form-group">
-          <label>Product Description</label>
-          <textarea [(ngModel)]="editingProduct.description" rows="3"></textarea>
+          <label>Product Description (English)</label>
+          <textarea [(ngModel)]="editingProduct.description" rows="2"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Product Description (Tamil / பொருள் விவரம்)</label>
+          <textarea [(ngModel)]="editingProduct.tamilDescription" rows="2"></textarea>
         </div>
       </div>
 
@@ -2551,8 +2692,13 @@
         </div>
 
         <div class="form-group">
-          <label>Description</label>
-          <textarea [(ngModel)]="serviceDesc" rows="3" placeholder="What does this service include?"></textarea>
+          <label>Description (English)</label>
+          <textarea [(ngModel)]="serviceDesc" rows="2" placeholder="What does this service include?"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Description (Tamil / சேவை விவரம்)</label>
+          <textarea [(ngModel)]="serviceTamilDesc" rows="2" placeholder="இச்சேவையில் அடங்கும் பணிகள்..."></textarea>
         </div>
 
         <div class="checkbox-field">
@@ -2624,8 +2770,13 @@
         </div>
 
         <div class="form-group">
-          <label>Description</label>
-          <textarea [(ngModel)]="editingService.description" rows="3"></textarea>
+          <label>Description (English)</label>
+          <textarea [(ngModel)]="editingService.description" rows="2"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Description (Tamil / சேவை விவரம்)</label>
+          <textarea [(ngModel)]="editingService.tamilDescription" rows="2"></textarea>
         </div>
 
         <div class="checkbox-field">
@@ -2654,8 +2805,13 @@
 
       <div class="modal-body">
         <div class="form-group">
-          <label>Offer Title *</label>
+          <label>Offer Title (English) *</label>
           <input type="text" [(ngModel)]="offerTitle" placeholder="e.g. Diwali Wiring Discount Fest" />
+        </div>
+
+        <div class="form-group">
+          <label>Offer Title (Tamil / சலுகை தலைப்பு)</label>
+          <input type="text" [(ngModel)]="offerTamilTitle" placeholder="தீபாவளி சிறப்பு வயரிங் தள்ளுபடி" />
         </div>
 
         <div class="form-row-2">
@@ -2670,8 +2826,13 @@
         </div>
 
         <div class="form-group">
-          <label>Offer Description</label>
+          <label>Offer Description (English)</label>
           <textarea [(ngModel)]="offerDesc" rows="2" placeholder="Conditions and details for this offer..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Offer Description (Tamil / சலுகை விவரம்)</label>
+          <textarea [(ngModel)]="offerTamilDesc" rows="2" placeholder="சலுகைக்கான விதிமுறைகள் மற்றும் விவரங்கள்..."></textarea>
         </div>
 
         <div class="form-group">
@@ -2939,8 +3100,13 @@
 
       <div class="modal-body">
         <div class="form-group">
-          <label>Full Name / பெயர் *</label>
+          <label>Full Name (English) *</label>
           <input type="text" [(ngModel)]="newEmpName" placeholder="e.g. Anbu Selvan" />
+        </div>
+
+        <div class="form-group">
+          <label>Full Name (Tamil / பெயர்)</label>
+          <input type="text" [(ngModel)]="newEmpTamilName" placeholder="எ.கா. அன்பு செல்வன்" />
         </div>
 
         <div class="form-row-2">
@@ -2972,8 +3138,13 @@
         </div>
 
         <div class="form-group">
-          <label>Technical Specialty / சிறப்பு பணி</label>
+          <label>Technical Specialty (English)</label>
           <input type="text" [(ngModel)]="newEmpSpecialty" placeholder="e.g. 3-Phase Inverter & Smart Home automation" />
+        </div>
+
+        <div class="form-group">
+          <label>Technical Specialty (Tamil / சிறப்பு பணி விவரம்)</label>
+          <input type="text" [(ngModel)]="newEmpTamilSpecialty" placeholder="3-பேஸ் இன்வெர்ட்டர் & ஸ்மார்ட் ஹோம் வயரிங்" />
         </div>
       </div>
 

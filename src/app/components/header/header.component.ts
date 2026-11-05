@@ -9,6 +9,7 @@ import { ConfigService, AppConfig } from '../../services/config.service';
 import { ProductService } from '../../services/product.service';
 import { ThemeService, ThemePreference } from '../../services/theme.service';
 import { PwaInstallService } from '../../services/pwa-install.service';
+import { LanguageService } from '../../services/language.service';
 import { Product } from '../../models/product.model';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
@@ -38,6 +39,7 @@ export class HeaderComponent implements OnInit {
   productService = inject(ProductService);
   themeService = inject(ThemeService);
   pwaService = inject(PwaInstallService);
+  langService = inject(LanguageService);
   router = inject(Router);
 
   config: AppConfig = this.configService.getConfig();

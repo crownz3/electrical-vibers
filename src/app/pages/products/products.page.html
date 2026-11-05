@@ -2,9 +2,9 @@
   <!-- Top Banner -->
   <div class="catalog-banner">
     <div class="container">
-      <span class="badge-pill badge-warning">OFFICIAL ELECTRICAL STORE</span>
-      <h1>Electrical Supplies & Material Catalog</h1>
-      <p>பிராண்டட் எலக்ட்ரிகல் ஒயர்கள், சுவிட்சுகள், LED விளக்குகள் மற்றும் பாதுகாப்பு சாதனங்கள்</p>
+      <span class="badge-pill badge-warning">{{ langService.t('store') }}</span>
+      <h1>{{ langService.isTamil() ? 'மின் சாதனங்கள் & பொருட்கள் பட்டியல்' : 'Electrical Supplies & Material Catalog' }}</h1>
+      <p>{{ langService.isTamil() ? 'பிராண்டட் எலக்ட்ரிகல் ஒயர்கள், சுவிட்சுகள், LED விளக்குகள் மற்றும் பாதுகாப்பு சாதனங்கள்' : 'Branded Electrical Wires, Modular Switches, LED Lights & Safety Accessories' }}</p>
 
       <!-- Search Bar -->
       <div class="search-box glass-card">
@@ -29,14 +29,14 @@
         (click)="selectCategory('ALL')" 
         class="chip-btn" 
         [class.active]="selectedCategory === 'ALL'">
-        All Materials ({{ allProducts.length }})
+        {{ langService.isTamil() ? 'அனைத்து பொருட்கள்' : 'All Materials' }} ({{ allProducts.length }})
       </button>
       <button 
         *ngFor="let cat of categories" 
         (click)="selectCategory(cat)" 
         class="chip-btn" 
         [class.active]="selectedCategory === cat">
-        {{ cat }}
+        {{ langService.isTamil() ? (productService.getCategoryTamil(cat) || cat) : cat }}
       </button>
     </div>
 
@@ -127,9 +127,9 @@
           </div>
 
           <h3 class="prod-title" [routerLink]="['/product', prod.id]">
-            {{ prod.name }}
+            {{ langService.pick(prod.name, prod.tamilName) }}
           </h3>
-          <p *ngIf="prod.tamilName" class="tamil-title">{{ prod.tamilName }}</p>
+          <p *ngIf="langService.currentLang() === 'en' && prod.tamilName" class="tamil-title">{{ prod.tamilName }}</p>
 
           <!-- Quick Spec Preview -->
           <div class="specs-preview">
@@ -143,17 +143,17 @@
             <div class="price-box">
               <span class="curr-price">₹{{ prod.price }}</span>
               <span *ngIf="prod.mrp" class="mrp-striked">₹{{ prod.mrp }}</span>
-              <span class="unit-text">/ {{ prod.unit }}</span>
+              <span class="unit-text">/ {{ langService.pick(prod.unit, prod.tamilUnit) }}</span>
             </div>
 
             <div class="btn-group">
               <button (click)="addToCart(prod)" class="btn-cart-add" title="Add to Cart">
                 <span class="material-symbols-outlined">add_shopping_cart</span>
-                Cart
+                {{ langService.t('addToCart') }}
               </button>
               <button (click)="buyNow(prod)" class="btn-buy-now" title="Instant Direct Checkout">
                 <span class="material-symbols-outlined">bolt</span>
-                Buy Now
+                {{ langService.t('buyNow') }}
               </button>
               <a [routerLink]="['/product', prod.id]" class="btn-share" title="View Specifications">
                 <span class="material-symbols-outlined">visibility</span>

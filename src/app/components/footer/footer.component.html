@@ -5,10 +5,15 @@
       <div class="footer-col">
         <div class="footer-brand">
           <span class="material-symbols-outlined bolt-icon">bolt</span>
-          <h3>{{ config.businessName }} {{ config.businessSubtitle }}</h3>
+          <h3>
+            {{ langService.pick(config.businessName, config.tamilBusinessName) }}
+            <span *ngIf="config.businessSubtitle" style="font-size: 0.9em; font-weight: 500; opacity: 0.9;">
+              {{ langService.pick(config.businessSubtitle, config.tamilBusinessSubtitle) }}
+            </span>
+          </h3>
         </div>
         <p class="brand-desc">
-          {{ config.footerAboutText }}
+          {{ langService.pick(config.footerAboutText, config.tamilFooterAboutText) }}
         </p>
         <p class="tamil-quote">
           {{ config.tamilQuote }}
