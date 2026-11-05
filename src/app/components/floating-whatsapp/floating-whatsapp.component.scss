@@ -1,27 +1,30 @@
 :host {
   position: fixed !important;
-  bottom: 24px !important;
-  right: 24px !important;
-  z-index: 999999 !important;
+  bottom: 0 !important;
+  right: 0 !important;
+  z-index: 99999999 !important;
   display: block !important;
   pointer-events: none !important;
   margin: 0 !important;
   padding: 0 !important;
-
-  @media (max-width: 860px) {
-    bottom: 74px !important; // positioned safely above the 56px mobile bottom bar
-    right: 16px !important;
-  }
 }
 
 .whatsapp-fab-container {
-  position: relative !important;
-  bottom: auto !important;
-  right: auto !important;
+  position: fixed !important;
+  bottom: 24px !important;
+  right: 24px !important;
+  z-index: 99999999 !important;
   pointer-events: auto !important;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-end !important;
+  margin: 0 !important;
+  padding: 0 !important;
+
+  @media (max-width: 860px) {
+    bottom: 84px !important; // safely above bottom navigation bar
+    right: 18px !important;
+  }
 }
 
 // Main FAB Button
@@ -29,35 +32,39 @@
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  background: #25d366;
+  gap: 10px;
+  background: linear-gradient(135deg, #25d366 0%, #1ea952 100%);
   color: #ffffff;
-  border: none;
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
   border-radius: 999px;
-  padding: 12px 18px 12px 14px;
-  box-shadow: 0 6px 24px rgba(37, 211, 102, 0.45);
+  padding: 13px 20px 13px 16px;
+  box-shadow: 0 10px 30px rgba(37, 211, 102, 0.45), 0 2px 8px rgba(0, 0, 0, 0.25);
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   font-family: inherit;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 
   @media (max-width: 600px) {
     padding: 12px;
-    width: 52px;
-    height: 52px;
+    width: 54px;
+    height: 54px;
     justify-content: center;
     border-radius: 50%;
   }
 
   &:hover {
-    background: #20ba5a;
-    transform: translateY(-3px) scale(1.03);
-    box-shadow: 0 8px 30px rgba(37, 211, 102, 0.55);
+    background: linear-gradient(135deg, #2ae06d 0%, #199949 100%);
+    transform: translateY(-4px) scale(1.04);
+    box-shadow: 0 14px 38px rgba(37, 211, 102, 0.55), 0 4px 12px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
   }
 
   .fab-label-desktop {
     font-weight: 700;
-    font-size: 0.88rem;
+    font-size: 0.92rem;
     letter-spacing: 0.02em;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
 
     @media (max-width: 600px) {
       display: none;

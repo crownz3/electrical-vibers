@@ -27,7 +27,8 @@ export interface AppConfig {
   googleMapsUrl: string;
   twitterUrl: string;
 
-  // Hero Section Copy
+  // Hero Section Copy & Banner Visual
+  heroBannerImageUrl?: string;
   heroBadgeText: string;
   tamilHeroBadgeText?: string;
   heroHeadline: string;
@@ -131,6 +132,7 @@ export class ConfigService {
     twitterUrl: 'https://x.com/electricalvibers',
 
     // Hero Copy
+    heroBannerImageUrl: 'assets/images/hero-elegant-showcase.jpg',
     heroBadgeText: "Government Licensed 'A' Grade Electrical Contractor",
     tamilHeroBadgeText: "அரசு அங்கீகாரம் பெற்ற 'A' கிரேடு எலக்ட்ரிக்கல் ஒப்பந்ததாரர்",
     heroHeadline: 'Smart Electrical Solutions & Premium Supplies in One Place',

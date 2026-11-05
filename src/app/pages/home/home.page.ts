@@ -41,9 +41,14 @@ export class HomePage implements OnInit, OnDestroy {
   dealProduct?: Product;
 
   get heroImage(): string {
-    return this.themeService.activeTheme() === 'dark'
-      ? 'assets/images/hero-showcase.jpg'
-      : 'assets/images/hero-light-showcase.jpg';
+    return this.config.heroBannerImageUrl || 'assets/images/hero-elegant-showcase.jpg';
+  }
+
+  onHeroImageError(event: Event): void {
+    const target = event.target as HTMLImageElement;
+    if (target && !target.src.includes('hero-elegant-showcase.jpg')) {
+      target.src = 'assets/images/hero-elegant-showcase.jpg';
+    }
   }
 
   // Countdown timer for Deal of the Day

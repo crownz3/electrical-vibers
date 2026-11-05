@@ -66,18 +66,53 @@
         <div class="hero-visual-col">
           <div class="hero-showcase-frame">
             <div class="showcase-halo-glow"></div>
+            <div class="showcase-halo-glow secondary"></div>
             
-            <!-- Main Theme-Dependent Hero Showcase Image -->
-            <div class="image-wrapper">
-              <img 
-                [src]="heroImage" 
-                alt="Electrical Vibers Smart Engineering & Supplies Showcase" 
-                class="hero-showcase-img" 
-              />
-              <div class="image-overlay-gradient"></div>
+            <!-- Main Architectural Showcase Image Frame -->
+            <div class="image-wrapper glass-frame">
+              <!-- Top Glass Status Header -->
+              <div class="frame-glass-header">
+                <div class="frame-dots">
+                  <span class="dot dot-red"></span>
+                  <span class="dot dot-amber"></span>
+                  <span class="dot dot-green"></span>
+                </div>
+                <div class="frame-tag">
+                  <span class="material-symbols-outlined tag-ico">bolt</span>
+                  <span>SMART ELECTRICAL & ENGINEERING HUB</span>
+                </div>
+                <div class="frame-live-indicator">
+                  <span class="live-ping"></span>
+                  <span class="live-txt">DISPATCH READY</span>
+                </div>
+              </div>
+
+              <!-- Main Hero Image with Shimmer & Ambient Vignette -->
+              <div class="frame-img-container">
+                <img 
+                  [src]="heroImage" 
+                  alt="Electrical Vibers Smart Engineering & Supplies Showcase" 
+                  class="hero-showcase-img" 
+                  (error)="onHeroImageError($event)"
+                />
+                <div class="image-overlay-gradient"></div>
+                <div class="image-ambient-shimmer"></div>
+              </div>
+
+              <!-- Bottom Glass Accent Bar -->
+              <div class="frame-glass-footer">
+                <div class="footer-chip">
+                  <span class="material-symbols-outlined">verified</span>
+                  <span>IS-732 & NEC Standard</span>
+                </div>
+                <div class="footer-chip">
+                  <span class="material-symbols-outlined">shield</span>
+                  <span>100% Insured Works</span>
+                </div>
+              </div>
             </div>
 
-            <!-- Floating Badge 1 (Top Left): Official Logo Badge -->
+            <!-- Floating Badge 1 (Top Left): Official Logo & License -->
             <div class="floating-pill-card badge-brand float-anim-1">
               <img src="assets/images/logo-text.jpeg" alt="Electrical Vibers" class="floating-logo-img" />
               <div class="floating-card-info">
