@@ -10,6 +10,7 @@ import { AuthService, UserProfile } from '../../services/auth.service';
 import { ConfigService, AppConfig, StoreOffer } from '../../services/config.service';
 import { FirebaseService } from '../../services/firebase.service';
 import { StaffService } from '../../services/staff.service';
+import { DialogService } from '../../services/dialog.service';
 import { 
   SiteProject,
   SiteExpense,
@@ -40,43 +41,95 @@ import { Booking, ServiceCategory } from '../../models/booking.model';
 export class AdminPage implements OnInit {
 
   // --- Staff Leave Review ---
-  approveLeave(leaveId: string): void {
-    const note = prompt('Optional approval note for technician:');
-    this.staffService.updateLeaveStatus(leaveId, 'approved', note || undefined);
-    alert('Leave request approved!');
-  }
-
-  rejectLeave(leaveId: string): void {
-    const reason = prompt('Reason for declining leave (optional):');
-    if (reason !== null) {
-      this.staffService.updateLeaveStatus(leaveId, 'rejected', reason || undefined);
-      alert('Leave request declined.');
+  async approveLeave(leaveId: string): Promise<void> {
+    const note = await this.dialogService.prompt({
+      title: 'Approve Leave Request',
+      message: 'Add an optional approval remark for the technician:',
+      placeholder: 'e.g. Approved by Master Contractor',
+      confirmText: 'Approve Leave'
+    });
+    if (note !== null) {
+      this.staffService.updateLeaveStatus(leaveId, 'approved', note.trim() || undefined);
+      await this.dialogService.alert({
+        title: 'Leave Approved',
+        message: 'Leave application approved successfully.',
+        type: 'success'
+      });
     }
   }
 
-  deleteLeave(leaveId: string): void {
-    if (confirm('Delete this leave application record?')) {
+  async rejectLeave(leaveId: string): Promise<void> {
+    const reason = await this.dialogService.prompt({
+      title: 'Decline Leave Request',
+      message: 'Specify reason for declining technician leave:',
+      placeholder: 'e.g. Work commitments on scheduled dates',
+      confirmText: 'Decline'
+    });
+    if (reason !== null) {
+      this.staffService.updateLeaveStatus(leaveId, 'rejected', reason.trim() || undefined);
+      await this.dialogService.alert({
+        title: 'Leave Declined',
+        message: 'Leave request has been declined.',
+        type: 'info'
+      });
+    }
+  }
+
+  async deleteLeave(leaveId: string): Promise<void> {
+    const confirmed = await this.dialogService.confirm({
+      title: 'Delete Leave Record',
+      message: 'Are you sure you want to permanently delete this leave application record?',
+      confirmText: 'Delete',
+      type: 'danger'
+    });
+    if (confirmed) {
       this.staffService.deleteLeaveRequest(leaveId);
     }
   }
 
   // --- Staff On-Site Expense & Advance Claims Review ---
-  approveClaim(claimId: string): void {
-    const note = prompt('Optional approval note for technician:');
-    this.staffService.updateClaimStatus(claimId, 'approved', note || undefined);
-    alert('Claim approved! If this was a wage advance, deduction/payout has been logged into payroll automatically.');
-  }
-
-  rejectClaim(claimId: string): void {
-    const reason = prompt('Reason for declining claim:');
-    if (reason !== null) {
-      this.staffService.updateClaimStatus(claimId, 'rejected', reason || undefined);
-      alert('Claim request declined.');
+  async approveClaim(claimId: string): Promise<void> {
+    const note = await this.dialogService.prompt({
+      title: 'Approve Claim',
+      message: 'Add an optional approval note for the technician:',
+      placeholder: 'e.g. Reimbursed in cash on site',
+      confirmText: 'Approve & Settle'
+    });
+    if (note !== null) {
+      this.staffService.updateClaimStatus(claimId, 'approved', note.trim() || undefined);
+      await this.dialogService.alert({
+        title: 'Claim Approved',
+        message: 'Claim approved successfully. If this was a wage advance, wage deduction/payout has been logged into payroll automatically.',
+        type: 'success'
+      });
     }
   }
 
-  deleteClaim(claimId: string): void {
-    if (confirm('Delete this claim record?')) {
+  async rejectClaim(claimId: string): Promise<void> {
+    const reason = await this.dialogService.prompt({
+      title: 'Decline Claim Request',
+      message: 'Specify reason for declining claim:',
+      placeholder: 'e.g. Bill receipt missing or duplicate request',
+      confirmText: 'Decline Claim'
+    });
+    if (reason !== null) {
+      this.staffService.updateClaimStatus(claimId, 'rejected', reason.trim() || undefined);
+      await this.dialogService.alert({
+        title: 'Claim Declined',
+        message: 'Claim request has been declined.',
+        type: 'info'
+      });
+    }
+  }
+
+  async deleteClaim(claimId: string): Promise<void> {
+    const confirmed = await this.dialogService.confirm({
+      title: 'Delete Claim Record',
+      message: 'Are you sure you want to delete this on-site expense claim record?',
+      confirmText: 'Delete',
+      type: 'danger'
+    });
+    if (confirmed) {
       this.staffService.deleteClaim(claimId);
     }
   }
@@ -92,10 +145,18 @@ export class AdminPage implements OnInit {
       if (url) {
         this.expenseBillPhotoUrl = url;
       } else {
-        alert('Could not upload photo to storage. Please verify connection.');
+        await this.dialogService.alert({
+          title: 'Upload Notice',
+          message: 'Could not upload photo to cloud storage. Please check connection.',
+          type: 'warning'
+        });
       }
     } catch (err: any) {
-      alert('Upload failed: ' + (err?.message || 'Error uploading file'));
+      await this.dialogService.alert({
+        title: 'Upload Error',
+        message: 'Upload failed: ' + (err?.message || 'Error uploading file'),
+        type: 'danger'
+      });
     } finally {
       this.isUploadingFile = false;
     }
@@ -125,7 +186,7 @@ export class AdminPage implements OnInit {
     }
 
     if (expensesToExport.length === 0) {
-      alert('No expenses recorded to export.');
+      this.dialogService.alert({ title: 'Export Notice', message: 'No expenses recorded to export.', type: 'info' });
       return;
     }
 
@@ -150,7 +211,7 @@ export class AdminPage implements OnInit {
 
   exportWagePayoutsCsv(): void {
     if (this.payouts.length === 0) {
-      alert('No wage disbursements recorded to export.');
+      this.dialogService.alert({ title: 'Export Notice', message: 'No wage disbursements recorded to export.', type: 'info' });
       return;
     }
 
@@ -172,7 +233,7 @@ export class AdminPage implements OnInit {
 
   exportOrdersCsv(): void {
     if (this.orders.length === 0) {
-      alert('No customer orders found to export.');
+      this.dialogService.alert({ title: 'Export Notice', message: 'No customer orders found to export.', type: 'info' });
       return;
     }
 
@@ -203,6 +264,7 @@ export class AdminPage implements OnInit {
   configService = inject(ConfigService);
   firebaseService = inject(FirebaseService);
   staffService = inject(StaffService);
+  dialogService = inject(DialogService);
 
   activeTab: 'roster' | 'workforce' | 'sites' | 'products' | 'categories' | 'services' | 'offers' | 'settings' | 'orders' | 'bookings' = 'roster';
   Math = Math;
@@ -481,19 +543,33 @@ export class AdminPage implements OnInit {
     }
   }
 
-  addAdminEmail(): void {
+  async addAdminEmail(): Promise<void> {
     if (!this.newAdminEmail.trim()) return;
     const res = this.authService.addAuthorizedEmail(this.newAdminEmail);
-    alert(res.message);
+    await this.dialogService.alert({
+      title: 'Admin Access',
+      message: res.message,
+      type: res.success ? 'success' : 'warning'
+    });
     if (res.success) {
       this.newAdminEmail = '';
     }
   }
 
-  removeAdminEmail(email: string): void {
-    if (confirm(`Are you sure you want to revoke admin access for ${email}?`)) {
+  async removeAdminEmail(email: string): Promise<void> {
+    const confirmed = await this.dialogService.confirm({
+      title: 'Revoke Admin Access',
+      message: `Are you sure you want to revoke admin access for ${email}?`,
+      confirmText: 'Revoke Access',
+      type: 'danger'
+    });
+    if (confirmed) {
       const res = this.authService.removeAuthorizedEmail(email);
-      alert(res.message);
+      await this.dialogService.alert({
+        title: 'Access Revoked',
+        message: res.message,
+        type: 'info'
+      });
     }
   }
 
@@ -504,14 +580,24 @@ export class AdminPage implements OnInit {
     this.newCategoryName = '';
   }
 
-  deleteCategory(cat: string): void {
-    if (confirm(`Are you sure you want to delete category "${cat}"?`)) {
+  async deleteCategory(cat: string): Promise<void> {
+    const confirmed = await this.dialogService.confirm({
+      title: 'Delete Category',
+      message: `Are you sure you want to delete category "${cat}"? Products in this category will remain available.`,
+      confirmText: 'Delete',
+      type: 'danger'
+    });
+    if (confirmed) {
       this.productService.deleteCategory(cat);
     }
   }
 
-  startEditCategory(cat: string): void {
-    const updated = prompt('Edit Category Name:', cat);
+  async startEditCategory(cat: string): Promise<void> {
+    const updated = await this.dialogService.prompt({
+      title: 'Edit Category Name',
+      defaultValue: cat,
+      confirmText: 'Update'
+    });
     if (updated && updated.trim() && updated !== cat) {
       this.productService.updateCategory(cat, updated.trim());
     }
@@ -566,9 +652,13 @@ export class AdminPage implements OnInit {
     this.activeTab = 'services';
   }
 
-  saveNewService(): void {
+  async saveNewService(): Promise<void> {
     if (!this.serviceTitle.trim() || !this.servicePrice) {
-      alert('Please fill in service title and starting price');
+      await this.dialogService.alert({
+        title: 'Required Information',
+        message: 'Please fill in service title and starting price.',
+        type: 'warning'
+      });
       return;
     }
 
@@ -595,8 +685,14 @@ export class AdminPage implements OnInit {
     this.showEditServiceModal = false;
   }
 
-  deleteService(id: string): void {
-    if (confirm('Are you sure you want to delete this service?')) {
+  async deleteService(id: string): Promise<void> {
+    const confirmed = await this.dialogService.confirm({
+      title: 'Delete Service',
+      message: 'Are you sure you want to delete this electrical service category?',
+      confirmText: 'Delete',
+      type: 'danger'
+    });
+    if (confirmed) {
       this.bookingService.deleteService(id);
     }
   }
@@ -629,15 +725,19 @@ export class AdminPage implements OnInit {
     return this.products.filter(p => p.category === cat).length;
   }
 
-  saveBannerConfig(): void {
+  async saveBannerConfig(): Promise<void> {
     this.configService.updateConfig({
       showBannerOffer: this.config.showBannerOffer,
       bannerOfferText: this.config.bannerOfferText
     });
-    alert('Banner offer announcement updated successfully! Active across website.');
+    await this.dialogService.alert({
+      title: 'Banner Updated',
+      message: 'Banner offer announcement updated successfully! Active across website.',
+      type: 'success'
+    });
   }
 
-  saveDealOfTheDayConfig(): void {
+  async saveDealOfTheDayConfig(): Promise<void> {
     this.configService.updateConfig({
       showDealOfTheDay: this.config.showDealOfTheDay,
       dealOfTheDayProductId: this.config.dealOfTheDayProductId,
@@ -645,7 +745,11 @@ export class AdminPage implements OnInit {
       dealOfTheDaySubtitle: this.config.dealOfTheDaySubtitle,
       dealOfTheDayEndHours: this.config.dealOfTheDayEndHours
     });
-    alert('Deal of the Day configuration saved successfully! Spotlight updated on website.');
+    await this.dialogService.alert({
+      title: 'Deal Updated',
+      message: 'Deal of the Day configuration saved successfully! Spotlight updated on website.',
+      type: 'success'
+    });
   }
 
   openEditProductModal(product: Product): void {
@@ -670,9 +774,13 @@ export class AdminPage implements OnInit {
     this.showNewProductModal = true;
   }
 
-  saveNewProduct(): void {
+  async saveNewProduct(): Promise<void> {
     if (!this.prodName.trim() || !this.prodPrice) {
-      alert('Please fill in product name and price');
+      await this.dialogService.alert({
+        title: 'Required Information',
+        message: 'Please fill in product name and price.',
+        type: 'warning'
+      });
       return;
     }
 
@@ -694,8 +802,14 @@ export class AdminPage implements OnInit {
     this.showNewProductModal = false;
   }
 
-  deleteProduct(id: string): void {
-    if (confirm('Are you sure you want to delete this product?')) {
+  async deleteProduct(id: string): Promise<void> {
+    const confirmed = await this.dialogService.confirm({
+      title: 'Delete Product',
+      message: 'Are you sure you want to permanently delete this product from store?',
+      confirmText: 'Delete',
+      type: 'danger'
+    });
+    if (confirmed) {
       this.productService.deleteProduct(id);
     }
   }
@@ -710,9 +824,13 @@ export class AdminPage implements OnInit {
     this.showNewOfferModal = true;
   }
 
-  saveNewOffer(): void {
+  async saveNewOffer(): Promise<void> {
     if (!this.offerTitle.trim() || !this.offerCode.trim()) {
-      alert('Please fill in offer title and promo code');
+      await this.dialogService.alert({
+        title: 'Required Information',
+        message: 'Please fill in offer title and promo code.',
+        type: 'warning'
+      });
       return;
     }
 
@@ -732,16 +850,26 @@ export class AdminPage implements OnInit {
     this.configService.updateOffer(offer.id, { active: !offer.active });
   }
 
-  deleteOffer(id: string): void {
-    if (confirm('Delete this promotion offer?')) {
+  async deleteOffer(id: string): Promise<void> {
+    const confirmed = await this.dialogService.confirm({
+      title: 'Delete Promo Offer',
+      message: 'Are you sure you want to delete this promotion offer?',
+      confirmText: 'Delete',
+      type: 'danger'
+    });
+    if (confirmed) {
       this.configService.deleteOffer(id);
     }
   }
 
   // --- Store & Contact Settings ---
-  saveSettings(): void {
+  async saveSettings(): Promise<void> {
     this.configService.updateConfig(this.config);
-    alert('Settings updated successfully! Changes are live across all pages.');
+    await this.dialogService.alert({
+      title: 'Settings Saved',
+      message: 'Global website settings updated successfully! Changes are live across all pages.',
+      type: 'success'
+    });
   }
 
   // --- Sites Management ---
@@ -760,9 +888,13 @@ export class AdminPage implements OnInit {
     this.showNewSiteModal = true;
   }
 
-  saveNewSite(): void {
+  async saveNewSite(): Promise<void> {
     if (!this.newSiteName.trim() || !this.newSiteClient.trim()) {
-      alert('Please fill in Site Name and Client Name');
+      await this.dialogService.alert({
+        title: 'Required Information',
+        message: 'Please fill in Site Name and Client Name.',
+        type: 'warning'
+      });
       return;
     }
 
@@ -811,9 +943,13 @@ export class AdminPage implements OnInit {
     }
   }
 
-  saveExpense(): void {
+  async saveExpense(): Promise<void> {
     if (!this.activeSiteForAction || (!this.expenseTitle.trim() && !this.expenseMaterialName.trim()) || !this.expenseAmount) {
-      alert('Please specify the expense / material description and amount');
+      await this.dialogService.alert({
+        title: 'Required Information',
+        message: 'Please specify the expense / material description and amount.',
+        type: 'warning'
+      });
       return;
     }
 
@@ -846,9 +982,13 @@ export class AdminPage implements OnInit {
     this.showAddPaymentModal = true;
   }
 
-  savePayment(): void {
+  async savePayment(): Promise<void> {
     if (!this.activeSiteForAction || !this.paymentAmount) {
-      alert('Please enter payment amount received');
+      await this.dialogService.alert({
+        title: 'Required Information',
+        message: 'Please enter payment amount received.',
+        type: 'warning'
+      });
       return;
     }
 
@@ -868,9 +1008,13 @@ export class AdminPage implements OnInit {
     this.showWorkLogModal = true;
   }
 
-  saveWorkLog(): void {
+  async saveWorkLog(): Promise<void> {
     if (!this.activeSiteForAction || !this.logDescription.trim()) {
-      alert('Please describe today\'s work done');
+      await this.dialogService.alert({
+        title: 'Required Information',
+        message: "Please describe today's work done.",
+        type: 'warning'
+      });
       return;
     }
 
@@ -883,8 +1027,12 @@ export class AdminPage implements OnInit {
     this.showWorkLogModal = false;
   }
 
-  openAssignWorkerModal(site: SiteProject): void {
-    const promptWorkers = prompt('Update assigned electricians for today (separated by comma):', site.assignedElectricians.join(', '));
+  async openAssignWorkerModal(site: SiteProject): Promise<void> {
+    const promptWorkers = await this.dialogService.prompt({
+      title: 'Assign Electricians',
+      message: 'Update assigned electricians for today (separated by comma):',
+      defaultValue: site.assignedElectricians.join(', ')
+    });
     if (promptWorkers !== null) {
       const updated = promptWorkers.split(',').map(w => w.trim()).filter(w => !!w);
       this.siteService.assignWorkers(site.id, updated);
@@ -928,9 +1076,9 @@ export class AdminPage implements OnInit {
     this.showScheduleWorkModal = true;
   }
 
-  saveScheduleWork(): void {
+  async saveScheduleWork(): Promise<void> {
     if (!this.schedSiteId || !this.schedEmployeeId || !this.schedTask.trim()) {
-      alert('Please select a site, an electrician, and enter task details.');
+      await this.dialogService.alert('Please select a site, an electrician, and enter task details.', 'Incomplete Assignment', 'warning');
       return;
     }
 
@@ -947,10 +1095,14 @@ export class AdminPage implements OnInit {
   }
 
   // 1-Click Auto Generate Full Project Schedule Template
-  autoGenerateSiteTimeline(site: SiteProject): void {
-    if (confirm(`Auto-generate Day-by-Day project schedule for "${site.siteName}" starting from ${site.startDate} (Sundays excluded)?`)) {
+  async autoGenerateSiteTimeline(site: SiteProject): Promise<void> {
+    const ok = await this.dialogService.confirm(
+      `Auto-generate Day-by-Day project schedule for "${site.siteName}" starting from ${site.startDate} (Sundays excluded)?`,
+      'Generate Timeline'
+    );
+    if (ok) {
       const generated = this.siteService.autoGenerateDayByDaySchedule(site.id);
-      alert(`Success! Generated ${generated.length} pre-defined project work milestones for ${site.siteName}.`);
+      await this.dialogService.alert(`Success! Generated ${generated.length} pre-defined project work milestones for ${site.siteName}.`, 'Schedule Generated', 'success');
     }
   }
 
@@ -964,7 +1116,7 @@ export class AdminPage implements OnInit {
     this.showReassignModal = true;
   }
 
-  saveReassignWorker(): void {
+  async saveReassignWorker(): Promise<void> {
     if (!this.activeAllocationForAction || !this.reassignEmployeeId) return;
 
     this.siteService.reassignWorker(
@@ -974,7 +1126,7 @@ export class AdminPage implements OnInit {
     );
 
     this.showReassignModal = false;
-    alert('Worker reassigned successfully! Roster updated.');
+    await this.dialogService.alert('Worker reassigned successfully! Roster updated.', 'Technician Reassigned', 'success');
   }
 
   // Reschedule Date
@@ -985,7 +1137,7 @@ export class AdminPage implements OnInit {
     this.showRescheduleModal = true;
   }
 
-  saveRescheduleDate(): void {
+  async saveRescheduleDate(): Promise<void> {
     if (!this.activeAllocationForAction || !this.rescheduleDateVal) return;
 
     this.siteService.rescheduleDate(
@@ -995,7 +1147,7 @@ export class AdminPage implements OnInit {
     );
 
     this.showRescheduleModal = false;
-    alert(`Work task rescheduled to ${this.rescheduleDateVal}!`);
+    await this.dialogService.alert(`Work task rescheduled to ${this.rescheduleDateVal}!`, 'Task Rescheduled', 'success');
   }
 
   // Carry Forward to Next Working Day (User Audio Feature)
@@ -1010,7 +1162,7 @@ export class AdminPage implements OnInit {
     this.showCarryForwardModal = true;
   }
 
-  saveCarryForwardTask(): void {
+  async saveCarryForwardTask(): Promise<void> {
     if (!this.activeAllocationForAction || !this.carryForwardNextDate) return;
 
     this.siteService.carryForwardTask(
@@ -1020,7 +1172,7 @@ export class AdminPage implements OnInit {
     );
 
     this.showCarryForwardModal = false;
-    alert(`Task carried forward to ${this.carryForwardNextDate} successfully!`);
+    await this.dialogService.alert(`Task carried forward to ${this.carryForwardNextDate} successfully!`, 'Task Carried Forward', 'success');
   }
 
   // Complete with Overtime Modal
@@ -1031,7 +1183,7 @@ export class AdminPage implements OnInit {
     this.showCompleteOvertimeModal = true;
   }
 
-  saveCompleteWithOvertime(): void {
+  async saveCompleteWithOvertime(): Promise<void> {
     if (!this.activeAllocationForAction) return;
 
     this.siteService.completeTaskWithOvertime(
@@ -1041,7 +1193,7 @@ export class AdminPage implements OnInit {
     );
 
     this.showCompleteOvertimeModal = false;
-    alert('Task marked as Completed! Labor wage and site log recorded automatically.');
+    await this.dialogService.alert('Task marked as Completed! Labor wage and site log recorded automatically.', 'Work Completed', 'success');
   }
 
   toggleAllocationStatus(alloc: SiteWorkAllocation, newStatus: AllocationStatus): void {
@@ -1052,8 +1204,9 @@ export class AdminPage implements OnInit {
     }
   }
 
-  deleteAllocation(id: string): void {
-    if (confirm('Delete this scheduled work item?')) {
+  async deleteAllocation(id: string): Promise<void> {
+    const ok = await this.dialogService.confirm('Delete this scheduled work item?', 'Confirm Delete', 'danger');
+    if (ok) {
       this.siteService.deleteAllocation(id);
     }
   }
@@ -1077,9 +1230,9 @@ export class AdminPage implements OnInit {
     this.showNewEmployeeModal = true;
   }
 
-  saveNewEmployee(): void {
+  async saveNewEmployee(): Promise<void> {
     if (!this.newEmpName.trim() || !this.newEmpDailyWage) {
-      alert('Please fill in Employee Name and Daily Wage Rate.');
+      await this.dialogService.alert('Please fill in Employee Name and Daily Wage Rate.', 'Validation Error', 'warning');
       return;
     }
 
@@ -1095,11 +1248,12 @@ export class AdminPage implements OnInit {
     });
 
     this.showNewEmployeeModal = false;
-    alert('New technician added to workforce directory successfully!');
+    await this.dialogService.alert('New technician added to workforce directory successfully!', 'Technician Added', 'success');
   }
 
-  deleteEmployee(id: string): void {
-    if (confirm('Are you sure you want to remove this employee?')) {
+  async deleteEmployee(id: string): Promise<void> {
+    const ok = await this.dialogService.confirm('Are you sure you want to remove this employee?', 'Remove Employee', 'danger');
+    if (ok) {
       this.siteService.deleteEmployee(id);
     }
   }
@@ -1117,9 +1271,9 @@ export class AdminPage implements OnInit {
     this.showRecordPayoutModal = true;
   }
 
-  saveRecordPayout(): void {
+  async saveRecordPayout(): Promise<void> {
     if (!this.activeEmployeeForPayout || !this.payoutAmount) {
-      alert('Please enter wage payout amount.');
+      await this.dialogService.alert('Please enter wage payout amount.', 'Validation Error', 'warning');
       return;
     }
 
@@ -1131,7 +1285,7 @@ export class AdminPage implements OnInit {
     });
 
     this.showRecordPayoutModal = false;
-    alert(`Wage payout of ₹${this.payoutAmount} recorded for ${this.activeEmployeeForPayout.name}!`);
+    await this.dialogService.alert(`Wage payout of ₹${this.payoutAmount} recorded for ${this.activeEmployeeForPayout.name}!`, 'Payout Recorded', 'success');
   }
 
   // Share Employee Wage Slip via WhatsApp
@@ -1150,49 +1304,49 @@ export class AdminPage implements OnInit {
   }
 
   // Option 3: 1-Click WhatsApp Staff Dispatch
-  dispatchStaffWhatsApp(alloc: SiteWorkAllocation): void {
+  async dispatchStaffWhatsApp(alloc: SiteWorkAllocation): Promise<void> {
     const emp = this.employees.find(e => e.id === alloc.assignedEmployeeId);
     const rawPhone = (emp?.phone || '').replace(/\D/g, '');
     const phone = rawPhone.slice(-10);
     if (!phone) {
-      alert('Technician phone number not found.');
+      await this.dialogService.alert('Technician phone number not found.', 'Missing Contact', 'warning');
       return;
     }
 
     const encodedAddr = encodeURIComponent((alloc.siteAddress || alloc.siteName).trim() + ', Tamil Nadu');
     const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodedAddr}`;
     const message = 
-      `⚡ *ELECTRICAL VIBERS - பணி ஒதுக்கீடு விவரம்*\n\n` +
+      `*ELECTRICAL VIBERS - பணி ஒதுக்கீடு விவரம்*\n\n` +
       `வணக்கம் ${alloc.assignedEmployeeName},\n` +
       `உங்களுக்கு கீழ்க்கண்ட வேலை ஒதுக்கப்பட்டுள்ளது:\n\n` +
-      `📍 *தளம்*: ${alloc.siteName}\n` +
-      `📌 *முகவரி*: ${alloc.siteAddress}\n` +
-      `👤 *வாடிக்கையாளர்*: ${alloc.clientName} (${alloc.clientPhone})\n` +
-      `🛠️ *பணி*: ${alloc.taskDescription}\n` +
-      `📅 *தேதி*: ${alloc.date} (${alloc.shift})\n` +
-      `🗺️ *Google Maps வழித்தடம்*:\n${mapsLink}\n\n` +
+      `*தளம்*: ${alloc.siteName}\n` +
+      `*முகவரி*: ${alloc.siteAddress}\n` +
+      `*வாடிக்கையாளர்*: ${alloc.clientName} (${alloc.clientPhone})\n` +
+      `*பணி*: ${alloc.taskDescription}\n` +
+      `*தேதி*: ${alloc.date} (${alloc.shift})\n` +
+      `*Google Maps வழித்தடம்*:\n${mapsLink}\n\n` +
       `பணியிடத்திற்கு சென்றதும் Staff App-ல் Site Check-in செய்யவும். வாழ்த்துகள்!`;
 
     window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(message)}`, '_blank');
   }
 
   // Option 3: 1-Click WhatsApp Customer Order Update
-  sendOrderWhatsAppUpdate(order: Order): void {
+  async sendOrderWhatsAppUpdate(order: Order): Promise<void> {
     const rawPhone = (order.customerPhone || '').replace(/\D/g, '');
     const phone = rawPhone.slice(-10);
     if (!phone) {
-      alert('Customer phone number not available.');
+      await this.dialogService.alert('Customer phone number not available.', 'Missing Contact', 'warning');
       return;
     }
 
     const trackingLink = `${window.location.origin}/track-order?id=${order.id}`;
     const message = 
-      `⚡ *ELECTRICAL VIBERS - Order Update*\n\n` +
+      `*ELECTRICAL VIBERS - Order Update*\n\n` +
       `Hello ${order.customerName},\n` +
       `Your electrical order *#${order.id}* status is now: *${order.orderStatus.toUpperCase()}*.\n\n` +
-      `📦 Items: ${order.items?.length || 0} product(s)\n` +
-      `💰 Total Amount: ₹${order.totalAmount}\n` +
-      `🚚 Track Live Status:\n${trackingLink}\n\n` +
+      `Items: ${order.items?.length || 0} product(s)\n` +
+      `Total Amount: ₹${order.totalAmount}\n` +
+      `Track Live Status:\n${trackingLink}\n\n` +
       `Thank you for choosing Electrical Vibers! Reach us at +91 98765 43210 for support.`;
 
     window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(message)}`, '_blank');
@@ -1236,9 +1390,9 @@ export class AdminPage implements OnInit {
     this.bookingService.updateBookingStatus(booking.id, booking.status, booking.assignedTechnician);
   }
 
-  scheduleBookingToRoster(booking: Booking): void {
+  async scheduleBookingToRoster(booking: Booking): Promise<void> {
     if (!booking.assignedTechnician) {
-      alert('Please select an electrician from the dropdown first before scheduling to duty roster.');
+      await this.dialogService.alert('Please select an electrician from the dropdown first before scheduling to duty roster.', 'Technician Required', 'warning');
       return;
     }
 
@@ -1248,7 +1402,7 @@ export class AdminPage implements OnInit {
     );
 
     if (!emp) {
-      alert('Selected electrician was not found in active employee records.');
+      await this.dialogService.alert('Selected electrician was not found in active employee records.', 'Electrician Not Found', 'warning');
       return;
     }
 
@@ -1271,7 +1425,7 @@ export class AdminPage implements OnInit {
     }
 
     if (!site) {
-      alert('Could not initialize service site project.');
+      await this.dialogService.alert('Could not initialize service site project.', 'Error', 'danger');
       return;
     }
 
@@ -1296,19 +1450,22 @@ export class AdminPage implements OnInit {
     this.saveBookingAssignment(booking);
 
     // Offer instant WhatsApp dispatch to wireman
-    const confirmWa = confirm(`✅ Booking successfully bridged to Staff Duty Roster!\n\n${emp.name} will now see this task in their Staff Portal under Today's / Upcoming duties.\n\nWould you like to dispatch work details to ${emp.name} via WhatsApp now?`);
+    const confirmWa = await this.dialogService.confirm(
+      `Booking successfully bridged to Staff Duty Roster!\n\n${emp.name} will now see this task in their Staff Portal under Today's / Upcoming duties.\n\nWould you like to dispatch work details to ${emp.name} via WhatsApp now?`,
+      'Bridged to Duty Roster'
+    );
     if (confirmWa) {
       const waText = 
-        `⚡ *ELECTRICAL VIBERS - SERVICE DISPATCH WORK ORDER*\n` +
+        `*ELECTRICAL VIBERS - SERVICE DISPATCH WORK ORDER*\n` +
         `------------------------------------\n` +
-        `👨‍🔧 *Technician:* ${emp.name} (${emp.role})\n` +
-        `📅 *Date & Slot:* ${booking.preferredDate} (${booking.preferredTimeSlot})\n` +
-        `🛠️ *Service:* ${booking.serviceTitle}\n` +
-        `👤 *Customer:* ${booking.customerName}\n` +
-        `📞 *Customer Phone:* ${booking.customerPhone}\n` +
-        `📍 *Address:* ${booking.customerAddress}, ${booking.city}\n` +
-        `📝 *Problem Details:* ${booking.problemDescription || 'Standard electrical repair'}\n` +
-        `🗺️ *Google Maps:* https://maps.google.com/?q=${encodeURIComponent(booking.customerAddress + ', ' + booking.city)}\n` +
+        `*Technician:* ${emp.name} (${emp.role})\n` +
+        `*Date & Slot:* ${booking.preferredDate} (${booking.preferredTimeSlot})\n` +
+        `*Service:* ${booking.serviceTitle}\n` +
+        `*Customer:* ${booking.customerName}\n` +
+        `*Customer Phone:* ${booking.customerPhone}\n` +
+        `*Address:* ${booking.customerAddress}, ${booking.city}\n` +
+        `*Problem Details:* ${booking.problemDescription || 'Standard electrical repair'}\n` +
+        `*Google Maps:* https://maps.google.com/?q=${encodeURIComponent(booking.customerAddress + ', ' + booking.city)}\n` +
         `------------------------------------\n` +
         `Please open your Staff Portal to check in when you arrive on site.`;
 

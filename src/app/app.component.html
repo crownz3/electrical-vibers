@@ -1,4 +1,9 @@
 <div class="app-root-shell" [class.is-admin-view]="isAdminRoute">
+  <!-- Top Electric Global Loading Progress Bar for All API / Network Calls -->
+  <div *ngIf="loadingService.isLoading$ | async" class="global-api-loader" role="progressbar" aria-label="Loading content">
+    <div class="loader-indeterminate-bar"></div>
+  </div>
+
   <app-header *ngIf="!isAdminRoute"></app-header>
   <main class="app-main-content">
     <router-outlet></router-outlet>

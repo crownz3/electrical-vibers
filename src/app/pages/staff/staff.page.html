@@ -346,7 +346,7 @@
                 <span>Arrived at {{ item.checkInTime }}</span>
               </div>
               <span *ngIf="item.checkInLocation" class="gps-accuracy-badge" title="GPS Location Verified">
-                📍 GPS Accuracy: ±{{ item.checkInLocation.accuracy }}m
+                <span class="material-symbols-outlined gps-inline-icon" style="font-size: 14px; vertical-align: middle;">pin_drop</span> GPS Accuracy: ±{{ item.checkInLocation.accuracy }}m
               </span>
               <a *ngIf="item.checkInPhoto" [href]="item.checkInPhoto" target="_blank" class="checkin-photo-link" title="View Check-in Photo">
                 <span class="material-symbols-outlined">image</span> Photo

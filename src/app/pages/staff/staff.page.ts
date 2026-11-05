@@ -5,6 +5,7 @@ import { RouterModule } from '@angular/router';
 import { StaffService } from '../../services/staff.service';
 import { SiteService } from '../../services/site.service';
 import { FirebaseService } from '../../services/firebase.service';
+import { DialogService } from '../../services/dialog.service';
 import { 
   ElectricianEmployee, 
   SiteWorkAllocation, 
@@ -27,6 +28,7 @@ export class StaffPage implements OnInit {
   staffService = inject(StaffService);
   siteService = inject(SiteService);
   firebaseService = inject(FirebaseService);
+  dialogService = inject(DialogService);
 
   isOffline = !navigator.onLine;
 
@@ -265,10 +267,10 @@ export class StaffPage implements OnInit {
     this.incompleteReason = reason;
   }
 
-  confirmCarryForward(): void {
+  async confirmCarryForward(): Promise<void> {
     if (!this.activeIncompleteTask) return;
     if (!this.incompleteNextDate) {
-      alert('Please select a target date to carry forward this task.');
+      await this.dialogService.alert('Please select a target date to carry forward this task.', 'Date Required', 'warning');
       return;
     }
 
@@ -418,14 +420,14 @@ export class StaffPage implements OnInit {
     this.showLeaveModal = true;
   }
 
-  submitLeaveRequest(): void {
+  async submitLeaveRequest(): Promise<void> {
     if (!this.currentStaff) return;
     if (!this.leaveStartDate || !this.leaveEndDate) {
-      alert('Please select both start and end dates.');
+      await this.dialogService.alert('Please select both start and end dates.', 'Dates Required', 'warning');
       return;
     }
     if (!this.leaveReason.trim()) {
-      alert('Please provide a brief reason for your leave request.');
+      await this.dialogService.alert('Please provide a brief reason for your leave request.', 'Reason Required', 'warning');
       return;
     }
 
@@ -496,14 +498,14 @@ export class StaffPage implements OnInit {
     }
   }
 
-  submitClaim(): void {
+  async submitClaim(): Promise<void> {
     if (!this.currentStaff) return;
     if (!this.claimAmount || this.claimAmount <= 0) {
-      alert('Please enter a valid claim amount.');
+      await this.dialogService.alert('Please enter a valid claim amount.', 'Invalid Amount', 'warning');
       return;
     }
     if (!this.claimReason.trim()) {
-      alert('Please enter a reason or material item description.');
+      await this.dialogService.alert('Please enter a reason or material item description.', 'Description Required', 'warning');
       return;
     }
 

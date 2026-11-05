@@ -8,6 +8,7 @@ import { CartService } from '../../services/cart.service';
 import { AuthService } from '../../services/auth.service';
 import { ConfigService } from '../../services/config.service';
 import { PwaInstallService } from '../../services/pwa-install.service';
+import { DialogService } from '../../services/dialog.service';
 import { Order, OrderStatus } from '../../models/order.model';
 
 @Component({
@@ -24,6 +25,7 @@ export class ProfilePage implements OnInit {
   authService = inject(AuthService);
   configService = inject(ConfigService);
   pwaService = inject(PwaInstallService);
+  dialogService = inject(DialogService);
   router = inject(Router);
 
   activeTab: 'orders' | 'edit' | 'addresses' | 'preferences' = 'orders';
@@ -192,8 +194,9 @@ export class ProfilePage implements OnInit {
     this.showToast(`Set "${addr.label}" as default delivery address`, 'success');
   }
 
-  deleteAddress(addr: SavedAddress): void {
-    if (confirm(`Remove "${addr.label}" from saved addresses?`)) {
+  async deleteAddress(addr: SavedAddress): Promise<void> {
+    const ok = await this.dialogService.confirm(`Remove "${addr.label}" from saved addresses?`, 'Remove Address', 'danger');
+    if (ok) {
       this.customerService.deleteAddress(addr.id);
       this.showToast('Address removed', 'info');
     }
@@ -244,8 +247,9 @@ export class ProfilePage implements OnInit {
     }
   }
 
-  logoutCustomer(): void {
-    if (confirm('Sign out from this device? Your local data will be reset until you sign in again.')) {
+  async logoutCustomer(): Promise<void> {
+    const ok = await this.dialogService.confirm('Sign out from this device? Your local data will be reset until you sign in again.', 'Sign Out', 'warning');
+    if (ok) {
       this.customerService.logout();
       this.showToast('Successfully signed out.', 'info');
     }

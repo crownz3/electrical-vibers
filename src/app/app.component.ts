@@ -10,6 +10,7 @@ import { SideCartComponent } from './components/side-cart/side-cart.component';
 import { FloatingWhatsappComponent } from './components/floating-whatsapp/floating-whatsapp.component';
 import { ThemeService } from './services/theme.service';
 import { CartService } from './services/cart.service';
+import { LoadingService } from './services/loading.service';
 
 @Component({
   selector: 'app-root',
@@ -21,6 +22,7 @@ import { CartService } from './services/cart.service';
 export class AppComponent {
   themeService = inject(ThemeService);
   cartService = inject(CartService);
+  loadingService = inject(LoadingService);
   router = inject(Router);
   isAdminRoute = false;
 

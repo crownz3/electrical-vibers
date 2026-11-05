@@ -8,11 +8,11 @@ import { FormsModule } from '@angular/forms';
 import { CartService } from '../../services/cart.service';
 import { OrderService } from '../../services/order.service';
 import { CustomerService } from '../../services/customer.service';
+import { RazorpayService } from '../../services/razorpay.service';
+import { DialogService } from '../../services/dialog.service';
 import { CartItem } from '../../models/product.model';
 import { Order, PaymentMethod } from '../../models/order.model';
 import { environment } from '../../../environments/environment';
-
-declare var Razorpay: any;
 
 @Component({
   selector: 'app-cart',
@@ -26,6 +26,8 @@ export class CartPage implements OnInit {
   orderService = inject(OrderService);
   customerService = inject(CustomerService);
   productService = inject(ProductService);
+  razorpayService = inject(RazorpayService);
+  dialogService = inject(DialogService);
   router = inject(Router);
 
   customerName = '';
@@ -54,11 +56,7 @@ export class CartPage implements OnInit {
   }
 
   private loadRazorpayScript(): void {
-    if (typeof Razorpay !== 'undefined') return;
-    const script = document.createElement('script');
-    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-    script.async = true;
-    document.body.appendChild(script);
+    this.razorpayService.loadScript();
   }
 
   get cartItems(): CartItem[] {
@@ -69,16 +67,24 @@ export class CartPage implements OnInit {
     return this.cartService.getTotalCount();
   }
 
-  processCheckout(): void {
+  async processCheckout(): Promise<void> {
     if (!this.customerName.trim() || !this.customerPhone.trim() || !this.streetAddress.trim()) {
-      alert('Please fill in your Name, Phone Number, and Delivery Street Address.');
+      await this.dialogService.alert({
+        title: 'Missing Delivery Information',
+        message: 'Please fill in your Name, Phone Number, and Delivery Street Address.',
+        type: 'warning'
+      });
       return;
     }
 
     // Automatic Real-time Stock Availability Verification
     const stockVerification = this.productService.checkStockAvailability(this.cartItems);
     if (!stockVerification.valid) {
-      alert(`Cannot complete order: ${stockVerification.outOfStockItem}. Please adjust your cart.`);
+      await this.dialogService.alert({
+        title: 'Stock Unavailable',
+        message: `Cannot complete order: ${stockVerification.outOfStockItem}. Please adjust your cart.`,
+        type: 'danger'
+      });
       return;
     }
 
@@ -95,7 +101,7 @@ export class CartPage implements OnInit {
     });
 
     if (this.selectedPaymentMethod === 'razorpay') {
-      this.launchRazorpayCheckout();
+      await this.launchRazorpayCheckout();
     } else {
       // Cash on Delivery
       setTimeout(() => {
@@ -104,57 +110,52 @@ export class CartPage implements OnInit {
     }
   }
 
-  private launchRazorpayCheckout(): void {
-    const amountInPaise = this.cartService.getSubtotal() * 100;
+  private async launchRazorpayCheckout(): Promise<void> {
+    const totalRupees = this.cartService.getSubtotal();
 
-    // Check if Razorpay library is loaded
-    if (typeof Razorpay !== 'undefined') {
-      try {
-        const options = {
-          key: environment.razorpayKeyId,
-          amount: amountInPaise,
-          currency: 'INR',
-          name: environment.appName,
-          description: 'Electrical Vibers - Genuine Materials & Tools',
-          image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=120&q=80',
-          prefill: {
-            name: this.customerName,
-            contact: this.customerPhone
-          },
-          notes: {
-            address: `${this.streetAddress}, ${this.city} ${this.pincode}`
-          },
-          theme: {
-            color: '#0284c7'
-          },
-          handler: (response: any) => {
-            const paymentId = response.razorpay_payment_id || ('pay_rzp_' + Math.random().toString(36).substring(2, 10));
-            this.createFinalOrder(paymentId, 'paid');
-          },
-          modal: {
-            ondismiss: () => {
-              this.isProcessing = false;
-            }
-          }
-        };
+    try {
+      const paymentResponse = await this.razorpayService.openPayment({
+        amount: totalRupees,
+        currency: 'INR',
+        name: environment.appName || 'Electrical Vibers',
+        description: 'Genuine Electrical Materials & Contracting',
+        prefill: {
+          name: this.customerName,
+          contact: this.customerPhone
+        },
+        notes: {
+          address: `${this.streetAddress}, ${this.city} ${this.pincode}`
+        },
+        theme: {
+          color: '#0284c7'
+        }
+      });
 
-        const rzpInstance = new Razorpay(options);
-        rzpInstance.on('payment.failed', (response: any) => {
-          alert('Payment Failed: ' + (response.error?.description || 'Transaction declined.'));
-          this.isProcessing = false;
-        });
-        rzpInstance.open();
+      const paymentId = paymentResponse.razorpay_payment_id || ('pay_rzp_' + Math.random().toString(36).substring(2, 10));
+      this.createFinalOrder(paymentId, 'paid');
+    } catch (err: any) {
+      console.warn('Razorpay checkout interrupted or fallback needed:', err?.message);
+      if (err?.message?.includes('closed') || err?.message?.includes('cancelled')) {
+        this.isProcessing = false;
         return;
-      } catch (err) {
-        console.warn('Razorpay popup error (likely placeholder API key in test environment):', err);
+      }
+
+      // If test credentials or gateway fallback
+      const useSim = await this.dialogService.confirm({
+        title: 'Payment Gateway Notice',
+        message: `${err?.message || 'Could not connect to live gateway.'}\n\nWould you like to complete this order using Test Gateway Sandbox?`,
+        confirmText: 'Complete via Test Mode',
+        cancelText: 'Cancel',
+        type: 'info'
+      });
+
+      if (useSim) {
+        const mockPayId = 'pay_sim_' + Math.random().toString(36).substring(2, 10);
+        this.createFinalOrder(mockPayId, 'paid');
+      } else {
+        this.isProcessing = false;
       }
     }
-
-    // Fallback sandbox simulation when test key is active or in offline environment
-    setTimeout(() => {
-      const mockPayId = 'pay_test_' + Math.random().toString(36).substring(2, 10);
-      this.createFinalOrder(mockPayId, 'paid');
-    }, 1000);
   }
 
   private createFinalOrder(paymentId?: string, paymentStatus: 'paid' | 'pending' = 'paid'): void {

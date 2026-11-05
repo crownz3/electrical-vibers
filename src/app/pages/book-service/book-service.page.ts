@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { BookingService } from '../../services/booking.service';
 import { ConfigService, AppConfig } from '../../services/config.service';
 import { CustomerService } from '../../services/customer.service';
+import { DialogService } from '../../services/dialog.service';
 import { Booking, ServiceCategory } from '../../models/booking.model';
 
 @Component({
@@ -18,6 +19,7 @@ export class BookServicePage implements OnInit {
   bookingService = inject(BookingService);
   configService = inject(ConfigService);
   customerService = inject(CustomerService);
+  dialogService = inject(DialogService);
   route = inject(ActivatedRoute);
 
   config: AppConfig = this.configService.getConfig();
@@ -136,19 +138,19 @@ export class BookServicePage implements OnInit {
     }
   }
 
-  submitBooking(): void {
+  async submitBooking(): Promise<void> {
     if (!this.customerName.trim() || !this.customerPhone.trim() || !this.customerAddress.trim()) {
-      alert('Please fill in your Name, Phone Number, and Address.');
+      await this.dialogService.alert('Please fill in your Name, Phone Number, and Address.', 'Contact Details Required', 'warning');
       return;
     }
 
     if (this.isCustomService) {
       if (!this.customServiceTitle.trim()) {
-        alert('Please enter a brief name for your custom service requirement.');
+        await this.dialogService.alert('Please enter a brief name for your custom service requirement.', 'Service Name Required', 'warning');
         return;
       }
     } else if (!this.selectedCategory) {
-      alert('Please select a service from the list or choose Custom Service.');
+      await this.dialogService.alert('Please select a service from the list or choose Custom Service.', 'Service Selection Required', 'warning');
       return;
     }
 
