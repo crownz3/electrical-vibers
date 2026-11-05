@@ -2535,8 +2535,24 @@
         </div>
 
         <div class="form-group">
-          <label>Image URL</label>
-          <input type="text" [(ngModel)]="prodImage" placeholder="https://images.unsplash.com/..." />
+          <label>Product Image (பொருள் படம்)</label>
+          <div class="admin-image-uploader-box">
+            <div *ngIf="prodImage" class="admin-preview-wrap">
+              <img [src]="prodImage" alt="Product Preview" class="admin-preview-thumbnail" />
+              <button type="button" class="btn-remove-preview-mini" (click)="prodImage = ''" title="Remove image">
+                <span class="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <label class="btn-admin-upload-pill">
+              <span class="material-symbols-outlined">add_photo_alternate</span>
+              <span>{{ isProductUploading ? 'Uploading Image...' : (prodImage ? 'Change Image from Device' : '📁 Upload Image (Select from Device / Camera)') }}</span>
+              <input type="file" accept="image/*" (change)="onNewProductFileSelected($event)" style="display: none;" [disabled]="isProductUploading" />
+            </label>
+            <div class="url-fallback-field">
+              <span class="url-hint-text">or paste image link:</span>
+              <input type="text" [(ngModel)]="prodImage" placeholder="https://images.unsplash.com/..." />
+            </div>
+          </div>
         </div>
 
         <div class="form-group">
@@ -2617,8 +2633,24 @@
         </div>
 
         <div class="form-group">
-          <label>Product Image URL</label>
-          <input type="text" [(ngModel)]="editingProduct.images[0]" />
+          <label>Product Image (பொருள் படம்)</label>
+          <div class="admin-image-uploader-box">
+            <div *ngIf="editingProduct.images && editingProduct.images[0]" class="admin-preview-wrap">
+              <img [src]="editingProduct.images[0]" alt="Product Preview" class="admin-preview-thumbnail" />
+              <button type="button" class="btn-remove-preview-mini" (click)="editingProduct.images[0] = ''" title="Remove image">
+                <span class="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <label class="btn-admin-upload-pill">
+              <span class="material-symbols-outlined">add_photo_alternate</span>
+              <span>{{ isProductUploading ? 'Uploading Image...' : (editingProduct.images && editingProduct.images[0] ? 'Change Image from Device' : '📁 Upload Image (Select from Device / Camera)') }}</span>
+              <input type="file" accept="image/*" (change)="onEditProductFileSelected($event)" style="display: none;" [disabled]="isProductUploading" />
+            </label>
+            <div class="url-fallback-field">
+              <span class="url-hint-text">or paste image link:</span>
+              <input type="text" [(ngModel)]="editingProduct.images[0]" placeholder="https://..." />
+            </div>
+          </div>
         </div>
 
         <div class="form-group">

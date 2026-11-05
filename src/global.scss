@@ -697,6 +697,32 @@ img, video, canvas, svg {
   }
 }
 
+.btn-mini-admin-photo {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 50% !important;
+  background: #0284c7 !important;
+  color: #ffffff !important;
+  border: none !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
+  margin: 0 !important;
+
+  .material-symbols-outlined {
+    font-size: 15px !important;
+    color: #ffffff !important;
+  }
+
+  &:hover {
+    background: #0369a1 !important;
+    transform: scale(1.1) !important;
+  }
+}
+
 .btn-mini-admin-del {
   display: inline-flex !important;
   align-items: center !important;

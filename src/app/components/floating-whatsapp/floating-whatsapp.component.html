@@ -55,6 +55,16 @@
     </div>
   </div>
 
+  <!-- Admin Direct Quick Edit Pencil for WhatsApp Number -->
+  <button 
+    *ngIf="authService.isAdmin() && quickEditService.showEditMarkers()" 
+    type="button" 
+    class="btn-admin-edit-whatsapp" 
+    (click)="editWhatsApp($event)" 
+    title="Admin: Change WhatsApp Number & Helpline">
+    <span class="material-symbols-outlined">edit</span>
+  </button>
+
   <!-- Floating Main Button (FAB) -->
   <button 
     type="button" 

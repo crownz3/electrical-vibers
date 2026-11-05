@@ -88,7 +88,7 @@
               </div>
 
               <!-- Main Hero Image with Shimmer & Ambient Vignette -->
-              <div class="frame-img-container">
+              <div class="frame-img-container" style="position: relative;">
                 <img 
                   [src]="heroImage" 
                   alt="Electrical Vibers Smart Engineering & Supplies Showcase" 
@@ -97,6 +97,15 @@
                 />
                 <div class="image-overlay-gradient"></div>
                 <div class="image-ambient-shimmer"></div>
+
+                <!-- Admin 1-Click Change Hero Image Button -->
+                <div *ngIf="authService.isAdmin() && quickEditService.showEditMarkers()" class="hero-image-admin-corner">
+                  <label class="btn-hero-admin-photo" title="Change Hero Showcase Image (Select Photo / Camera)">
+                    <span class="material-symbols-outlined">add_a_photo</span>
+                    <span>Change Banner Image</span>
+                    <input type="file" accept="image/*" (change)="onDirectHeroImageUpload($event)" style="display: none;" />
+                  </label>
+                </div>
               </div>
 
               <!-- Bottom Glass Accent Bar -->
@@ -292,6 +301,12 @@
           <span *ngIf="dealProduct.discountPercentage" class="mega-discount-tag">
             {{ dealProduct.discountPercentage }}% OFF
           </span>
+          <div *ngIf="authService.isAdmin() && quickEditService.showEditMarkers()" class="card-corner-admin-actions" (click)="$event.stopPropagation()">
+            <label class="btn-mini-admin-photo" title="Change Deal Product Image">
+              <span class="material-symbols-outlined">add_a_photo</span>
+              <input type="file" accept="image/*" (change)="onDirectProductImageUpload($event, dealProduct)" style="display: none;" />
+            </label>
+          </div>
         </div>
 
         <div class="deal-info">
@@ -379,6 +394,10 @@
             {{ prod.discountPercentage }}% OFF
           </span>
           <div *ngIf="authService.isAdmin() && quickEditService.showEditMarkers()" class="card-corner-admin-actions" (click)="$event.stopPropagation()">
+            <label class="btn-mini-admin-photo" title="Change Product Image (Device / Camera)">
+              <span class="material-symbols-outlined">add_a_photo</span>
+              <input type="file" accept="image/*" (change)="onDirectProductImageUpload($event, prod)" style="display: none;" />
+            </label>
             <button type="button" class="btn-mini-admin-edit" (click)="quickEditService.open('product', prod)" title="Edit product in dialog">
               <span class="material-symbols-outlined">edit</span>
             </button>

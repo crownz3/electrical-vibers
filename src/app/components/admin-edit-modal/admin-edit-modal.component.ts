@@ -6,6 +6,7 @@ import { ConfigService, AppConfig, StoreOffer } from '../../services/config.serv
 import { ProductService } from '../../services/product.service';
 import { BookingService } from '../../services/booking.service';
 import { ThemeService } from '../../services/theme.service';
+import { FirebaseService } from '../../services/firebase.service';
 import { Product } from '../../models/product.model';
 import { ServiceCategory } from '../../models/booking.model';
 
@@ -22,6 +23,7 @@ export class AdminEditModalComponent implements OnDestroy {
   productService = inject(ProductService);
   bookingService = inject(BookingService);
   themeService = inject(ThemeService);
+  firebaseService = inject(FirebaseService);
 
   get isOpen(): boolean {
     return this.quickEditService.isOpen();
@@ -43,6 +45,8 @@ export class AdminEditModalComponent implements OnDestroy {
 
   productImageInput = '';
   productSpecsInput = '';
+  isUploading = false;
+  uploadStatusMsg = '';
 
   constructor() {
     // When modal opens or data changes, lock background scroll & reinitialize the appropriate form
@@ -146,6 +150,91 @@ export class AdminEditModalComponent implements OnDestroy {
       }
     } else {
       this.configForm = { ...this.configService.getConfig() };
+    }
+  }
+
+  // Image Upload Handlers
+  async onProductFileSelected(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    this.isUploading = true;
+    this.uploadStatusMsg = 'Uploading image...';
+
+    try {
+      const files = Array.from(input.files);
+      const currentImages = this.productForm.images ? [...this.productForm.images] : [];
+
+      for (const file of files) {
+        const url = await this.firebaseService.uploadFile('products', file);
+        if (url) {
+          currentImages.push(url);
+        }
+      }
+
+      this.productForm.images = currentImages;
+      this.productImageInput = currentImages.join('\n');
+      this.uploadStatusMsg = 'Upload complete!';
+      setTimeout(() => this.uploadStatusMsg = '', 2500);
+    } catch (err: any) {
+      console.error('Product image upload failed:', err);
+      this.uploadStatusMsg = 'Upload failed. Please try again.';
+    } finally {
+      this.isUploading = false;
+      input.value = '';
+    }
+  }
+
+  removeProductImage(index: number): void {
+    if (this.productForm.images) {
+      this.productForm.images.splice(index, 1);
+      this.productImageInput = this.productForm.images.join('\n');
+    }
+  }
+
+  async onHeroBannerFileSelected(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    this.isUploading = true;
+    this.uploadStatusMsg = 'Uploading hero banner...';
+
+    try {
+      const file = input.files[0];
+      const url = await this.firebaseService.uploadFile('banners', file);
+      if (url) {
+        this.configForm.heroBannerImageUrl = url;
+        this.uploadStatusMsg = 'Hero banner uploaded!';
+        setTimeout(() => this.uploadStatusMsg = '', 2500);
+      }
+    } catch (err) {
+      this.uploadStatusMsg = 'Banner upload failed.';
+    } finally {
+      this.isUploading = false;
+      input.value = '';
+    }
+  }
+
+  async onLogoFileSelected(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    this.isUploading = true;
+    this.uploadStatusMsg = 'Uploading brand logo...';
+
+    try {
+      const file = input.files[0];
+      const url = await this.firebaseService.uploadFile('branding', file);
+      if (url) {
+        this.configForm.logoImageUrl = url;
+        this.uploadStatusMsg = 'Logo uploaded!';
+        setTimeout(() => this.uploadStatusMsg = '', 2500);
+      }
+    } catch (err) {
+      this.uploadStatusMsg = 'Logo upload failed.';
+    } finally {
+      this.isUploading = false;
+      input.value = '';
     }
   }
 

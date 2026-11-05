@@ -8,6 +8,7 @@ import { LanguageService } from '../../services/language.service';
 import { AuthService } from '../../services/auth.service';
 import { QuickEditService } from '../../services/quick-edit.service';
 import { DialogService } from '../../services/dialog.service';
+import { FirebaseService } from '../../services/firebase.service';
 import { InlineEditDirective } from '../../directives/inline-edit.directive';
 import { Product } from '../../models/product.model';
 
@@ -25,6 +26,7 @@ export class ProductsPage implements OnInit {
   authService = inject(AuthService);
   quickEditService = inject(QuickEditService);
   dialogService = inject(DialogService);
+  firebaseService = inject(FirebaseService);
   route = inject(ActivatedRoute);
 
   allProducts: Product[] = [];
@@ -154,6 +156,23 @@ export class ProductsPage implements OnInit {
   buyNow(product: Product): void {
     this.cartService.addToCart(product, 1, false);
     this.router.navigate(['/cart']);
+  }
+
+  async onDirectProductImageUpload(event: Event, product: Product): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+    try {
+      const file = input.files[0];
+      const url = await this.firebaseService.uploadFile('products', file);
+      if (url) {
+        this.productService.updateProduct(product.id, { images: [url] });
+        this.quickEditService.notifySaved(`Image updated for "${product.name}"!`);
+      }
+    } catch (err) {
+      console.error('Failed to update product image:', err);
+    } finally {
+      input.value = '';
+    }
   }
 
   async deleteProduct(id: string, name: string): Promise<void> {

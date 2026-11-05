@@ -7,6 +7,7 @@ export interface AppConfig {
   tamilBusinessName?: string;
   businessSubtitle: string;
   tamilBusinessSubtitle?: string;
+  logoImageUrl?: string;
   tamilQuote: string;
   contactPhone: string;
   whatsappNumber: string;
@@ -111,6 +112,7 @@ export class ConfigService {
     tamilBusinessName: 'எலக்ட்ரிகல் வைபர்ஸ்',
     businessSubtitle: 'Electricals & Contracting',
     tamilBusinessSubtitle: 'மின்சாதனங்கள் & ஒப்பந்த பணிகள்',
+    logoImageUrl: 'assets/images/logo-text.jpeg',
     tamilQuote: 'தரமான பொருட்கள் • நம்பகமான வயரிங் பணிகள் • நியாயமான கட்டணம்',
     contactPhone: '+91 98765 43210',
     whatsappNumber: '919876543210',

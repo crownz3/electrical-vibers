@@ -782,6 +782,47 @@ export class AdminPage implements OnInit {
     });
   }
 
+  isProductUploading = false;
+
+  async onNewProductFileSelected(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+    this.isProductUploading = true;
+    try {
+      const file = input.files[0];
+      const url = await this.firebaseService.uploadFile('products', file);
+      if (url) {
+        this.prodImage = url;
+      }
+    } catch (err) {
+      console.error('Failed to upload product image:', err);
+    } finally {
+      this.isProductUploading = false;
+      input.value = '';
+    }
+  }
+
+  async onEditProductFileSelected(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0 || !this.editingProduct) return;
+    this.isProductUploading = true;
+    try {
+      const file = input.files[0];
+      const url = await this.firebaseService.uploadFile('products', file);
+      if (url) {
+        if (!this.editingProduct.images) {
+          this.editingProduct.images = [];
+        }
+        this.editingProduct.images[0] = url;
+      }
+    } catch (err) {
+      console.error('Failed to upload product image:', err);
+    } finally {
+      this.isProductUploading = false;
+      input.value = '';
+    }
+  }
+
   openEditProductModal(product: Product): void {
     this.editingProduct = { ...product };
     this.showEditProductModal = true;

@@ -1,6 +1,8 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ConfigService, AppConfig } from '../../services/config.service';
+import { AuthService } from '../../services/auth.service';
+import { QuickEditService } from '../../services/quick-edit.service';
 
 @Component({
   selector: 'app-floating-whatsapp',
@@ -11,6 +13,8 @@ import { ConfigService, AppConfig } from '../../services/config.service';
 })
 export class FloatingWhatsappComponent implements OnInit {
   configService = inject(ConfigService);
+  authService = inject(AuthService);
+  quickEditService = inject(QuickEditService);
   config: AppConfig = this.configService.getConfig();
 
   isOpen = false;
@@ -19,6 +23,11 @@ export class FloatingWhatsappComponent implements OnInit {
     this.configService.config$.subscribe(cfg => {
       this.config = cfg;
     });
+  }
+
+  editWhatsApp(event: Event): void {
+    event.stopPropagation();
+    this.quickEditService.open('contact');
   }
 
   toggleMenu(): void {

@@ -129,6 +129,10 @@
 
           <!-- Admin Quick Edit Buttons -->
           <div *ngIf="authService.isAdmin() && quickEditService.showEditMarkers()" class="card-corner-admin-actions" (click)="$event.stopPropagation()">
+            <label class="btn-mini-admin-photo" title="Change product image (Device / Camera)">
+              <span class="material-symbols-outlined">add_a_photo</span>
+              <input type="file" accept="image/*" (change)="onDirectProductImageUpload($event, prod)" style="display: none;" />
+            </label>
             <button type="button" class="btn-mini-admin-edit" (click)="quickEditService.open('product', prod)" title="Edit product">
               <span class="material-symbols-outlined">edit</span>
             </button>

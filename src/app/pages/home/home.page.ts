@@ -10,6 +10,7 @@ import { ThemeService } from '../../services/theme.service';
 import { AuthService } from '../../services/auth.service';
 import { QuickEditService } from '../../services/quick-edit.service';
 import { DialogService } from '../../services/dialog.service';
+import { FirebaseService } from '../../services/firebase.service';
 import { Product } from '../../models/product.model';
 import { ServiceCategory } from '../../models/booking.model';
 import { ScrollAnimateDirective } from '../../directives/scroll-animate.directive';
@@ -32,6 +33,7 @@ export class HomePage implements OnInit, OnDestroy {
   authService = inject(AuthService);
   quickEditService = inject(QuickEditService);
   dialogService = inject(DialogService);
+  firebaseService = inject(FirebaseService);
   router = inject(Router);
 
   config: AppConfig = this.configService.getConfig();
@@ -125,6 +127,40 @@ export class HomePage implements OnInit, OnDestroy {
     const ok = await this.dialogService.confirm(`Are you sure you want to delete service "${title}"?`, 'Delete Service', 'danger');
     if (ok) {
       this.bookingService.deleteService(id);
+    }
+  }
+
+  async onDirectHeroImageUpload(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+    try {
+      const file = input.files[0];
+      const url = await this.firebaseService.uploadFile('hero_banners', file);
+      if (url) {
+        this.configService.updateConfig({ heroBannerImageUrl: url });
+        this.quickEditService.notifySaved('Hero showcase image updated!');
+      }
+    } catch (err) {
+      console.error('Failed to update hero image:', err);
+    } finally {
+      input.value = '';
+    }
+  }
+
+  async onDirectProductImageUpload(event: Event, product: Product): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+    try {
+      const file = input.files[0];
+      const url = await this.firebaseService.uploadFile('products', file);
+      if (url) {
+        this.productService.updateProduct(product.id, { images: [url] });
+        this.quickEditService.notifySaved(`Image updated for "${product.name}"!`);
+      }
+    } catch (err) {
+      console.error('Failed to update product image:', err);
+    } finally {
+      input.value = '';
     }
   }
 

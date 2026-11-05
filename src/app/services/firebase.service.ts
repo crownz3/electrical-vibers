@@ -235,8 +235,10 @@ export class FirebaseService {
   /**
    * Uploads a file (challan, site progress photo, bill, product image)
    * to Firebase Storage bucket and returns the public download URL.
+   * If Firebase Storage is offline or rules block write, gracefully falls back
+   * to a local data URL so the uploaded image displays and saves immediately.
    */
-  async uploadFile(folder: string, file: File): Promise<string | null> {
+  async uploadFile(folder: string, file: File): Promise<string> {
     try {
       const storage = getStorage(this.app);
       const cleanName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
@@ -247,10 +249,19 @@ export class FirebaseService {
       this.syncStatusSubject.next('connected');
       return url;
     } catch (err: any) {
-      console.warn('Firebase storage upload error:', err);
+      console.warn('Firebase storage upload fallback to base64 data-URL:', err?.message);
       this.syncStatusSubject.next('offline');
-      return null;
+      return await this.fileToDataUrl(file);
     }
+  }
+
+  private fileToDataUrl(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsDataURL(file);
+    });
   }
 
 }

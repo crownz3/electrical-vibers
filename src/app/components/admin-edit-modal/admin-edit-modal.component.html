@@ -71,8 +71,23 @@
         </div>
 
         <div class="form-group">
-          <label>Hero Showcase Image URL (Leave blank to use default ultra-luxury 3D showcase)</label>
-          <input type="text" [(ngModel)]="configForm.heroBannerImageUrl" placeholder="assets/images/hero-elegant-showcase.jpg or https://..." />
+          <label>Hero Showcase Image (முகப்பு பேனர் படம்)</label>
+          <div class="image-uploader-card">
+            <div *ngIf="configForm.heroBannerImageUrl" class="image-preview-box">
+              <img [src]="configForm.heroBannerImageUrl" alt="Hero banner preview" class="preview-thumb" />
+              <button type="button" class="btn-remove-thumb" (click)="configForm.heroBannerImageUrl = ''" title="Clear image">
+                <span class="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <div class="upload-actions-row">
+              <input type="file" #heroFileInput (change)="onHeroBannerFileSelected($event)" accept="image/*" style="display: none;" />
+              <button type="button" class="btn-upload-file-pill" (click)="heroFileInput.click()" [disabled]="isUploading">
+                <span class="material-symbols-outlined">{{ isUploading ? 'sync' : 'add_photo_alternate' }}</span>
+                <span>{{ isUploading ? 'Uploading...' : 'Upload Banner Image from Device / Camera' }}</span>
+              </button>
+            </div>
+            <input type="text" [(ngModel)]="configForm.heroBannerImageUrl" placeholder="Or paste image URL (e.g. assets/images/hero-elegant-showcase.jpg or https://...)" class="mt-2" />
+          </div>
         </div>
       </div>
 
@@ -152,6 +167,9 @@
           <div class="form-group">
             <label>WhatsApp Helpline (with Country Code) *</label>
             <input type="text" [(ngModel)]="configForm.whatsappNumber" placeholder="919876543210" />
+            <small style="display: block; margin-top: 4px; color: #22c55e; font-size: 0.78rem;">
+              Direct chat will open: wa.me/{{ configForm.whatsappNumber }}
+            </small>
           </div>
         </div>
         <div class="form-group">
@@ -242,8 +260,34 @@
         </div>
 
         <div class="form-group">
-          <label>Image URLs (one URL per line)</label>
-          <textarea [(ngModel)]="productImageInput" rows="2" placeholder="assets/images/hero-showcase.jpg&#10;https://example.com/image.jpg"></textarea>
+          <label>Product Images (தயாரிப்பு படங்கள்)</label>
+          <div class="image-uploader-card">
+            <!-- Thumbnails Gallery of Uploaded Images -->
+            <div class="product-thumbs-grid" *ngIf="productForm.images && productForm.images.length > 0">
+              <div class="thumb-card" *ngFor="let img of productForm.images; let i = index">
+                <img [src]="img" alt="Product thumbnail" />
+                <button type="button" class="btn-del-thumb" (click)="removeProductImage(i)" title="Remove image">
+                  <span class="material-symbols-outlined">close</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Upload Button -->
+            <div class="upload-actions-row">
+              <input type="file" #prodFileInput (change)="onProductFileSelected($event)" accept="image/*" multiple style="display: none;" />
+              <button type="button" class="btn-upload-file-pill" (click)="prodFileInput.click()" [disabled]="isUploading">
+                <span class="material-symbols-outlined">{{ isUploading ? 'sync' : 'add_photo_alternate' }}</span>
+                <span>{{ isUploading ? 'Uploading Image...' : '+ Upload Product Images (Select Files / Camera)' }}</span>
+              </button>
+              <span class="upload-status-hint" *ngIf="uploadStatusMsg">{{ uploadStatusMsg }}</span>
+            </div>
+
+            <!-- URL textarea fallback -->
+            <details class="manual-urls-toggle">
+              <summary>Or edit/paste image URLs manually</summary>
+              <textarea [(ngModel)]="productImageInput" rows="2" placeholder="https://example.com/image.jpg (one URL per line)"></textarea>
+            </details>
+          </div>
         </div>
 
         <div class="form-group">
@@ -471,6 +515,26 @@
         <div class="form-group">
           <label>Tamil Slogan / Quote (Footer)</label>
           <input type="text" [(ngModel)]="configForm.tamilQuote" />
+        </div>
+
+        <div class="form-group">
+          <label>Brand Logo Image (லோகோ படம்)</label>
+          <div class="image-uploader-card">
+            <div *ngIf="configForm.logoImageUrl" class="image-preview-box">
+              <img [src]="configForm.logoImageUrl" alt="Logo preview" class="preview-thumb-logo" />
+              <button type="button" class="btn-remove-thumb" (click)="configForm.logoImageUrl = ''" title="Clear logo">
+                <span class="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <div class="upload-actions-row">
+              <input type="file" #logoFileInput (change)="onLogoFileSelected($event)" accept="image/*" style="display: none;" />
+              <button type="button" class="btn-upload-file-pill" (click)="logoFileInput.click()" [disabled]="isUploading">
+                <span class="material-symbols-outlined">{{ isUploading ? 'sync' : 'add_photo_alternate' }}</span>
+                <span>{{ isUploading ? 'Uploading...' : 'Upload Brand Logo from Device / Camera' }}</span>
+              </button>
+            </div>
+            <input type="text" [(ngModel)]="configForm.logoImageUrl" placeholder="Or enter logo path (e.g. assets/images/logo-text.jpeg)" class="mt-2" />
+          </div>
         </div>
 
         <div class="form-row-2">
