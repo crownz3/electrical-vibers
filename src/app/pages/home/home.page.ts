@@ -7,6 +7,9 @@ import { CartService } from '../../services/cart.service';
 import { ConfigService, AppConfig, StoreOffer } from '../../services/config.service';
 import { LanguageService } from '../../services/language.service';
 import { ThemeService } from '../../services/theme.service';
+import { AuthService } from '../../services/auth.service';
+import { QuickEditService } from '../../services/quick-edit.service';
+import { DialogService } from '../../services/dialog.service';
 import { Product } from '../../models/product.model';
 import { ServiceCategory } from '../../models/booking.model';
 import { ScrollAnimateDirective } from '../../directives/scroll-animate.directive';
@@ -25,6 +28,9 @@ export class HomePage implements OnInit, OnDestroy {
   configService = inject(ConfigService);
   langService = inject(LanguageService);
   themeService = inject(ThemeService);
+  authService = inject(AuthService);
+  quickEditService = inject(QuickEditService);
+  dialogService = inject(DialogService);
   router = inject(Router);
 
   config: AppConfig = this.configService.getConfig();
@@ -100,5 +106,26 @@ export class HomePage implements OnInit, OnDestroy {
   buyNow(product: Product): void {
     this.cartService.addToCart(product, 1, false);
     this.router.navigate(['/cart']);
+  }
+
+  async deleteProduct(id: string, name: string): Promise<void> {
+    const ok = await this.dialogService.confirm(`Are you sure you want to delete product "${name}"?`, 'Delete Product', 'danger');
+    if (ok) {
+      this.productService.deleteProduct(id);
+    }
+  }
+
+  async deleteService(id: string, title: string): Promise<void> {
+    const ok = await this.dialogService.confirm(`Are you sure you want to delete service "${title}"?`, 'Delete Service', 'danger');
+    if (ok) {
+      this.bookingService.deleteService(id);
+    }
+  }
+
+  async deleteOffer(id: string, title: string): Promise<void> {
+    const ok = await this.dialogService.confirm(`Are you sure you want to delete offer "${title}"?`, 'Delete Offer', 'danger');
+    if (ok) {
+      this.configService.deleteOffer(id);
+    }
   }
 }

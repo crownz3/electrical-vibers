@@ -280,7 +280,7 @@ export class ConfigService {
     this.saveConfig(this.defaultConfig);
   }
 
-  private saveConfig(config: AppConfig, syncCloud = true): void {
+  saveConfig(config: AppConfig, syncCloud = true): void {
     localStorage.setItem(this.CONFIG_KEY, JSON.stringify(config));
     this.configSubject.next(config);
     if (syncCloud) {

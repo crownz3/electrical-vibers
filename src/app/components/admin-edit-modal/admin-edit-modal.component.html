@@ -1,0 +1,417 @@
+<div *ngIf="isOpen" class="modal-backdrop" (click)="close()">
+  <div class="edit-modal-box glass-card" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <div class="modal-header">
+      <div class="header-title-wrap">
+        <span class="material-symbols-outlined header-ico">edit_square</span>
+        <h3>{{ getModalTitle() }}</h3>
+      </div>
+      <button type="button" class="btn-close" (click)="close()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="modal-body">
+      <!-- 1. HERO SECTION -->
+      <div *ngIf="activeType === 'hero'" class="form-fields-container">
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Hero Top Badge (English)</label>
+            <input type="text" [(ngModel)]="configForm.heroBadgeText" />
+          </div>
+          <div class="form-group">
+            <label>Hero Top Badge (Tamil / தமிழ்)</label>
+            <input type="text" [(ngModel)]="configForm.tamilHeroBadgeText" placeholder="அரசு அங்கீகாரம் பெற்ற ஒப்பந்ததாரர்" />
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Main Headline (English) *</label>
+            <input type="text" [(ngModel)]="configForm.heroHeadline" />
+          </div>
+          <div class="form-group">
+            <label>Main Headline (Tamil / தமிழ்) *</label>
+            <input type="text" [(ngModel)]="configForm.tamilHeroHeadline" placeholder="பாதுகாப்பான மின்சார தீர்வுகள்" />
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Subheadline (English)</label>
+            <textarea [(ngModel)]="configForm.heroSubheadline" rows="2"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Subheadline (Tamil / தமிழ்)</label>
+            <textarea [(ngModel)]="configForm.tamilHeroSubheadline" rows="2" placeholder="முழுமையான வயரிங் பணிகள், அவசர பழுதுநீக்கம்..."></textarea>
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Book Button CTA (English)</label>
+            <input type="text" [(ngModel)]="configForm.heroBookCtaText" />
+          </div>
+          <div class="form-group">
+            <label>Book Button CTA (Tamil / தமிழ்)</label>
+            <input type="text" [(ngModel)]="configForm.tamilHeroBookCtaText" placeholder="எலக்ட்ரீஷியன் முன்பதிவு" />
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Store Button CTA (English)</label>
+            <input type="text" [(ngModel)]="configForm.heroStoreCtaText" />
+          </div>
+          <div class="form-group">
+            <label>Store Button CTA (Tamil / தமிழ்)</label>
+            <input type="text" [(ngModel)]="configForm.tamilHeroStoreCtaText" placeholder="மின்பொருட்கள் அங்காடி" />
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. ANNOUNCEMENT BANNER -->
+      <div *ngIf="activeType === 'banner'" class="form-fields-container">
+        <div class="form-group">
+          <label>Announcement Banner Text (English)</label>
+          <input type="text" [(ngModel)]="configForm.bannerOfferText" />
+        </div>
+        <div class="form-group">
+          <label>Announcement Banner Text (Tamil / தமிழ்)</label>
+          <input type="text" [(ngModel)]="configForm.tamilBannerOfferText" placeholder="சிறப்பு சலுகை: ஹேவல்ஸ் ஒயர்களுக்கு 15% தள்ளுபடி..." />
+        </div>
+        <div class="form-group checkbox-group">
+          <label class="checkbox-label">
+            <input type="checkbox" [(ngModel)]="configForm.showBannerOffer" />
+            <span>Show Announcement Banner at Top of Site</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 3. PRODUCT FORM -->
+      <div *ngIf="activeType === 'product'" class="form-fields-container">
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Product Name (English) *</label>
+            <input type="text" [(ngModel)]="productForm.name" placeholder="e.g. Havells Life Line Plus Wire 2.5 sq mm" />
+          </div>
+          <div class="form-group">
+            <label>Product Name (Tamil / தமிழ்) *</label>
+            <input type="text" [(ngModel)]="productForm.tamilName" placeholder="ஹேவல்ஸ் லைஃப்லைன் ஒயர் 2.5 மி.மீ" />
+          </div>
+        </div>
+
+        <div class="form-row-3">
+          <div class="form-group">
+            <label>Brand *</label>
+            <input type="text" [(ngModel)]="productForm.brand" placeholder="Havells, Finolex, Anchor..." />
+          </div>
+          <div class="form-group">
+            <label>Category (English)</label>
+            <input type="text" [(ngModel)]="productForm.category" placeholder="House Wiring Cables" />
+          </div>
+          <div class="form-group">
+            <label>Category (Tamil / தமிழ்)</label>
+            <input type="text" [(ngModel)]="productForm.tamilCategory" placeholder="வயரிங் கேபிள்கள்" />
+          </div>
+        </div>
+
+        <div class="form-row-4">
+          <div class="form-group">
+            <label>Offer Price (₹) *</label>
+            <input type="number" [(ngModel)]="productForm.price" />
+          </div>
+          <div class="form-group">
+            <label>MRP (₹)</label>
+            <input type="number" [(ngModel)]="productForm.mrp" />
+          </div>
+          <div class="form-group">
+            <label>Unit (English)</label>
+            <input type="text" [(ngModel)]="productForm.unit" placeholder="Coil (90m), Piece..." />
+          </div>
+          <div class="form-group">
+            <label>Unit (Tamil)</label>
+            <input type="text" [(ngModel)]="productForm.tamilUnit" placeholder="சுருள் (90மீ), பீஸ்..." />
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Stock Count</label>
+            <input type="number" [(ngModel)]="productForm.stock" />
+          </div>
+          <div class="form-group checkbox-group" style="padding-top: 24px;">
+            <label class="checkbox-label">
+              <input type="checkbox" [(ngModel)]="productForm.inStock" />
+              <span>In Stock & Ready for Same-Day Delivery</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Description (English)</label>
+            <textarea [(ngModel)]="productForm.description" rows="2"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Description (Tamil / தமிழ்)</label>
+            <textarea [(ngModel)]="productForm.tamilDescription" rows="2" placeholder="பொருள் பற்றிய விளக்கம் தமிழில்..."></textarea>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Image URLs (one URL per line)</label>
+          <textarea [(ngModel)]="productImageInput" rows="2" placeholder="assets/images/hero-showcase.jpg&#10;https://example.com/image.jpg"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Technical Specifications (Key: Value per line)</label>
+          <textarea [(ngModel)]="productSpecsInput" rows="2" placeholder="Length: 90 Meters&#10;Voltage: 1100V&#10;Certification: ISI Marked"></textarea>
+        </div>
+      </div>
+
+      <!-- 4. SERVICE FORM -->
+      <div *ngIf="activeType === 'service'" class="form-fields-container">
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Service Title (English) *</label>
+            <input type="text" [(ngModel)]="serviceForm.title" placeholder="e.g. Distribution Board & MCB Fixing" />
+          </div>
+          <div class="form-group">
+            <label>Service Title (Tamil / தமிழ்) *</label>
+            <input type="text" [(ngModel)]="serviceForm.tamilTitle" placeholder="e.g. மெயின் போர்டு மற்றும் MCB பொருத்துதல்" />
+          </div>
+        </div>
+
+        <div class="form-row-3">
+          <div class="form-group">
+            <label>Starting Price (₹) *</label>
+            <input type="number" [(ngModel)]="serviceForm.startingPrice" />
+          </div>
+          <div class="form-group">
+            <label>Icon (Google Material Symbol)</label>
+            <input type="text" [(ngModel)]="serviceForm.icon" placeholder="bolt, electric_meter, handyman..." />
+          </div>
+          <div class="form-group checkbox-group" style="padding-top: 24px;">
+            <label class="checkbox-label">
+              <input type="checkbox" [(ngModel)]="serviceForm.popular" />
+              <span>Badge as "Popular" Service</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Service Scope (English)</label>
+            <textarea [(ngModel)]="serviceForm.description" rows="2"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Service Scope (Tamil / தமிழ்)</label>
+            <textarea [(ngModel)]="serviceForm.tamilDescription" rows="2" placeholder="சேவை விவரம் தமிழில்..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. OFFER FORM -->
+      <div *ngIf="activeType === 'offer'" class="form-fields-container">
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Offer Title (English) *</label>
+            <input type="text" [(ngModel)]="offerForm.title" placeholder="e.g. Monsoon Wiring Safety Fest" />
+          </div>
+          <div class="form-group">
+            <label>Offer Title (Tamil / தமிழ்) *</label>
+            <input type="text" [(ngModel)]="offerForm.tamilTitle" placeholder="e.g. மழைக்கால பாதுகாப்பு சிறப்பு தள்ளுபடி" />
+          </div>
+        </div>
+
+        <div class="form-row-3">
+          <div class="form-group">
+            <label>Promo Code *</label>
+            <input type="text" [(ngModel)]="offerForm.code" placeholder="MONSOON15" />
+          </div>
+          <div class="form-group">
+            <label>Discount Percentage (%) *</label>
+            <input type="number" [(ngModel)]="offerForm.discountPercentage" />
+          </div>
+          <div class="form-group">
+            <label>Valid Till Date</label>
+            <input type="date" [(ngModel)]="offerForm.validTill" />
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Terms & Description (English)</label>
+            <textarea [(ngModel)]="offerForm.description" rows="2"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Terms & Description (Tamil / தமிழ்)</label>
+            <textarea [(ngModel)]="offerForm.tamilDescription" rows="2" placeholder="சலுகை விவரம் தமிழில்..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. STATS / TRUST COUNTERS -->
+      <div *ngIf="activeType === 'stats'" class="form-fields-container">
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Stat 1 Value (e.g. 14+)</label>
+            <input type="text" [(ngModel)]="configForm.stat1Num" />
+          </div>
+          <div class="form-group">
+            <label>Stat 1 Label (e.g. Years Industry Experience)</label>
+            <input type="text" [(ngModel)]="configForm.stat1Label" />
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Stat 2 Value (e.g. 580+)</label>
+            <input type="text" [(ngModel)]="configForm.stat2Num" />
+          </div>
+          <div class="form-group">
+            <label>Stat 2 Label (e.g. Completed Sites)</label>
+            <input type="text" [(ngModel)]="configForm.stat2Label" />
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Stat 3 Value (e.g. 100%)</label>
+            <input type="text" [(ngModel)]="configForm.stat3Num" />
+          </div>
+          <div class="form-group">
+            <label>Stat 3 Label (e.g. Genuine ISI Materials)</label>
+            <input type="text" [(ngModel)]="configForm.stat3Label" />
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Stat 4 Value (e.g. 30 Min)</label>
+            <input type="text" [(ngModel)]="configForm.stat4Num" />
+          </div>
+          <div class="form-group">
+            <label>Stat 4 Label (e.g. Emergency Response)</label>
+            <input type="text" [(ngModel)]="configForm.stat4Label" />
+          </div>
+        </div>
+      </div>
+
+      <!-- 7. VALUES / WHY CHOOSE US -->
+      <div *ngIf="activeType === 'values'" class="form-fields-container">
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Pillar 1 Title</label>
+            <input type="text" [(ngModel)]="configForm.value1Title" />
+          </div>
+          <div class="form-group">
+            <label>Pillar 1 Description</label>
+            <input type="text" [(ngModel)]="configForm.value1Desc" />
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Pillar 2 Title</label>
+            <input type="text" [(ngModel)]="configForm.value2Title" />
+          </div>
+          <div class="form-group">
+            <label>Pillar 2 Description</label>
+            <input type="text" [(ngModel)]="configForm.value2Desc" />
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Pillar 3 Title</label>
+            <input type="text" [(ngModel)]="configForm.value3Title" />
+          </div>
+          <div class="form-group">
+            <label>Pillar 3 Description</label>
+            <input type="text" [(ngModel)]="configForm.value3Desc" />
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Pillar 4 Title</label>
+            <input type="text" [(ngModel)]="configForm.value4Title" />
+          </div>
+          <div class="form-group">
+            <label>Pillar 4 Description</label>
+            <input type="text" [(ngModel)]="configForm.value4Desc" />
+          </div>
+        </div>
+      </div>
+
+      <!-- 8. FOOTER / BRAND IDENTITY -->
+      <div *ngIf="activeType === 'footer'" class="form-fields-container">
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Business Name (English) *</label>
+            <input type="text" [(ngModel)]="configForm.businessName" />
+          </div>
+          <div class="form-group">
+            <label>Business Name (Tamil / தமிழ்) *</label>
+            <input type="text" [(ngModel)]="configForm.tamilBusinessName" />
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Business Subtitle (English)</label>
+            <input type="text" [(ngModel)]="configForm.businessSubtitle" />
+          </div>
+          <div class="form-group">
+            <label>Business Subtitle (Tamil / தமிழ்)</label>
+            <input type="text" [(ngModel)]="configForm.tamilBusinessSubtitle" />
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Contact Phone</label>
+            <input type="tel" [(ngModel)]="configForm.contactPhone" />
+          </div>
+          <div class="form-group">
+            <label>WhatsApp Number</label>
+            <input type="text" [(ngModel)]="configForm.whatsappNumber" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Contractor / Store Address</label>
+          <input type="text" [(ngModel)]="configForm.address" />
+        </div>
+
+        <div class="form-group">
+          <label>Tamil Slogan / Quote (Footer)</label>
+          <input type="text" [(ngModel)]="configForm.tamilQuote" />
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Footer About Paragraph (English)</label>
+            <textarea [(ngModel)]="configForm.footerAboutText" rows="2"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Footer About Paragraph (Tamil / தமிழ்)</label>
+            <textarea [(ngModel)]="configForm.tamilFooterAboutText" rows="2"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer Actions -->
+    <div class="modal-footer">
+      <button type="button" class="btn-cancel" (click)="close()">Cancel</button>
+      <button type="button" class="btn-save" (click)="save()">
+        <span class="material-symbols-outlined">save</span>
+        <span>Save Changes (சேமி)</span>
+      </button>
+    </div>
+  </div>
+</div>

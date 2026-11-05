@@ -1,0 +1,59 @@
+<aside class="admin-live-bar" role="toolbar" aria-label="Administrator live editor bar">
+  <div class="admin-bar-inner">
+    <!-- Left: Status & Identity -->
+    <div class="admin-badge-wrap">
+      <div class="pulse-indicator"></div>
+      <span class="material-symbols-outlined admin-ico">shield_person</span>
+      <div class="admin-meta">
+        <strong>Admin Live Mode</strong>
+        <span class="admin-email" *ngIf="adminUser?.email">{{ adminUser!.email }}</span>
+      </div>
+    </div>
+
+    <!-- Middle: Quick Action Shortcuts -->
+    <div class="admin-actions-group">
+      <button type="button" class="btn-quick-admin" (click)="quickEditService.open('product')">
+        <span class="material-symbols-outlined">add_box</span>
+        <span>+ Add Product</span>
+      </button>
+
+      <button type="button" class="btn-quick-admin" (click)="quickEditService.open('service')">
+        <span class="material-symbols-outlined">handyman</span>
+        <span>+ Add Service</span>
+      </button>
+
+      <button type="button" class="btn-quick-admin" (click)="quickEditService.open('offer')">
+        <span class="material-symbols-outlined">local_offer</span>
+        <span>+ Add Offer</span>
+      </button>
+
+      <button type="button" class="btn-quick-admin" (click)="quickEditService.open('hero')">
+        <span class="material-symbols-outlined">edit_note</span>
+        <span>Edit Hero & Headlines</span>
+      </button>
+
+      <a routerLink="/admin" class="btn-portal-link">
+        <span class="material-symbols-outlined">dashboard</span>
+        <span>Contractor Portal</span>
+      </a>
+    </div>
+
+    <!-- Right: Markers Toggle & Signout -->
+    <div class="admin-right-tools">
+      <button 
+        type="button" 
+        class="btn-toggle-markers" 
+        [class.active]="quickEditService.showEditMarkers()"
+        (click)="quickEditService.toggleEditMarkers()"
+        title="Toggle in-page edit pencil markers">
+        <span class="material-symbols-outlined">{{ quickEditService.showEditMarkers() ? 'visibility' : 'visibility_off' }}</span>
+        <span>{{ quickEditService.showEditMarkers() ? 'Edit Pencils: ON' : 'Edit Pencils: OFF' }}</span>
+      </button>
+
+      <button type="button" class="btn-admin-logout" (click)="logout()" title="Logout Administrator">
+        <span class="material-symbols-outlined">logout</span>
+        <span>Logout</span>
+      </button>
+    </div>
+  </div>
+</aside>

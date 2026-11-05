@@ -7,6 +7,8 @@ import { ConfigService, AppConfig } from '../../services/config.service';
 import { CustomerService } from '../../services/customer.service';
 import { DialogService } from '../../services/dialog.service';
 import { LanguageService } from '../../services/language.service';
+import { AuthService } from '../../services/auth.service';
+import { QuickEditService } from '../../services/quick-edit.service';
 import { Booking, ServiceCategory } from '../../models/booking.model';
 
 @Component({
@@ -22,6 +24,8 @@ export class BookServicePage implements OnInit {
   customerService = inject(CustomerService);
   dialogService = inject(DialogService);
   langService = inject(LanguageService);
+  authService = inject(AuthService);
+  quickEditService = inject(QuickEditService);
   route = inject(ActivatedRoute);
 
   config: AppConfig = this.configService.getConfig();
@@ -217,5 +221,12 @@ export class BookServicePage implements OnInit {
       `Please confirm technician dispatch schedule!`
     );
     return `https://wa.me/${this.config.whatsappNumber}?text=${text}`;
+  }
+
+  async deleteService(id: string, title: string): Promise<void> {
+    const ok = await this.dialogService.confirm(`Are you sure you want to delete service "${title}"?`, 'Delete Service', 'danger');
+    if (ok) {
+      this.bookingService.deleteService(id);
+    }
   }
 }

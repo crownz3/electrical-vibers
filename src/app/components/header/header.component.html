@@ -11,6 +11,15 @@
       <span>{{ langService.isTamil() ? 'பொருட்கள்' : 'Shop Deals' }}</span>
       <span class="material-symbols-outlined link-arrow">arrow_forward</span>
     </a>
+    <button 
+      *ngIf="authService.isAdmin() && quickEditService.showEditMarkers()" 
+      type="button" 
+      class="btn-banner-edit-pencil" 
+      (click)="quickEditService.open('banner')"
+      title="Admin: Edit Announcement Banner">
+      <span class="material-symbols-outlined">edit</span>
+      <span>Edit Banner</span>
+    </button>
   </div>
 </div>
 

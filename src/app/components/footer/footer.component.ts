@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ConfigService, AppConfig } from '../../services/config.service';
 import { LanguageService } from '../../services/language.service';
+import { AuthService } from '../../services/auth.service';
+import { QuickEditService } from '../../services/quick-edit.service';
 
 @Component({
   selector: 'app-footer',
@@ -14,6 +16,8 @@ import { LanguageService } from '../../services/language.service';
 export class FooterComponent implements OnInit {
   configService = inject(ConfigService);
   langService = inject(LanguageService);
+  authService = inject(AuthService);
+  quickEditService = inject(QuickEditService);
   config: AppConfig = this.configService.getConfig();
 
   ngOnInit(): void {

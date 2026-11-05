@@ -5,6 +5,9 @@ import { FormsModule } from '@angular/forms';
 import { ProductService } from '../../services/product.service';
 import { CartService } from '../../services/cart.service';
 import { LanguageService } from '../../services/language.service';
+import { AuthService } from '../../services/auth.service';
+import { QuickEditService } from '../../services/quick-edit.service';
+import { DialogService } from '../../services/dialog.service';
 import { Product } from '../../models/product.model';
 
 @Component({
@@ -18,6 +21,9 @@ export class ProductsPage implements OnInit {
   productService = inject(ProductService);
   cartService = inject(CartService);
   langService = inject(LanguageService);
+  authService = inject(AuthService);
+  quickEditService = inject(QuickEditService);
+  dialogService = inject(DialogService);
   route = inject(ActivatedRoute);
 
   allProducts: Product[] = [];
@@ -147,5 +153,12 @@ export class ProductsPage implements OnInit {
   buyNow(product: Product): void {
     this.cartService.addToCart(product, 1, false);
     this.router.navigate(['/cart']);
+  }
+
+  async deleteProduct(id: string, name: string): Promise<void> {
+    const ok = await this.dialogService.confirm(`Are you sure you want to delete product "${name}"?`, 'Delete Product', 'danger');
+    if (ok) {
+      this.productService.deleteProduct(id);
+    }
   }
 }

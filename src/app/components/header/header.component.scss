@@ -72,6 +72,30 @@
   font-weight: 500;
 }
 
+.btn-banner-edit-pencil {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #0f172a;
+  background: #fbbf24;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 0.72rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  .material-symbols-outlined {
+    font-size: 13px;
+  }
+
+  &:hover {
+    filter: brightness(1.15);
+    transform: scale(1.05);
+  }
+}
+
 .top-offer-link {
   display: inline-flex;
   align-items: center;

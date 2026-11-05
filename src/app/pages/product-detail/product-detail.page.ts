@@ -6,6 +6,8 @@ import { ProductService } from '../../services/product.service';
 import { CartService } from '../../services/cart.service';
 import { ConfigService, AppConfig } from '../../services/config.service';
 import { LanguageService } from '../../services/language.service';
+import { AuthService } from '../../services/auth.service';
+import { QuickEditService } from '../../services/quick-edit.service';
 import { Product } from '../../models/product.model';
 
 @Component({
@@ -22,6 +24,8 @@ export class ProductDetailPage implements OnInit {
   cartService = inject(CartService);
   configService = inject(ConfigService);
   langService = inject(LanguageService);
+  authService = inject(AuthService);
+  quickEditService = inject(QuickEditService);
 
   config: AppConfig = this.configService.getConfig();
   product?: Product;

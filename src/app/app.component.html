@@ -1,3 +1,6 @@
+<!-- Top Admin Live Editing Bar (Visible when Admin is Logged In like VMHSS app) -->
+<app-admin-bar *ngIf="authService.isAdmin() && !isAdminRoute"></app-admin-bar>
+
 <div class="app-root-shell" [class.is-admin-view]="isAdminRoute">
   <!-- Top Electric Global Loading Progress Bar for All API / Network Calls -->
   <div *ngIf="loadingService.isLoading$ | async" class="global-api-loader" role="progressbar" aria-label="Loading content">
@@ -13,3 +16,6 @@
 
 <app-side-cart *ngIf="!isAdminRoute"></app-side-cart>
 <app-floating-whatsapp *ngIf="!isAdminRoute"></app-floating-whatsapp>
+
+<!-- Live Quick Edit Modal for Admin -->
+<app-admin-edit-modal></app-admin-edit-modal>

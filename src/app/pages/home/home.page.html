@@ -8,10 +8,21 @@
       <div class="hero-main-row">
         <!-- Left Content Column -->
         <div class="hero-text-col">
-          <div class="hero-badge animate-fade-down">
-            <span class="live-beacon"></span>
-            <span class="material-symbols-outlined badge-icon">verified</span>
-            <span>{{ langService.pick(config.heroBadgeText, config.tamilHeroBadgeText) }}</span>
+          <div class="hero-badge-wrap-row" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <div class="hero-badge animate-fade-down">
+              <span class="live-beacon"></span>
+              <span class="material-symbols-outlined badge-icon">verified</span>
+              <span>{{ langService.pick(config.heroBadgeText, config.tamilHeroBadgeText) }}</span>
+            </div>
+            <button 
+              *ngIf="authService.isAdmin() && quickEditService.showEditMarkers()"
+              type="button" 
+              class="btn-live-edit-pill"
+              (click)="quickEditService.open('hero')"
+              title="Admin: Edit Hero Copy & CTAs">
+              <span class="material-symbols-outlined">edit</span>
+              <span>Edit Hero (முகப்பு திருத்து)</span>
+            </button>
           </div>
 
           <h1 class="hero-title animate-fade-in">
@@ -99,6 +110,12 @@
       </div>
 
       <!-- Trust Badges Bar (Dynamic from Admin Config) -->
+      <div *ngIf="authService.isAdmin() && quickEditService.showEditMarkers()" style="display: flex; justify-content: flex-end; margin-bottom: 8px;">
+        <button type="button" class="btn-live-edit-pill" (click)="quickEditService.open('stats')">
+          <span class="material-symbols-outlined">edit</span>
+          <span>Edit Trust Badges (புள்ளிவிவரங்கள் திருத்து)</span>
+        </button>
+      </div>
       <div class="trust-stats-grid">
         <div class="stat-card glass-card" appScrollAnimate="fade-up" [animDelay]="100">
           <div class="stat-num-row">
@@ -136,10 +153,18 @@
   </section>
 
   <!-- Special Offers / Promotional Discounts (Admin Configured) -->
-  <section *ngIf="offers.length > 0" class="section offers-section">
+  <section *ngIf="offers.length > 0 || authService.isAdmin()" class="section offers-section">
     <div class="section-header" appScrollAnimate="fade-up">
-      <span class="section-tag">{{ langService.t('specialOffers') }}</span>
-      <h2 class="section-title">{{ langService.pick(config.offersSectionTitle, config.tamilOffersSectionTitle) }}</h2>
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <span class="section-tag">{{ langService.t('specialOffers') }}</span>
+          <h2 class="section-title">{{ langService.pick(config.offersSectionTitle, config.tamilOffersSectionTitle) }}</h2>
+        </div>
+        <button *ngIf="authService.isAdmin() && quickEditService.showEditMarkers()" type="button" class="btn-live-edit-pill" (click)="quickEditService.open('offer')">
+          <span class="material-symbols-outlined">add</span>
+          <span>+ Add Offer (சலுகை சேர்)</span>
+        </button>
+      </div>
     </div>
 
     <div class="offers-grid">
@@ -156,7 +181,17 @@
             <span class="validity">Valid till {{ off.validTill }}</span>
           </div>
         </div>
-        <a routerLink="/book-service" class="btn-claim-offer">Claim Offer</a>
+        <div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-end;">
+          <a routerLink="/book-service" class="btn-claim-offer">Claim Offer</a>
+          <div *ngIf="authService.isAdmin() && quickEditService.showEditMarkers()" style="display: flex; gap: 6px;">
+            <button type="button" class="btn-mini-admin-edit" (click)="quickEditService.open('offer', off)" title="Edit this offer">
+              <span class="material-symbols-outlined">edit</span>
+            </button>
+            <button type="button" class="btn-mini-admin-del" (click)="deleteOffer(off.id, off.title)" title="Delete offer">
+              <span class="material-symbols-outlined">delete</span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -164,9 +199,17 @@
   <!-- Services Showcase Section (Dynamic from Admin Services) -->
   <section class="section services-section">
     <div class="section-header" appScrollAnimate="fade-up">
-      <span class="section-tag">{{ langService.t('services') }}</span>
-      <h2 class="section-title">{{ langService.pick(config.servicesSectionTitle, config.tamilServicesSectionTitle) }}</h2>
-      <p class="section-desc">{{ langService.pick(config.servicesSectionSubtitle, config.tamilServicesSectionSubtitle) }}</p>
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <span class="section-tag">{{ langService.t('services') }}</span>
+          <h2 class="section-title">{{ langService.pick(config.servicesSectionTitle, config.tamilServicesSectionTitle) }}</h2>
+          <p class="section-desc">{{ langService.pick(config.servicesSectionSubtitle, config.tamilServicesSectionSubtitle) }}</p>
+        </div>
+        <button *ngIf="authService.isAdmin() && quickEditService.showEditMarkers()" type="button" class="btn-live-edit-pill" (click)="quickEditService.open('service')">
+          <span class="material-symbols-outlined">add</span>
+          <span>+ Add Service (சேவை சேர்)</span>
+        </button>
+      </div>
     </div>
 
     <div class="services-grid">
@@ -181,6 +224,14 @@
           <div class="service-title-row">
             <h3 class="service-title">{{ langService.pick(s.title, s.tamilTitle) }}</h3>
             <span *ngIf="s.popular" class="badge-pill badge-warning">Popular</span>
+            <div *ngIf="authService.isAdmin() && quickEditService.showEditMarkers()" style="margin-left: auto; display: flex; gap: 4px;">
+              <button type="button" class="btn-mini-admin-edit" (click)="quickEditService.open('service', s)" title="Edit Service">
+                <span class="material-symbols-outlined">edit</span>
+              </button>
+              <button type="button" class="btn-mini-admin-del" (click)="deleteService(s.id, s.title)" title="Delete Service">
+                <span class="material-symbols-outlined">delete</span>
+              </button>
+            </div>
           </div>
           <p class="service-tamil" *ngIf="langService.currentLang() === 'en' && s.tamilTitle">{{ s.tamilTitle }}</p>
           <p class="service-desc">{{ langService.pick(s.description, s.tamilDescription) }}</p>
@@ -284,10 +335,16 @@
           <h2 class="section-title">{{ langService.pick(config.storeSectionTitle, config.tamilStoreSectionTitle) }}</h2>
           <p class="section-desc">{{ langService.pick(config.storeSectionSubtitle, config.tamilStoreSectionSubtitle) }}</p>
         </div>
-        <a routerLink="/products" class="view-all-link">
-          {{ langService.t('viewAll') }}
-          <span class="material-symbols-outlined">arrow_forward</span>
-        </a>
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+          <button *ngIf="authService.isAdmin() && quickEditService.showEditMarkers()" type="button" class="btn-live-edit-pill" (click)="quickEditService.open('product')">
+            <span class="material-symbols-outlined">add</span>
+            <span>+ Add Product (தயாரிப்பு சேர்)</span>
+          </button>
+          <a routerLink="/products" class="view-all-link">
+            {{ langService.t('viewAll') }}
+            <span class="material-symbols-outlined">arrow_forward</span>
+          </a>
+        </div>
       </div>
     </div>
 
@@ -301,6 +358,14 @@
           <span *ngIf="prod.discountPercentage" class="discount-badge">
             {{ prod.discountPercentage }}% OFF
           </span>
+          <div *ngIf="authService.isAdmin() && quickEditService.showEditMarkers()" class="card-corner-admin-actions" (click)="$event.stopPropagation()">
+            <button type="button" class="btn-mini-admin-edit" (click)="quickEditService.open('product', prod)" title="Edit product">
+              <span class="material-symbols-outlined">edit</span>
+            </button>
+            <button type="button" class="btn-mini-admin-del" (click)="deleteProduct(prod.id, prod.name)" title="Delete product">
+              <span class="material-symbols-outlined">delete</span>
+            </button>
+          </div>
         </div>
         <div class="product-content">
           <div class="brand-name">{{ prod.brand }}</div>
@@ -347,6 +412,12 @@
 
   <!-- Why Choose Us -->
   <section class="section values-section">
+    <div *ngIf="authService.isAdmin() && quickEditService.showEditMarkers()" style="display: flex; justify-content: flex-end; margin-bottom: 12px;">
+      <button type="button" class="btn-live-edit-pill" (click)="quickEditService.open('values')">
+        <span class="material-symbols-outlined">edit</span>
+        <span>Edit Value Pillars (முக்கிய சிறப்புகள் திருத்து)</span>
+      </button>
+    </div>
     <div class="values-grid">
       <div class="value-item" appScrollAnimate="fade-up" [animDelay]="100">
         <div class="value-icon">

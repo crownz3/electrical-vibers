@@ -73,12 +73,23 @@
       <!-- Right Column: Specs, Pricing & Actions -->
       <div class="details-col">
         <!-- Brand & Stock status -->
-        <div class="brand-line">
-          <span class="brand-tag">{{ product.brand }}</span>
-          <span class="stock-pill in-stock" *ngIf="product.inStock">
-            <span class="dot"></span>
-            <span>In Stock ({{ product.stock }} units ready)</span>
-          </span>
+        <div class="brand-line" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="brand-tag">{{ product.brand }}</span>
+            <span class="stock-pill in-stock" *ngIf="product.inStock">
+              <span class="dot"></span>
+              <span>In Stock ({{ product.stock }} units ready)</span>
+            </span>
+          </div>
+          <button 
+            *ngIf="authService.isAdmin() && quickEditService.showEditMarkers()" 
+            type="button" 
+            class="btn-live-edit-pill"
+            style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #0f172a; font-weight: 800; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;"
+            (click)="quickEditService.open('product', product)">
+            <span class="material-symbols-outlined" style="font-size: 16px;">edit</span>
+            <span>Edit This Product (தயாரிப்பு திருத்து)</span>
+          </button>
         </div>
 
         <!-- Title & Tamil Translation -->

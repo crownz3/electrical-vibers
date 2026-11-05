@@ -3,14 +3,25 @@
     <div class="footer-grid">
       <!-- Col 1: About, Tamil Quote & Social Handles -->
       <div class="footer-col">
-        <div class="footer-brand">
-          <span class="material-symbols-outlined bolt-icon">bolt</span>
-          <h3>
-            {{ langService.pick(config.businessName, config.tamilBusinessName) }}
-            <span *ngIf="config.businessSubtitle" style="font-size: 0.9em; font-weight: 500; opacity: 0.9;">
-              {{ langService.pick(config.businessSubtitle, config.tamilBusinessSubtitle) }}
-            </span>
-          </h3>
+        <div class="footer-brand" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="material-symbols-outlined bolt-icon">bolt</span>
+            <h3>
+              {{ langService.pick(config.businessName, config.tamilBusinessName) }}
+              <span *ngIf="config.businessSubtitle" style="font-size: 0.9em; font-weight: 500; opacity: 0.9;">
+                {{ langService.pick(config.businessSubtitle, config.tamilBusinessSubtitle) }}
+              </span>
+            </h3>
+          </div>
+          <button 
+            *ngIf="authService.isAdmin() && quickEditService.showEditMarkers()" 
+            type="button" 
+            class="btn-footer-edit"
+            style="background: #f59e0b; color: #0f172a; border: none; padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 0.72rem; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;"
+            (click)="quickEditService.open('footer')">
+            <span class="material-symbols-outlined" style="font-size: 14px;">edit</span>
+            <span>Edit Footer & Brand (அடையாளம் திருத்து)</span>
+          </button>
         </div>
         <p class="brand-desc">
           {{ langService.pick(config.footerAboutText, config.tamilFooterAboutText) }}

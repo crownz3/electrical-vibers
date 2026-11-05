@@ -8,21 +8,34 @@ import { HeaderComponent } from './components/header/header.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { SideCartComponent } from './components/side-cart/side-cart.component';
 import { FloatingWhatsappComponent } from './components/floating-whatsapp/floating-whatsapp.component';
+import { AdminBarComponent } from './components/admin-bar/admin-bar.component';
+import { AdminEditModalComponent } from './components/admin-edit-modal/admin-edit-modal.component';
 import { ThemeService } from './services/theme.service';
 import { CartService } from './services/cart.service';
 import { LoadingService } from './services/loading.service';
+import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   templateUrl: 'app.component.html',
   styleUrls: ['app.component.scss'],
-  imports: [CommonModule, RouterOutlet, HeaderComponent, FooterComponent, SideCartComponent, FloatingWhatsappComponent],
+  imports: [
+    CommonModule, 
+    RouterOutlet, 
+    HeaderComponent, 
+    FooterComponent, 
+    SideCartComponent, 
+    FloatingWhatsappComponent,
+    AdminBarComponent,
+    AdminEditModalComponent
+  ],
 })
 export class AppComponent {
   themeService = inject(ThemeService);
   cartService = inject(CartService);
   loadingService = inject(LoadingService);
+  authService = inject(AuthService);
   router = inject(Router);
   isAdminRoute = false;
 

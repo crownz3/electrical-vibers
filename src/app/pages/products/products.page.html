@@ -23,6 +23,18 @@
   </div>
 
   <div class="container main-content">
+    <!-- Admin Quick Action Toolbar -->
+    <div *ngIf="authService.isAdmin() && quickEditService.showEditMarkers()" style="display: flex; justify-content: space-between; align-items: center; background: rgba(245, 158, 11, 0.1); border: 1px dashed #f59e0b; padding: 10px 16px; border-radius: 10px; margin-bottom: 16px;">
+      <span style="color: #fbbf24; font-size: 0.85rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+        <span class="material-symbols-outlined">admin_panel_settings</span>
+        Admin Product Management (நேரடி தயாரிப்பு மேலாண்மை)
+      </span>
+      <button type="button" class="btn-live-edit-pill" (click)="quickEditService.open('product')">
+        <span class="material-symbols-outlined">add_box</span>
+        <span>+ Add New Product (புதிய தயாரிப்பு சேர்)</span>
+      </button>
+    </div>
+
     <!-- Category Filter Chips -->
     <div class="category-chips-bar">
       <button 
@@ -113,6 +125,16 @@
             <span *ngIf="prod.stock <= 5 && prod.inStock" class="stock-tag low-stock">
               Only {{ prod.stock }} left
             </span>
+          </div>
+
+          <!-- Admin Quick Edit Buttons -->
+          <div *ngIf="authService.isAdmin() && quickEditService.showEditMarkers()" class="card-corner-admin-actions" (click)="$event.stopPropagation()">
+            <button type="button" class="btn-mini-admin-edit" (click)="quickEditService.open('product', prod)" title="Edit product">
+              <span class="material-symbols-outlined">edit</span>
+            </button>
+            <button type="button" class="btn-mini-admin-del" (click)="deleteProduct(prod.id, prod.name)" title="Delete product">
+              <span class="material-symbols-outlined">delete</span>
+            </button>
           </div>
         </div>
 
